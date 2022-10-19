@@ -19,22 +19,32 @@ project "RexEngine"
     location "RexEngine"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
    
     targetdir "bin/%{cfg.buildcfg}-%{cfg.platform}"
     objdir "obj/%{cfg.buildcfg}-%{cfg.platform}/%{prj.name}"
 
+    pchheader "REPch.h"
+    pchsource "%{prj.name}/src/REPch.cpp"
+
     files { 
 		"%{prj.name}/src/**.h", 
-		"%{prj.name}/src/**.cpp" 
+		"%{prj.name}/src/**.cpp",
+        "%{prj.name}/vendor/**.h", 
+		"%{prj.name}/vendor/**.cpp" 
 	}
+
+    includedirs { 
+        "%{prj.name}/src",
+        "%{prj.name}/vendor"
+    }
     
 
 project "RexEditor"
     location "RexEditor"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
 
     links { "RexEngine" }
    
@@ -43,7 +53,10 @@ project "RexEditor"
 
     files { 
 		"%{prj.name}/src/**.h", 
-		"%{prj.name}/src/**.cpp" 
+		"%{prj.name}/src/**.cpp"
 	}
-    
 
+    includedirs { 
+        "RexEngine",
+        "RexEngine/vendor"
+    }
