@@ -42,17 +42,4 @@ namespace RexEngine::Log
 
 	// Print using the fmt syntax
 	#define RE_LOG_ERROR(...) RexEngine::Log::Print(fg(fmt::color::red) | fmt::emphasis::bold, "ERROR", std::source_location::current(), __VA_ARGS__);
-
-
-
-	// Engine Logging
-	#ifdef RE_DEBUG
-		#define RE_LOG_CORE_DEBUG(...) RexEngine::Log::Print(fg(fmt::color::green), "DEBUG", std::source_location::current(), __VA_ARGS__);
-	#else
-		#define RE_LOG_DEBUG(...)
-	#endif
-
-	#define RE_LOG_CORE_INFO(...) RexEngine::Log::Print(fg(fmt::color::gray), "INFO", std::source_location::current(), __VA_ARGS__);
-	#define RE_LOG_CORE_WARN(...) RexEngine::Log::Print(fg(fmt::color::yellow), "WARNING", std::source_location::current(), __VA_ARGS__);
-	#define RE_LOG_CORE_ERROR(...) RexEngine::Log::Print(fg(fmt::color::red) | fmt::emphasis::bold, "ERROR", std::source_location::current(), __VA_ARGS__);
 }
