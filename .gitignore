@@ -1,0 +1,8 @@
+
+#VS2022
+.vs/
+*.vcxproj
+*.vcxproj.user
+*.sln
+bin/
+obj/
