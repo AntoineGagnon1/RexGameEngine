@@ -27,17 +27,29 @@ project "RexEngine"
     pchheader "REPch.h"
     pchsource "%{prj.name}/src/REPch.cpp"
 
+    
     files { 
-		"%{prj.name}/src/**.h", 
+        "%{prj.name}/src/**.h", 
 		"%{prj.name}/src/**.cpp",
+        
         "%{prj.name}/vendor/**.h", 
-		"%{prj.name}/vendor/**.cpp" 
+        "%{prj.name}/vendor/**.hpp",
+        "%{prj.name}/vendor/**.c",
+		"%{prj.name}/vendor/**.cpp"
 	}
-
+    
     includedirs { 
         "%{prj.name}/src",
         "%{prj.name}/vendor"
     }
+    
+	libdirs { "%{prj.name}/vendor/glfw/lib" }
+	links { "glfw3", "opengl32.lib" }
+	
+    -- Disable Pch for c files
+    filter "files:**.c"
+    flags {"NoPCH"}
+    filter {}
     
 
 project "RexEditor"
