@@ -52,10 +52,10 @@ int main()
 
 		RenderApi::ClearColorBit();
 
-		shader.Bind();
-		mesh.Bind();
-		RenderApi::DrawElements(3);
+		RenderQueue::AddCommand(RenderCommand(shader.GetID(), mesh.GetID(), 3));
 
+
+		RenderQueue::ExecuteCommands();
 		win.SwapBuffers();
 		Inputs::PollInputs();
 	}

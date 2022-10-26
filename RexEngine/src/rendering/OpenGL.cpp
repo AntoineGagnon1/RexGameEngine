@@ -165,7 +165,7 @@ namespace RexEngine
 		
 		// Calculate the stride
 		int stride = 0;
-		for (auto type : attributes)
+		for (auto&& type : attributes)
 		{
 			auto [_, count, size] = AttributeTypeToGLType(std::get<0>(type));
 			stride += count * size;

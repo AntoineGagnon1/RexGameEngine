@@ -17,6 +17,7 @@
 // Rendering
 #include "src/rendering/Shader.h"
 #include "src/rendering/Mesh.h"
+#include "src/rendering/RenderQueue.h"
 
 // Window
 #include "src/window/Window.h"

@@ -19,6 +19,8 @@ namespace RexEngine
 
 		void Bind();
 
+		auto GetID() { return m_vertexAttributes; }
+
 	private:
 
 		std::vector<uint8_t> m_vertexData;

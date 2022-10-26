@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 #include <functional>
+#include <algorithm>
 
 #include <tuple>
 #include <ranges>

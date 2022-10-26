@@ -22,7 +22,7 @@ namespace RexEngine
 
 		static Shader FromFile(const std::string& path);
 
-		auto GetId() const { return m_id; }
+		auto GetID() const { return m_id; }
 		bool IsValid() const { return m_id != RenderApi::InvalidShaderID; };
 
 		void Bind() const;
