@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 
 #include "RenderApi.h"
 
@@ -28,12 +29,18 @@ namespace RexEngine
 		void Bind() const;
 		static void UnBind();
 
+		bool HasUniform(const std::string& name) { return m_uniforms.contains(name); }
+
+		void SetUniformMatrix4(const std::string& name, const Matrix4& matrix);
+
 	private:
 
 		static std::tuple<std::string, std::string> ParseShaders(const std::string& data);
 
 	private:
 		RenderApi::ShaderID m_id;
+
+		std::unordered_map<std::string, int> m_uniforms;
 	};
 
 }

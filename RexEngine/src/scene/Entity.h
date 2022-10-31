@@ -17,25 +17,26 @@ namespace RexEngine
 		Entity(entt::registry& registry, entt::entity handle);
 
 	public:
+		Entity() : m_registry(nullptr), m_handle(entt::null), m_guid(Guid::Empty) {}
 		Entity(const Entity& from) = default;
 		
 		// Is the entity valid and has not been deleted ?
-		operator bool();
+		operator bool() const;
 
-		Guid GetGuid();
+		Guid GetGuid() const;
 
 		// TODO : GetTransform
 		// TODO : Get Name
 		
 		template<typename ...Types>
-		bool HasComponents()
+		bool HasComponents() const
 		{
 			AssertValid();
 			return m_registry->all_of<Types...>(m_handle);
 		}
 		
 		template<typename T>
-		bool HasComponent() { return HasComponents<T>(); }
+		bool HasComponent() const { return HasComponents<T>(); }
 		
 		// Will trigger an assert break if the entity already had the component
 		template<typename T, typename ...Args>
@@ -53,9 +54,19 @@ namespace RexEngine
 			return m_registry->get<Types...>(m_handle);
 		}
 
+		template<typename ...Types>
+		decltype(auto) GetComponents() const
+		{
+			RE_ASSERT(HasComponents<Types...>(), "Entity does not have these components !");
+			return m_registry->get<Types...>(m_handle);
+		}
+
 		// Get the component, use HasComponent() to check if the component is there first
 		template<typename T>
 		T& GetComponent() { return GetComponents<T>(); }
+
+		template<typename T>
+		const T& GetComponent() const { return GetComponents<T>(); }
 
 		// Returns true if the component was removed, false otherwise
 		template<typename T>
@@ -81,6 +92,6 @@ namespace RexEngine
 		// will set itself to 0 on deletion
 		Guid m_guid;
 
-		void AssertValid();
+		void AssertValid() const;
 	};
 }

@@ -68,6 +68,6 @@ namespace RexEngine
 		Window* win = (Window*)glfwGetWindowUserPointer(window);
 
 		if (win->m_resizeCallback)
-			win->m_resizeCallback({width, height});
+			win->m_resizeCallback(Vector2Int{width, height});
 	}
 }

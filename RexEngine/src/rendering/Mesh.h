@@ -20,6 +20,8 @@ namespace RexEngine
 		void Bind();
 
 		auto GetID() { return m_vertexAttributes; }
+		size_t GetIndexCount() { return m_indices.size(); }
+
 
 	private:
 

@@ -124,6 +124,33 @@ namespace RexEngine
 		GL_CALL(glUseProgram(id));
 	}
 
+	std::unordered_map<std::string, int> RenderApi::GetShaderUniforms(ShaderID id)
+	{
+		std::unordered_map<std::string, int>  uniforms;
+
+		GLint count;
+		GLint size; // size of the variable
+		GLenum type; // type of the variable (GL_FLOAT, GL_FLOAT_VEC2, ...)
+
+		const GLsizei bufSize = 32;
+		GLchar name[bufSize];
+
+		GL_CALL(glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count));
+
+		for (GLuint i = 0; i < count; i++)
+		{
+			GL_CALL(glGetActiveUniform(id, i, bufSize, NULL, &size, &type, name));
+			uniforms.insert({ name, i });
+		}
+
+		return uniforms;
+	}
+
+	void RenderApi::SetUniformMatrix4(int location, const Matrix4& matrix)
+	{
+		GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]));
+	}
+
 
 
 	RenderApi::BufferID RenderApi::MakeBuffer()
@@ -200,6 +227,14 @@ namespace RexEngine
 	void RenderApi::SetViewportSize(Vector2Int size)
 	{
 		GL_CALL(glViewport(0, 0, size.x, size.y));
+	}
+
+	Vector2Int RenderApi::GetViewportSize()
+	{
+		int viewport[4];
+		GL_CALL(glGetIntegerv(GL_VIEWPORT, viewport));
+
+		return Vector2Int(viewport[2], viewport[3]);
 	}
 
 	void RenderApi::ClearColorBit()

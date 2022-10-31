@@ -2,6 +2,9 @@
 
 #include <string>
 #include <span>
+#include <unordered_map>
+
+#include "../math/Matrix.h"
 
 namespace RexEngine
 {
@@ -21,6 +24,11 @@ namespace RexEngine
 		static ShaderID GetFallbackShader(); // A default all pink shader
 		static void BindShader(ShaderID id);
 
+		// <name, location>, todo : return type
+		static std::unordered_map<std::string, int> GetShaderUniforms(ShaderID id);
+		static void SetUniformMatrix4(int location, const Matrix4& matrix);
+
+		// TODO : get attributes : https://stackoverflow.com/questions/440144/in-opengl-is-there-a-way-to-get-a-list-of-all-uniforms-attribs-used-by-a-shade
 
 		// Buffers
 		typedef unsigned int BufferID;
@@ -50,6 +58,7 @@ namespace RexEngine
 
 		// Viewport
 		static void SetViewportSize(Vector2Int size);
+		static Vector2Int GetViewportSize();
 		static void ClearColorBit(); // TODO : Color
 
 		// Drawing

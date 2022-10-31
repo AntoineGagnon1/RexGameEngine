@@ -46,8 +46,8 @@ project "RexEngine"
 	libdirs { "%{prj.name}/vendor/glfw/lib" }
 	links { "glfw3", "opengl32.lib" }
 	
-    -- Disable Pch for c files
-    filter "files:**.c"
+    -- Disable Pch for vendors
+    filter "files:**/vendor/**.**"
     flags {"NoPCH"}
     filter {}
     

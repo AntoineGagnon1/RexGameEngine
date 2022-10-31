@@ -33,6 +33,9 @@ namespace RexEngine
 
 		if(m_id == RenderApi::InvalidShaderID)
 			m_id = RenderApi::GetFallbackShader(); // Something went wrong
+		
+		// Cache the uniforms
+		m_uniforms = RenderApi::GetShaderUniforms(m_id);
 	}
 
 	Shader::~Shader()
@@ -64,6 +67,13 @@ namespace RexEngine
 	void Shader::UnBind()
 	{
 		RenderApi::BindShader(RenderApi::InvalidShaderID);
+	}
+
+	void Shader::SetUniformMatrix4(const std::string& name, const Matrix4& matrix)
+	{
+		RE_ASSERT(HasUniform(name), "No Matrix4 Uniform called {}", name);
+		Bind();
+		RenderApi::SetUniformMatrix4(m_uniforms[name], matrix);
 	}
 
 

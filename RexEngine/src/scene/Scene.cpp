@@ -19,5 +19,4 @@ namespace RexEngine
 
         m_registry.destroy(e.m_handle);
     }
-
 }

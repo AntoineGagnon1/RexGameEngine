@@ -13,6 +13,7 @@
 #include <queue>
 #include <deque>
 #include <map>
+#include <unordered_map>
 
 #include <string>
 #include <sstream>
@@ -21,5 +22,8 @@
 #include "core/Log.h"
 #include "core/Assert.h"
 #include "core/Guid.h"
+#include "core/Concepts.h"
 
 #include "math/Vectors.h"
+#include "math/Quaternion.h"
+#include "math/Matrix.h"
