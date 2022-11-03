@@ -44,20 +44,21 @@ int main()
 	//	-Output buffer id ? 
 	//	-Textures
 	
-	// TODO : delta time
 	// TODO : mouse inputs
 
-	const float moveSpeed = 0.001f;
+	const float moveSpeed = 1.0f;
 
 	while (!win.ShouldClose())
 	{
+		Time::StartNewFrame();
+
 		if (Inputs::GetAction("Close").IsDown())
 			win.Close();
 
 		auto& transform = camEntity.GetComponent<TransformComponent>();
-		transform.position.z += Inputs::GetAction("MoveForward").GetValue() * moveSpeed;
-		transform.position.x += Inputs::GetAction("MoveRight").GetValue() * moveSpeed;
-		transform.position.y += Inputs::GetAction("MoveUp").GetValue() * moveSpeed;
+		transform.position.z += Inputs::GetAction("MoveForward").GetValue() * moveSpeed * Time::DeltaTime();
+		transform.position.x += Inputs::GetAction("MoveRight").GetValue() * moveSpeed * Time::DeltaTime();
+		transform.position.y += Inputs::GetAction("MoveUp").GetValue() * moveSpeed * Time::DeltaTime();
 
 		RenderApi::ClearColorBit();
 

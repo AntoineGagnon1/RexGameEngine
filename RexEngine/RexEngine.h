@@ -6,6 +6,7 @@
 #include "src/core/Log.h"
 #include "src/core/Assert.h"
 #include "src/core/Guid.h"
+#include "src/core/Time.h"
 
 // Math
 #include "src/math/Vectors.h"
