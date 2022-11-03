@@ -30,3 +30,4 @@
 // Inputs
 #include "src/inputs/Inputs.h"
 #include "src/inputs/Keyboard.h"
+#include "src/inputs/Mouse.h"

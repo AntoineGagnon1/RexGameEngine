@@ -15,7 +15,7 @@ namespace RexEngine
 		Window(const std::string& title, int width, int height);
 		~Window();
 
-		bool ShouldClose();
+		bool ShouldClose() const;
 		void Close();
 		void MakeActive();
 
@@ -24,7 +24,10 @@ namespace RexEngine
 
 		void SetResizeCallback(std::function<void(Vector2Int)> callback);
 
-		GLFWwindow* WindowHandle() { return m_window; }
+		// The size of the window, in pixels
+		Vector2Int GetSize() const;
+
+		GLFWwindow* WindowHandle() const { return m_window; }
 
 
 		static void SetVSync(bool state);

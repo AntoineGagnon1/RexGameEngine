@@ -19,7 +19,7 @@ namespace RexEngine
 
 		// Projection matrix
 		auto viewport = RenderApi::GetViewportSize();
-		auto projectionMatrix = Matrix4::MakePerspective(camera.fov, viewport.x / viewport.y, camera.zNear, camera.zFar);
+		auto projectionMatrix = Matrix4::MakePerspective(camera.fov, (float)viewport.x / (float)viewport.y, camera.zNear, camera.zFar);
 
 		// Update the scene data for the uniform blocks
 		SceneDataUniforms newSceneData;

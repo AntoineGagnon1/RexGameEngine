@@ -20,7 +20,10 @@ int main()
 	Inputs::AddAction("MoveForward").AddBinding<KeyboardInput>(KeyCode::W, KeyCode::S);
 	Inputs::AddAction("MoveRight").AddBinding<KeyboardInput>(KeyCode::D, KeyCode::A);
 	Inputs::AddAction("MoveUp").AddBinding<KeyboardInput>(KeyCode::Space, KeyCode::LeftShift);
+	Inputs::AddAction("LookRight").AddBinding<MouseInput>(MouseInputType::DeltaX);
+	Inputs::AddAction("LookUp").AddBinding<MouseInput>(MouseInputType::DeltaY);
 
+	Cursor::SetCursorMode(CursorMode::Locked);
 
 	auto shader = Shader::FromFile("assets/TestShader.shader");
 	
@@ -44,9 +47,9 @@ int main()
 	//	-Output buffer id ? 
 	//	-Textures
 	
-	// TODO : mouse inputs
 
 	const float moveSpeed = 1.0f;
+	const float rotationSpeed = 8000.0f;
 
 	while (!win.ShouldClose())
 	{
@@ -59,6 +62,12 @@ int main()
 		transform.position.z += Inputs::GetAction("MoveForward").GetValue() * moveSpeed * Time::DeltaTime();
 		transform.position.x += Inputs::GetAction("MoveRight").GetValue() * moveSpeed * Time::DeltaTime();
 		transform.position.y += Inputs::GetAction("MoveUp").GetValue() * moveSpeed * Time::DeltaTime();
+
+		// Pitch is multiplied to the right and Yaw to the left
+		transform.rotation *= Quaternion::AngleAxis(rotationSpeed * -Inputs::GetAction("LookUp").GetValue() * Time::DeltaTime(), Directions::Right);
+		transform.rotation = Quaternion::AngleAxis(rotationSpeed * -Inputs::GetAction("LookRight").GetValue() * Time::DeltaTime(), Directions::Up) * transform.rotation;
+
+		transform.rotation = transform.rotation.Normalized(); // TODO : transform.rotation.Rotate(angle, axis) with auto normalization
 
 		RenderApi::ClearColorBit();
 

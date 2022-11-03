@@ -30,7 +30,7 @@ namespace RexEngine
 			s_activeWindow = nullptr;
 	}
 
-	bool Window::ShouldClose()
+	bool Window::ShouldClose() const
 	{
 		return glfwWindowShouldClose(m_window);
 	}
@@ -54,6 +54,13 @@ namespace RexEngine
 	void Window::SetResizeCallback(std::function<void(Vector2Int)> callback)
 	{
 		m_resizeCallback = callback;
+	}
+
+	Vector2Int Window::GetSize() const
+	{
+		Vector2Int size;
+		glfwGetFramebufferSize(m_window, &size.x, &size.y);
+		return size;
 	}
 
 	void Window::SetVSync(bool state)
