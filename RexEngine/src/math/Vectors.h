@@ -6,7 +6,7 @@
 #include <glm/vec4.hpp>
 #include <glm/geometric.hpp>
 
-#include "../core/Concepts.h"
+#include "../utils/Concepts.h"
 
 
 namespace RexEngine
@@ -74,4 +74,17 @@ namespace RexEngine
 	
 	using Vector4 = Vector<float, 4>;
 	using Vector4Int = Vector<int, 4>;
+
+	class Directions
+	{
+	public:
+		inline static Vector3 Up = Vector3(0,1,0);
+		inline static Vector3 Down = Vector3(0,-1,0);
+
+		inline static Vector3 Right = Vector3(1,0,0);
+		inline static Vector3 Left = Vector3(-1,0,0);
+		
+		inline static Vector3 Forward = Vector3(0,0,1);
+		inline static Vector3 Backward = Vector3(0,0,-1);
+	};
 }

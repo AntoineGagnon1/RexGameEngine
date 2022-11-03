@@ -77,13 +77,20 @@ namespace RexEngine
 	}
 
 
+	void Shader::RegisterParserUsing(const std::string& name, const std::string& replaceWith)
+	{
+		RE_ASSERT(!s_parserUsings.contains(name), "Shader parser #pragma using {} was already defined !", name)
+		s_parserUsings.insert({name, replaceWith});
+	}
+
+
 	std::tuple<std::string, std::string> Shader::ParseShaders(const std::string& data)
 	{
 		std::istringstream fromStream(data);
 		std::ostringstream vertexStream;
 		std::ostringstream fragmentStream;
 
-		std::string version = "#version 330 core"; // default version if not specified
+		std::string version = "#version 420 core"; // default version if not specified
 
 		std::string line;
 		std::ostringstream* writingTo = &vertexStream;
@@ -91,14 +98,29 @@ namespace RexEngine
 		{	
 			if (line.find("#pragma") != std::string::npos) // A directive
 			{
-				if (line.find("vertex") != std::string::npos) // Start of the vertex shader
+				auto arguments = StringHelper::Split(line, ' ');
+				if (arguments.size() <= 1)
+					continue; // No arguments
+
+				if (arguments[1] == "vertex") // Start of the vertex shader
 					writingTo = &vertexStream;
-				else if (line.find("fragment") != std::string::npos) // Start of the fragment shader
+				else if (arguments[1] == "fragment") // Start of the fragment shader
 					writingTo = &fragmentStream;
-				else if (line.find("version") != std::string::npos)
+				else if (arguments[1] == "version")
 				{
 					ReplaceIfFound(line, "#pragma ", "#"); // Convert #pragma version ... ... to #version ... ...
 					version = line;
+				}
+				else if (arguments[1] == "using" && arguments.size() >= 3)
+				{
+					if(!s_parserUsings.contains(arguments[2]))
+					{ 
+						RE_LOG_ERROR("Shader parser error : #pragma using {}", arguments[2]);
+					}
+					else
+					{
+						(*writingTo) << s_parserUsings[arguments[2]] << std::endl;
+					}
 				}
 
 				continue;

@@ -57,7 +57,7 @@ namespace RexEngine
 		std::sort(m_renderCommands.begin(), m_renderCommands.end());
 
 		// Used to detect state changes
-		RenderCommand tempCommand{RenderApi::InvalidShaderID, RenderApi::InvalidBufferID, 0, 0};
+		RenderCommand tempCommand{RenderApi::InvalidShaderID, RenderApi::InvalidBufferID, 0, Matrix4::Identity, 0};
 		
 		// Execute the commands
 		for (auto&& command : m_renderCommands)
@@ -74,10 +74,28 @@ namespace RexEngine
 				RenderApi::BindVertexAttributes(command.vertexData);
 			}
 
-			// Already filtered by command.priority
+			// Update the model data
+			ModelUniforms modelData;
+			modelData.modelMatrix = command.modelMatrix;
+			RenderApi::SubBufferData(GetModelUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(ModelUniforms), &modelData);
+
 			RenderApi::DrawElements(command.indiceCount);
 		}
 
 		m_renderCommands.clear();
+	}
+
+	RenderApi::BufferID RenderQueue::GetModelUniforms()
+	{
+		static RenderApi::BufferID uniforms = []() {
+			auto buf = RenderApi::MakeBuffer();
+			auto data = ModelUniforms();
+			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(ModelUniforms));
+			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 2);
+
+			return buf;
+		}();
+
+		return uniforms;
 	}
 }

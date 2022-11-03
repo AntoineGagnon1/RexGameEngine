@@ -21,9 +21,9 @@ namespace RexEngine
 
 	struct TransformComponent
 	{
-		Vector3 position;
-		Vector3 scale;
-		Quaternion rotation;
+		Vector3 position = Vector3(0,0,0);
+		Vector3 scale = Vector3(1,1,1);
+		Quaternion rotation = Quaternion(0,0,0,1);
 
 		Entity parent;
 

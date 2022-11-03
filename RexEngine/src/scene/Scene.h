@@ -22,9 +22,16 @@ namespace RexEngine
 
 		// Usage : for(auto&&[entity, component] : GetComponents<T>())
 		template<typename T>
-		decltype(auto) GetComponents()
+		std::vector<std::pair<Entity, T&>> GetComponents()
 		{
-			return m_registry.view<T>().each();
+			std::vector<std::pair<Entity, T&>> result;
+			auto view = m_registry.view<T>();
+			for (auto entity : view)
+			{
+				result.push_back(std::pair<Entity, T&>{ Entity(m_registry, entity), view.get<T>(entity)});
+			}
+
+			return result;
 		}
 
 	private:

@@ -16,6 +16,12 @@ int main()
 	});
 
 
+	Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
+	Inputs::AddAction("MoveForward").AddBinding<KeyboardInput>(KeyCode::W, KeyCode::S);
+	Inputs::AddAction("MoveRight").AddBinding<KeyboardInput>(KeyCode::D, KeyCode::A);
+	Inputs::AddAction("MoveUp").AddBinding<KeyboardInput>(KeyCode::Space, KeyCode::LeftShift);
+
+
 	auto shader = Shader::FromFile("assets/TestShader.shader");
 	
 	std::vector<Vector3> vertices = { Vector3{-0.75f,-0.75f,1}, Vector3{0,0.75f,1}, Vector3{0.75f,-0.75f,1} };
@@ -32,14 +38,26 @@ int main()
 	auto camEntity = scene.CreateEntity();
 	auto& cam = camEntity.AddComponent<CameraComponent>();
 	auto& camTransform = camEntity.AddComponent<TransformComponent>();
-	camTransform.position.z = -1;
+	camTransform.position.z = -3;
 
-	Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
+	// TODO : In RenderQueue
+	//	-Output buffer id ? 
+	//	-Textures
 	
+	// TODO : delta time
+	// TODO : mouse inputs
+
+	const float moveSpeed = 0.001f;
+
 	while (!win.ShouldClose())
 	{
 		if (Inputs::GetAction("Close").IsDown())
 			win.Close();
+
+		auto& transform = camEntity.GetComponent<TransformComponent>();
+		transform.position.z += Inputs::GetAction("MoveForward").GetValue() * moveSpeed;
+		transform.position.x += Inputs::GetAction("MoveRight").GetValue() * moveSpeed;
+		transform.position.y += Inputs::GetAction("MoveUp").GetValue() * moveSpeed;
 
 		RenderApi::ClearColorBit();
 

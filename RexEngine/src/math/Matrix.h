@@ -8,7 +8,7 @@
 
 #include "Vectors.h"
 #include "Quaternion.h"
-#include "../core/Concepts.h"
+#include "../utils/Concepts.h"
 
 namespace RexEngine
 {
@@ -42,10 +42,10 @@ namespace RexEngine
 
 		inline static MatType MakeTransform(const Vector3& translate, const Quaternion& rotation, const Vector3& scale) requires IsEqual<Size, 4>
 		{
-			return glm::translate(Identity, translate) * glm::mat4_cast(rotation) * glm::scale(Identity, translate);
+			return glm::translate(glm::mat4(1.0f), translate) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
 		}
 
-		// fov in degrees, aspect is y/x
+		// fov in degrees, aspect is x/y
 		inline static MatType MakePerspective(float fov, float aspect, float zNear, float zFar) requires IsEqual<Size, 4>
 		{
 			return glm::perspective(glm::radians(fov), aspect, zNear, zFar);

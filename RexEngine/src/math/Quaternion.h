@@ -13,7 +13,7 @@ namespace RexEngine
 		constexpr Quaternion() = default;
 		constexpr Quaternion(const GlmType& from) : GlmType(from) {}
 		constexpr Quaternion(const Quaternion& from) = default;
-		explicit constexpr Quaternion(float x, float y, float z, float w) : GlmType(x, y, z, w) {}
+		explicit constexpr Quaternion(float x, float y, float z, float w) : GlmType(w, x, y, z) {}
 		explicit constexpr Quaternion(float scalar, Vector3 axis) : GlmType(scalar, axis) {}
 
 		// TODO : static FromEuler(vec3)

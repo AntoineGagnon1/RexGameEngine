@@ -13,6 +13,8 @@ namespace {
 			return GL_ARRAY_BUFFER;
 		case RexEngine::RenderApi::BufferType::Indice:
 			return GL_ELEMENT_ARRAY_BUFFER;
+		case RexEngine::RenderApi::BufferType::Uniforms:
+			return GL_UNIFORM_BUFFER;
 		}
 
 		return 0;
@@ -174,6 +176,17 @@ namespace RexEngine
 	{
 		BindBuffer(id, type);
 		GL_CALL(glBufferData(BufferTypeToGLType(type), length, data, mode == BufferMode::Static ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+	}
+
+	void RenderApi::SubBufferData(BufferID id, BufferType type, size_t offset, size_t size, const void* data)
+	{
+		BindBuffer(id, type);
+		GL_CALL(glBufferSubData(BufferTypeToGLType(type), offset, size, data));
+	}
+
+	void RenderApi::BindBufferBase(BufferID id, BufferType type, int location)
+	{
+		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, location, id));
 	}
 
 

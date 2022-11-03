@@ -33,7 +33,7 @@ namespace RexEngine
 		// Buffers
 		typedef unsigned int BufferID;
 		inline static constexpr BufferID InvalidBufferID = 0;
-		enum class BufferType { Vertex, Indice };
+		enum class BufferType { Vertex, Indice, Uniforms };
 		enum class BufferMode { Static, Dynamic };
 
 		static BufferID MakeBuffer();
@@ -46,6 +46,9 @@ namespace RexEngine
 		{ 
 			SetBufferData(id, type, mode, (uint8_t*)data.data(), data.size_bytes());
 		}
+
+		static void SubBufferData(BufferID id, BufferType type, size_t offset, size_t size, const void* data);
+		static void BindBufferBase(BufferID id, BufferType type, int location);
 
 		// Vertex Attributes
 		typedef unsigned int VertexAttribID;

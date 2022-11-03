@@ -16,6 +16,7 @@ workspace "RexGameEngine"
 
 
 project "RexEngine"
+	defines {"GLM_FORCE_LEFT_HANDED"}
     location "RexEngine"
     kind "StaticLib"
     language "C++"

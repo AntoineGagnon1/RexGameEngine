@@ -22,7 +22,9 @@
 #include "core/Log.h"
 #include "core/Assert.h"
 #include "core/Guid.h"
-#include "core/Concepts.h"
+
+#include "utils/Concepts.h"
+#include "utils/StringHelper.h"
 
 #include "math/Vectors.h"
 #include "math/Quaternion.h"
