@@ -27,6 +27,13 @@ namespace RexEngine
 
 		Entity parent;
 
+		// Local
+		Vector3 Forward() const { return rotation.RotateVector(Directions::Forward); }
+		// Local
+		Vector3 Up() const { return rotation.RotateVector(Directions::Up); }
+		// Local
+		Vector3 Right() const { return rotation.RotateVector(Directions::Right); }
+
 		Matrix4 GetTransform() const
 		{
 			return Matrix4::MakeTransform(position, rotation, scale);

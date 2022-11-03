@@ -63,6 +63,8 @@ namespace RexEngine
 			return glm::cross((*this), rhs);
 		}
 
+		// You probably want Magnitude()
+		static int length() = delete;
 		operator GlmType() const { return *this; }
 	};
 

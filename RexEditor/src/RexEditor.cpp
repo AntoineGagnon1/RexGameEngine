@@ -49,7 +49,7 @@ int main()
 	
 
 	const float moveSpeed = 1.0f;
-	const float rotationSpeed = 8000.0f;
+	const float rotationSpeed = 40000.0f;
 
 	while (!win.ShouldClose())
 	{
@@ -59,15 +59,15 @@ int main()
 			win.Close();
 
 		auto& transform = camEntity.GetComponent<TransformComponent>();
-		transform.position.z += Inputs::GetAction("MoveForward").GetValue() * moveSpeed * Time::DeltaTime();
-		transform.position.x += Inputs::GetAction("MoveRight").GetValue() * moveSpeed * Time::DeltaTime();
+		transform.position += transform.Forward() * (Inputs::GetAction("MoveForward").GetValue() * moveSpeed * Time::DeltaTime());
+		transform.position += transform.Right() * (Inputs::GetAction("MoveRight").GetValue() * moveSpeed * Time::DeltaTime());
 		transform.position.y += Inputs::GetAction("MoveUp").GetValue() * moveSpeed * Time::DeltaTime();
 
 		// Pitch is multiplied to the right and Yaw to the left
 		transform.rotation *= Quaternion::AngleAxis(rotationSpeed * -Inputs::GetAction("LookUp").GetValue() * Time::DeltaTime(), Directions::Right);
 		transform.rotation = Quaternion::AngleAxis(rotationSpeed * -Inputs::GetAction("LookRight").GetValue() * Time::DeltaTime(), Directions::Up) * transform.rotation;
 
-		transform.rotation = transform.rotation.Normalized(); // TODO : transform.rotation.Rotate(angle, axis) with auto normalization
+		transform.rotation.Normalize(); // TODO : transform.rotation.Rotate(angle, axis) with auto normalization
 
 		RenderApi::ClearColorBit();
 

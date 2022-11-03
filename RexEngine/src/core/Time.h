@@ -9,7 +9,7 @@ namespace RexEngine
 	public:
 
 		// Delta time in seconds
-		inline static double DeltaTime()
+		inline static float DeltaTime()
 		{
 			using std::chrono_literals::operator""s;
 			return deltaTime / 1.0s;

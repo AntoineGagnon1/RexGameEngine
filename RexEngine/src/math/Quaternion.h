@@ -38,6 +38,17 @@ namespace RexEngine
 		{
 			return glm::normalize((GlmType)*this);
 		}
+		
+		void Normalize()
+		{
+			*this /= Magnitude();
+		}
+
+		// Rotate a vector by a quaternion
+		Vector3 RotateVector(const Vector3& toRotate) const
+		{
+			return glm::rotate(glm::inverse(glm::normalize(*this)), toRotate);
+		}
 
 
 		// Member operators need to defined
