@@ -24,7 +24,7 @@ namespace RexEngine
 		
 		// Size specific constructors
 		template<typename ...Args>
-		constexpr explicit Vector(Args&&... args) : GlmType(args...) {}
+		constexpr Vector(Args&&... args) : GlmType(args...) {}
 
 		// Vector 3
 		constexpr explicit Vector(Vector<T, 2> xy, T z) requires IsEqual<Size, 3> : GlmType(xy, z) {}

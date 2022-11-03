@@ -9,6 +9,7 @@
 #include "src/core/Time.h"
 
 // Math
+#include "src/math/Scalar.h"
 #include "src/math/Vectors.h"
 #include "src/math/Quaternion.h"
 #include "src/math/Matrix.h"

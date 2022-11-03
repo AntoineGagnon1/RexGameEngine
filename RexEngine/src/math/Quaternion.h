@@ -44,6 +44,12 @@ namespace RexEngine
 			*this /= Magnitude();
 		}
 
+		// Angle in degrees
+		void Rotate(float angle, Vector3 axis)
+		{
+			(*this) *= AngleAxis(angle, axis);
+		}
+
 		// Rotate a vector by a quaternion
 		Vector3 RotateVector(const Vector3& toRotate) const
 		{
