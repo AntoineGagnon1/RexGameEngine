@@ -14,9 +14,8 @@ namespace RexEngine
 {
 
 	Shader::Shader(const std::string& data)
+		: m_id(RenderApi::InvalidShaderID)
 	{
-		m_id = RenderApi::InvalidShaderID;
-
 		// Parse the data to extract the shaders
 		auto [vertexSource, fragmentSource] = ParseShaders(data);
 		

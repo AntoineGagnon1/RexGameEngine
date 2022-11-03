@@ -38,7 +38,7 @@ namespace RexEngine
 			}
 
 
-			RenderQueue::AddCommand(RenderCommand(c.shader->GetID(), c.mesh->GetID(), c.mesh->GetIndexCount(), modelMatrix, c.priority));
+			RenderQueue::AddCommand(RenderCommand(c.shader->GetID(), c.mesh->GetID(), c.mesh->GetIndexCount(), modelMatrix, c.cullingMode, c.priority));
 		}
 
 		// Execute the render queue to actually render the objects on the screen

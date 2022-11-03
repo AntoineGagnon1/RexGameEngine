@@ -9,20 +9,20 @@ namespace RexEngine
 {
 	struct RenderCommand
 	{
-		// TODO : use smaller types
-		RenderApi::ShaderID shader;
+		Matrix4 modelMatrix;
+		size_t indiceCount; // How many indices to draw
+		
+		RenderApi::ShaderID shader; // TODO : use smaller types ?
 		RenderApi::VertexAttribID vertexData;
 		unsigned char priority;
-
+		RenderApi::CullingMode cullingMode; // Not sorted
 		// TODO :
 		// Output buffer id
 		// Textures
 
-		size_t indiceCount; // How many indices to draw
-		Matrix4 modelMatrix;
 
-		RenderCommand(RenderApi::ShaderID shader, RenderApi::VertexAttribID vertexData, size_t indiceCount, Matrix4 modelMatrix, unsigned char priority = 0)
-			: shader(shader), vertexData(vertexData), priority(priority), indiceCount(indiceCount), modelMatrix(modelMatrix)
+		RenderCommand(RenderApi::ShaderID shader, RenderApi::VertexAttribID vertexData, size_t indiceCount, Matrix4 modelMatrix, RenderApi::CullingMode cullingMode, unsigned char priority = 0)
+			: shader(shader), vertexData(vertexData), priority(priority), indiceCount(indiceCount), modelMatrix(modelMatrix), cullingMode(cullingMode)
 		{ }
 
 

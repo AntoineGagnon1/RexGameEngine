@@ -3,6 +3,8 @@
 
 #include "window/Window.h"
 
+#include "rendering/RenderApi.h"
+
 namespace RexEngine
 {
 	Libs::Libs()
@@ -22,6 +24,9 @@ namespace RexEngine
 		// GLAD
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			RE_LOG_ERROR("Could not init glad !");
+
+		// Enable face culling
+		RenderApi::Init();
 	}
 
 	Libs::~Libs()

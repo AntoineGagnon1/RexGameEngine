@@ -12,6 +12,9 @@ namespace RexEngine
 	{
 	public:
 
+		// Init, will be called by Libs.cpp automatically
+		static void Init();
+
 		// Shaders
 		typedef unsigned int ShaderID;
 		inline static constexpr ShaderID InvalidShaderID = 0;
@@ -63,9 +66,14 @@ namespace RexEngine
 		static void SetViewportSize(Vector2Int size);
 		static Vector2Int GetViewportSize();
 		static void ClearColorBit(); // TODO : Color
+		static void ClearDepthBit();
 
 		// Drawing
 		// Needs a shader and a VertexAttribute to be bound first
 		static void DrawElements(size_t count);
+
+		// Culling
+		enum class CullingMode : unsigned char { Front /*Will show front faces only*/, Back /*Will show back faces only*/, Both /*Will show all faces*/ };
+		static void SetCullingMode(CullingMode mode);
 	};
 }

@@ -57,7 +57,8 @@ namespace RexEngine
 		std::sort(m_renderCommands.begin(), m_renderCommands.end());
 
 		// Used to detect state changes
-		RenderCommand tempCommand{RenderApi::InvalidShaderID, RenderApi::InvalidBufferID, 0, Matrix4::Identity, 0};
+		RenderCommand tempCommand{RenderApi::InvalidShaderID, RenderApi::InvalidBufferID, 0, Matrix4::Identity, RenderApi::CullingMode::Front, 0};
+		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
 		
 		// Execute the commands
 		for (auto&& command : m_renderCommands)
@@ -72,6 +73,12 @@ namespace RexEngine
 			{ // The vertex data changed
 				tempCommand.vertexData = command.vertexData;
 				RenderApi::BindVertexAttributes(command.vertexData);
+			}
+
+			if (command.cullingMode != tempCommand.cullingMode)
+			{
+				tempCommand.cullingMode = command.cullingMode;
+				RenderApi::SetCullingMode(command.cullingMode);
 			}
 
 			// Update the model data

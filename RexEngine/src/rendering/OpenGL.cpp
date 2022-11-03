@@ -4,6 +4,7 @@
 
 #include "core/Libs.h"
 
+
 namespace {
 	unsigned int BufferTypeToGLType(RexEngine::RenderApi::BufferType type)
 	{
@@ -53,6 +54,17 @@ namespace {
 
 namespace RexEngine
 {
+	void RenderApi::Init()
+	{
+		GL_CALL(glEnable(GL_DEPTH_TEST));
+		GL_CALL(glDepthFunc(GL_GEQUAL));
+		GL_CALL(glClearDepth(0.0f)); // 0 is far, 1 is close
+
+		GL_CALL(glFrontFace(GL_CW));
+	}
+
+
+
 	RenderApi::ShaderID RenderApi::CompileShader(const std::string& source, ShaderType type)
 	{
 		static constexpr unsigned int TypeToGLType[]{ GL_VERTEX_SHADER, GL_FRAGMENT_SHADER };
@@ -255,8 +267,33 @@ namespace RexEngine
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
+	void RenderApi::ClearDepthBit()
+	{
+		GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+	}
+
 	void RenderApi::DrawElements(size_t count)
 	{
 		GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0));
+	}
+
+
+	void RenderApi::SetCullingMode(CullingMode mode)
+	{
+		switch (mode)
+		{
+		case RexEngine::RenderApi::CullingMode::Front:
+			GL_CALL(glEnable(GL_CULL_FACE));
+			GL_CALL(glCullFace(GL_BACK)); // Inverted because we want to keep the front face
+			break;
+		case RexEngine::RenderApi::CullingMode::Back:
+			GL_CALL(glEnable(GL_CULL_FACE));
+			GL_CALL(glCullFace(GL_FRONT));
+			break;
+		case RexEngine::RenderApi::CullingMode::Both:
+			GL_CALL(glDisable(GL_CULL_FACE));
+			break;
+		}
+		
 	}
 }

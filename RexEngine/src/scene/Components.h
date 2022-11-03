@@ -16,6 +16,7 @@ namespace RexEngine
 	{
 		std::shared_ptr<Shader> shader;
 		std::shared_ptr<Mesh> mesh;
+		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
 		unsigned char priority = 0;
 	};
 
