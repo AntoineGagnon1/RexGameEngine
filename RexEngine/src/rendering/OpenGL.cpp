@@ -57,8 +57,6 @@ namespace RexEngine
 	void RenderApi::Init()
 	{
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-		GL_CALL(glDepthFunc(GL_GEQUAL));
-		GL_CALL(glClearDepth(0.0f)); // 0 is far, 1 is close
 
 		GL_CALL(glFrontFace(GL_CW));
 	}
@@ -154,7 +152,8 @@ namespace RexEngine
 		for (GLuint i = 0; i < count; i++)
 		{
 			GL_CALL(glGetActiveUniform(id, i, bufSize, NULL, &size, &type, name));
-			uniforms.insert({ name, i });
+			int index = GL_CALL(glGetUniformLocation(id, name));
+			uniforms.insert({ name, index });
 		}
 
 		return uniforms;
@@ -165,6 +164,15 @@ namespace RexEngine
 		GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]));
 	}
 
+	void RenderApi::SetUniformVector3(int location, const Vector3& vec)
+	{
+		GL_CALL(glUniform3fv(location, 1, &vec[0]));
+	}
+
+	void RenderApi::SetUniformFloat(int location, float value)
+	{
+		GL_CALL(glUniform1f(location, value));
+	}
 
 
 	RenderApi::BufferID RenderApi::MakeBuffer()

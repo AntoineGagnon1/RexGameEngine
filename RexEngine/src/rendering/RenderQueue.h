@@ -34,7 +34,7 @@ namespace RexEngine
 	public:
 		struct ModelUniforms
 		{
-			Matrix4 modelMatrix;
+			Matrix4 modelToWorld;
 
 		private:
 			// Only used to register to the shader parser, see definition at the bottom of the file
@@ -55,7 +55,7 @@ namespace RexEngine
 
 	inline int RenderQueue::ModelUniforms::RegisterParser = []
 	{
-		Shader::RegisterParserUsing("ModelData", "layout (std140, binding = 2) uniform ModelData{ mat4 modelMatrix; }; ");
+		Shader::RegisterParserUsing("ModelData", "layout (std140, binding = 2) uniform ModelData{ mat4 modelToWorld; }; ");
 		return 0;
 	}();
 }

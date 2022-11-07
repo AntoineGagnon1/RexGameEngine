@@ -75,6 +75,19 @@ namespace RexEngine
 		RenderApi::SetUniformMatrix4(m_uniforms[name], matrix);
 	}
 
+	void Shader::SetUniformVector3(const std::string& name, const Vector3& vec)
+	{
+		RE_ASSERT(HasUniform(name), "No Vector3 Uniform called {}", name);
+		Bind();
+		RenderApi::SetUniformVector3(m_uniforms[name], vec);
+	}
+
+	void Shader::SetUniformFloat(const std::string& name, float value)
+	{
+		RE_ASSERT(HasUniform(name), "No Float Uniform called {}", name);
+		Bind();
+		RenderApi::SetUniformFloat(m_uniforms[name], value);
+	}
 
 	void Shader::RegisterParserUsing(const std::string& name, const std::string& replaceWith)
 	{
@@ -95,7 +108,8 @@ namespace RexEngine
 		std::ostringstream* writingTo = &vertexStream;
 		while (std::getline(fromStream, line)) 
 		{	
-			if (line.find("#pragma") != std::string::npos) // A directive
+			
+			if (line.starts_with("#pragma")) // A directive
 			{
 				auto arguments = StringHelper::Split(line, ' ');
 				if (arguments.size() <= 1)

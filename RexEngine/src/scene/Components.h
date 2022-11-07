@@ -7,6 +7,7 @@
 #include "../math/Vectors.h"
 #include "../math/Quaternion.h"
 #include "../math/Matrix.h"
+#include "../core/Color.h"
 
 #include "Entity.h"
 
@@ -53,7 +54,7 @@ namespace RexEngine
 	struct CameraComponent
 	{
 		float fov = 70.0f;
-		float zNear = 0.001f;
+		float zNear = 0.1f;
 		float zFar = 100.0f;
 	};
 }

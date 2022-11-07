@@ -30,6 +30,8 @@ namespace RexEngine
 		// <name, location>, todo : return type
 		static std::unordered_map<std::string, int> GetShaderUniforms(ShaderID id);
 		static void SetUniformMatrix4(int location, const Matrix4& matrix);
+		static void SetUniformVector3(int location, const Vector3& vec);
+		static void SetUniformFloat(int location, float value);
 
 		// TODO : get attributes : https://stackoverflow.com/questions/440144/in-opengl-is-there-a-way-to-get-a-list-of-all-uniforms-attribs-used-by-a-shade
 

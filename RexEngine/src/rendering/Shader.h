@@ -10,7 +10,7 @@ namespace RexEngine
 	// Uniform blocks
 	// 1 : Scene data (forwardRenderer)
 	// 2 : Model data (renderQueue)
-
+	// 3 : Lighting
 
 	class Shader
 	{
@@ -36,6 +36,8 @@ namespace RexEngine
 		bool HasUniform(const std::string& name) { return m_uniforms.contains(name); }
 
 		void SetUniformMatrix4(const std::string& name, const Matrix4& matrix);
+		void SetUniformVector3(const std::string& name, const Vector3& vec);
+		void SetUniformFloat(const std::string& name, float value);
 
 		// Register a #pragma using clause for the shader parser
 		static void RegisterParserUsing(const std::string& name, const std::string& replaceWith);

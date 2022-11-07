@@ -40,6 +40,17 @@ namespace RexEngine
 			return {translation, glm::conjugate(rotation), scale}; // The rotation returned by glm is inverted for some reason
 		}
 
+		MatType Inversed() const
+		{
+			return glm::inverse(*this);
+		}
+
+		MatType Transposed() const
+		{
+			return glm::transpose(*this);
+		}
+
+
 		inline static MatType MakeTransform(const Vector3& translate, const Quaternion& rotation, const Vector3& scale) requires IsEqual<Size, 4>
 		{
 			return glm::translate(glm::mat4(1.0f), translate) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);

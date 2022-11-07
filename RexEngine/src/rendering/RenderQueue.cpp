@@ -82,8 +82,8 @@ namespace RexEngine
 			}
 
 			// Update the model data
-			ModelUniforms modelData;
-			modelData.modelMatrix = command.modelMatrix;
+			//Matrix3 normalMatrix = Matrix3(command.modelMatrix.Inversed().Transposed()); // Model to world Normals matrix
+			ModelUniforms modelData {command.modelMatrix };
 			RenderApi::SubBufferData(GetModelUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(ModelUniforms), &modelData);
 
 			RenderApi::DrawElements(command.indiceCount);

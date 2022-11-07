@@ -21,21 +21,22 @@ namespace RexEngine
 		auto viewport = RenderApi::GetViewportSize();
 		auto projectionMatrix = Matrix4::MakePerspective(camera.fov, (float)viewport.x / (float)viewport.y, camera.zNear, camera.zFar);
 
+
 		// Update the scene data for the uniform blocks
-		SceneDataUniforms newSceneData;
-		newSceneData.viewMatrix = viewMatrix;
-		newSceneData.projectionMatrix = projectionMatrix;
+ 		SceneDataUniforms newSceneData{viewMatrix, projectionMatrix, cameraPos};
 		RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
+		
+		// Update the lighting data
+		LightingUniforms newLighting{ Vector3(0,0, -3), 0.0f, Vector3(1.0f,1.0f,1.0f)}; // Manually set a white light at 0,0,-3
+		RenderApi::SubBufferData(GetLightingUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(LightingUniforms), &newLighting);
+
 
 		// Draw objects (put them in the RenderQueue)
 		for (auto&& [e, c] : scene.GetComponents<MeshRendererComponent>())
 		{
 			Matrix4 modelMatrix = Matrix4::Identity;
 			if (e.HasComponent<TransformComponent>())
-			{
-				// Bind the model matrix
-				auto modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
-			}
+ 				modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform(); // Use the transform of the object
 
 
 			RenderQueue::AddCommand(RenderCommand(c.shader->GetID(), c.mesh->GetID(), c.mesh->GetIndexCount(), modelMatrix, c.cullingMode, c.priority));
@@ -53,6 +54,20 @@ namespace RexEngine
 			auto data = SceneDataUniforms();
 			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(SceneDataUniforms));
 			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 1);
+
+			return buf;
+		}();
+
+		return uniforms;
+	}
+
+	RenderApi::BufferID ForwardRenderer::GetLightingUniforms()
+	{
+		static RenderApi::BufferID uniforms = []() {
+			auto buf = RenderApi::MakeBuffer();
+			auto data = LightingUniforms();
+			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(LightingUniforms));
+			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 3);
 
 			return buf;
 		}();

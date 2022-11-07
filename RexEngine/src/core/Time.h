@@ -13,6 +13,7 @@ namespace RexEngine
 		{
 			using std::chrono_literals::operator""s;
 			return deltaTime / 1.0s;
+			std::string test = "123123";
 		}
 
 		// Call this once at the start of every frame
