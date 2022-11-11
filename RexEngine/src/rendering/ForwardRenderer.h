@@ -3,10 +3,6 @@
 #include "../scene/Scene.h"
 #include "../scene/Components.h"
 
-#include "../core/Color.h"
-
-#include "../rendering/Mesh.h"
-
 
 namespace RexEngine
 {

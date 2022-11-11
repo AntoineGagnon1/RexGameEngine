@@ -27,7 +27,13 @@ namespace RexEngine
 	{
 		m_id = RenderApi::MakeTexture(target, gpuFormat, m_size, data, dataFormat, dataType);
 
-		SetDefaultOptions();
+		// Default texture options
+		using Option = RenderApi::TextureOption;
+		using Value = RenderApi::TextureOptionValue;
+		SetOption(Option::WrapS, Value::Repeat);
+		SetOption(Option::WrapT, Value::Repeat);
+		SetOption(Option::MinFilter, Value::Linear);
+		SetOption(Option::MagFilter, Value::Linear);
 	}
 
 	Texture::~Texture()
@@ -74,17 +80,6 @@ namespace RexEngine
 	void Texture::SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value)
 	{
 		RenderApi::SetTextureOption(m_id, m_target, option, value);
-	}
-
-	void Texture::SetDefaultOptions()
-	{
-		// Default texture options
-		using Option = RenderApi::TextureOption;
-		using Value = RenderApi::TextureOptionValue;
-		SetOption(Option::WrapS, Value::Repeat);
-		SetOption(Option::WrapT, Value::Repeat);
-		SetOption(Option::MinFilter, Value::Linear);
-		SetOption(Option::MagFilter, Value::Linear);
 	}
 
 

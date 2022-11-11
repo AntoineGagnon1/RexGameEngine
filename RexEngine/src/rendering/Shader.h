@@ -22,8 +22,9 @@ namespace RexEngine
 	public:
 
 		Shader(const std::string& data);
-		Shader(RenderApi::ShaderID id) : m_id(id) {}
 		~Shader();
+
+		Shader(const Shader&) = delete;
 
 		static std::shared_ptr<Shader> FromFile(const std::string& path);
 

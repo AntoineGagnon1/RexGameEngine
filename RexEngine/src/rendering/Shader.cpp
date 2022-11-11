@@ -29,9 +29,6 @@ namespace RexEngine
 			RenderApi::DeleteShader(vertex); // Not needed anymore
 			RenderApi::DeleteShader(fragment);
 		}
-
-		if(m_id == RenderApi::InvalidShaderID)
-			m_id = RenderApi::GetFallbackShader(); // Something went wrong
 		
 		// Cache the uniforms
 		m_uniforms = RenderApi::GetShaderUniforms(m_id);
@@ -55,7 +52,7 @@ namespace RexEngine
 		}
 
 		RE_LOG_ERROR("Could not open the shader at : {}", path);
-		return std::make_shared<Shader>(RenderApi::GetFallbackShader()); // TODO : only make the ptr once to prevent crash on exit (multiple delete of the same shader)
+		return std::shared_ptr<Shader>();
 	}
 
 	void Shader::Bind() const

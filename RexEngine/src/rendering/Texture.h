@@ -14,6 +14,8 @@ namespace RexEngine
 		Texture(RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);
 		~Texture();
 
+		Texture(const Texture&) = delete;
+
 		// TODO : convert to asset loader
 		static std::shared_ptr<Texture> FromFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
 		static std::shared_ptr<Texture> FromHDRIFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
@@ -26,7 +28,6 @@ namespace RexEngine
 		RenderApi::TextureID GetId() const { return m_id; }
 
 		void SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value);
-		void SetDefaultOptions();
 
 		void Bind() const;
 		void UnBind() const;

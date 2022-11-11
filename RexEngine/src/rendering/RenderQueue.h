@@ -12,19 +12,14 @@ namespace RexEngine
 	{
 		Matrix4 modelMatrix;
 
-		std::shared_ptr<Shader> shader; // TODO : use smaller types ?
+		std::shared_ptr<Shader> shader;
 		std::shared_ptr<Mesh> mesh;
 		unsigned char priority;
 		RenderApi::CullingMode cullingMode; // Not sorted
-		// TODO :
-		// Output buffer id
-		// Textures
-
 
 		RenderCommand(std::shared_ptr<Shader> shader, std::shared_ptr<Mesh> mesh, Matrix4 modelMatrix, RenderApi::CullingMode cullingMode, unsigned char priority = 0)
 			: shader(shader), mesh(mesh), priority(priority), modelMatrix(modelMatrix), cullingMode(cullingMode)
 		{ }
-
 
 		friend bool operator<(const RenderCommand& left, const RenderCommand& right);
 	};

@@ -6,7 +6,7 @@
 
 #include "Mesh.h"
 #include "../math/Vectors.h"
-#include "../core/NoDestroy.h"
+#include "../utils/NoDestroy.h"
 
 namespace RexEngine::Shapes
 {

@@ -21,6 +21,8 @@ namespace RexEngine
 			RenderApi::DeleteFrameBuffer(m_id);
 		}
 
+		FrameBuffer(const FrameBuffer&) = delete;
+
 		void Bind() const
 		{
 			RenderApi::BindFrameBuffer(m_id);

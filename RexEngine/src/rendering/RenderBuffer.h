@@ -17,6 +17,8 @@ namespace RexEngine
 			RenderApi::DeleteRenderBuffer(m_id);
 		}
 
+		RenderBuffer(const RenderBuffer&) = delete;
+
 		void Bind() const
 		{
 			RenderApi::BindRenderBuffer(m_id);

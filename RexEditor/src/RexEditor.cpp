@@ -5,8 +5,6 @@
 
 using namespace RexEngine;
 
-void MakeSphereMesh(std::vector<Vector3>& positions, std::vector<Vector3>& normals, std::vector<unsigned int>& indices);
-
 int main()
 {
 	Window win("Test window", 1280, 720);
@@ -35,16 +33,15 @@ int main()
 
 	auto skyboxShader = Shader::FromFile("assets/skybox/Skybox.shader");
 	skyboxShader->SetUniformInt("skybox", 0);
-	auto skyboxMap = Cubemap::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
+	auto skyboxMap = PBR::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
 
-	auto skyboxIrradiance = Cubemap::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
+	auto skyboxIrradiance = PBR::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
 
 	RenderApi::SetActiveTexture(0);
 	skyboxMap->Bind();
 	RenderApi::SetActiveTexture(1);
 	skyboxIrradiance->Bind();
 
-	auto meshPtr = Shapes::GetSphereMesh();
 
 	Scene scene;
 	auto light = scene.CreateEntity();
@@ -53,7 +50,7 @@ int main()
 	lightTransform.scale = Vector3(0.1f, 0.1f, 0.1f);
 	auto& lightMesh = light.AddComponent<MeshRendererComponent>();
 	lightMesh.shader = shader;
-	lightMesh.mesh = meshPtr;
+	lightMesh.mesh = Shapes::GetSphereMesh();
 
 	light.AddComponent<SkyboxComponent>().shader = skyboxShader;
 
@@ -66,7 +63,7 @@ int main()
 
 			auto& meshRenderer = sphere.AddComponent<MeshRendererComponent>();
 			meshRenderer.cullingMode = RenderApi::CullingMode::Front;
-			meshRenderer.mesh = meshPtr;
+			meshRenderer.mesh = Shapes::GetSphereMesh();
 			meshRenderer.shader = shader;
 		}
 	}
@@ -88,7 +85,8 @@ int main()
 	// TODO : implement this for faster irradiance generation : https://graphics.stanford.edu/papers/ravir_thesis/chapter4.pdf
 	// TODO : make mesh.static option
 	// TODO : make mesh int and short mode ? (indices)
-	
+	// TODO : Textures in render commands
+
 	const float moveSpeed = 1.0f;
 	const float rotationSpeed = 40000.0f;
 	const float cubeSpeed = 90.0f;
@@ -126,78 +124,4 @@ int main()
 	}
 
 	return 0;
-}
-
-
-void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<unsigned int>& indices)
-{ // From : http://www.songho.ca/opengl/gl_sphere.html
-	const float PI = 3.1415926535897;
-	const int stackCount = 64;
-	const int sectorCount = 64;
-	const float radius = 1.0f;
-
-	float x, y, z, xy;                              // vertex position
-	float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
-	float s, t;                                     // vertex texCoord
-
-	float sectorStep = 2 * PI / sectorCount;
-	float stackStep = PI / stackCount;
-	float sectorAngle, stackAngle;
-
-	for (int i = 0; i <= stackCount; ++i)
-	{
-		stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
-		xy = radius * cosf(stackAngle);             // r * cos(u)
-		z = radius * sinf(stackAngle);              // r * sin(u)
-
-		// add (sectorCount+1) vertices per stack
-		// the first and last vertices have same position and normal, but different tex coords
-		for (int j = 0; j <= sectorCount; ++j)
-		{
-			sectorAngle = j * sectorStep;           // starting from 0 to 2pi
-
-			// vertex position (x, y, z)
-			x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
-			y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
-			vertices.push_back(Vector3(x, y, z));
-
-			// normalized vertex normal (nx, ny, nz)
-			nx = x * lengthInv;
-			ny = y * lengthInv;
-			nz = z * lengthInv;
-			normals.push_back(Vector3(nx, ny, nz));
-
-			// vertex tex coord (s, t) range between [0, 1]
-			s = (float)j / sectorCount;
-			t = (float)i / stackCount;
-			//texCoords.push_back(Vector2(s,t));
-		}
-	}
-
-	int k1, k2;
-	for (int i = 0; i < stackCount; ++i)
-	{
-		k1 = i * (sectorCount + 1);     // beginning of current stack
-		k2 = k1 + sectorCount + 1;      // beginning of next stack
-
-		for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
-		{
-			// 2 triangles per sector excluding first and last stacks
-			// k1 => k2 => k1+1
-			if (i != 0)
-			{
-				indices.push_back(k1);
-				indices.push_back(k2);
-				indices.push_back(k1 + 1);
-			}
-
-			// k1+1 => k2 => k2+1
-			if (i != (stackCount - 1))
-			{
-				indices.push_back(k1 + 1);
-				indices.push_back(k2);
-				indices.push_back(k2 + 1);
-			}
-		}
-	}
 }

@@ -25,6 +25,7 @@
 #include "src/rendering/RenderQueue.h"
 #include "src/rendering/ForwardRenderer.h"
 #include "src/rendering/Shapes.h"
+#include "src/rendering/PBR.h"
 
 // Window
 #include "src/window/Window.h"

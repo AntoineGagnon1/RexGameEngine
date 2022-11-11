@@ -24,7 +24,6 @@ namespace RexEngine
 		static ShaderID LinkShaders(ShaderID vertex, ShaderID fragment);
 		static void DeleteShader(ShaderID id);
 		static void DeleteLinkedShader(ShaderID id);
-		static ShaderID GetFallbackShader(); // A default all pink shader
 		static void BindShader(ShaderID id);
 
 		// <name, location>, todo : return type

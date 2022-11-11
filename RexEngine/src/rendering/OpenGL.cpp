@@ -224,16 +224,6 @@ namespace RexEngine
 		GL_CALL(glDeleteProgram(id));
 	}
 
-	RenderApi::ShaderID RenderApi::GetFallbackShader()
-	{
-		static const ShaderID FallbackShader = LinkShaders(
-			CompileShader("#version 330 core\nlayout (location = 0) in vec3 aPos;\nvoid main()\n{\ngl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n}", ShaderType::Vertex),
-			CompileShader("#version 330 core\nout vec4 FragColor;\nvoid main()\n{\nFragColor = vec4(1.0f, 0.0f, 1.0f, 1.0f);\n}", ShaderType::Fragment)
-		);
-
-		return FallbackShader;
-	}
-
 	void RenderApi::BindShader(ShaderID id)
 	{
 		GL_CALL(glUseProgram(id));
