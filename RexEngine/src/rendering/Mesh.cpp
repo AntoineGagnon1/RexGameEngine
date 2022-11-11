@@ -6,7 +6,7 @@
 namespace RexEngine
 {
 
-	Mesh::Mesh(std::span<Vector3> vertices, std::span<unsigned int> indices, std::span<Vector3> normals)
+	Mesh::Mesh(std::span<const Vector3> vertices, std::span<const unsigned int> indices, std::span<const Vector3> normals)
 	{
 		m_hasNormals = normals.size() > 0;
 		RE_ASSERT(vertices.size() == normals.size() || !m_hasNormals, "Mesh normal count was not the same as vertex count !");
@@ -45,7 +45,7 @@ namespace RexEngine
 		m_vertexAttributes = RenderApi::MakeVertexAttributes(std::span(attributes), m_vertexBuffer, m_indexBuffer);
 	}
 
-	void Mesh::Bind()
+	void Mesh::Bind() const
 	{
 		RenderApi::BindVertexAttributes(m_vertexAttributes);
 	}

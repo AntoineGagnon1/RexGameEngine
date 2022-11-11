@@ -5,16 +5,16 @@
 #include "core/Libs.h"
 
 
-namespace {
-	unsigned int BufferTypeToGLType(RexEngine::RenderApi::BufferType type)
+namespace RexEngine::Internal {
+	unsigned int BufferTypeToGLType(RenderApi::BufferType type)
 	{
 		switch (type)
 		{
-		case RexEngine::RenderApi::BufferType::Vertex:
+		case RenderApi::BufferType::Vertex:
 			return GL_ARRAY_BUFFER;
-		case RexEngine::RenderApi::BufferType::Indice:
+		case RenderApi::BufferType::Indice:
 			return GL_ELEMENT_ARRAY_BUFFER;
-		case RexEngine::RenderApi::BufferType::Uniforms:
+		case RenderApi::BufferType::Uniforms:
 			return GL_UNIFORM_BUFFER;
 		}
 
@@ -22,21 +22,123 @@ namespace {
 	}
 
 	// <GL type, count, size(bytes)>
-	std::tuple<unsigned int, int, size_t> AttributeTypeToGLType(RexEngine::RenderApi::VertexAttributeType type)
+	std::tuple<unsigned int, int, size_t> AttributeTypeToGLType(RenderApi::VertexAttributeType type)
 	{
 		switch (type)
 		{
-		case RexEngine::RenderApi::VertexAttributeType::Float:
+		case RenderApi::VertexAttributeType::Float:
 			return std::make_tuple(GL_FLOAT, 1, sizeof(float));
-		case RexEngine::RenderApi::VertexAttributeType::Float2:
+		case RenderApi::VertexAttributeType::Float2:
 			return std::make_tuple(GL_FLOAT, 2, sizeof(float));
-		case RexEngine::RenderApi::VertexAttributeType::Float3:
+		case RenderApi::VertexAttributeType::Float3:
 			return std::make_tuple(GL_FLOAT, 3, sizeof(float));
-		case RexEngine::RenderApi::VertexAttributeType::Float4:
+		case RenderApi::VertexAttributeType::Float4:
 			return std::make_tuple(GL_FLOAT, 4, sizeof(float));
 		}
 
 		return std::make_tuple(0,0,0);
+	}
+
+	unsigned int TextureTargetToGL(RenderApi::TextureTarget target)
+	{
+		switch (target)
+		{
+		case RenderApi::TextureTarget::Texture2D:
+			return GL_TEXTURE_2D;
+		case RenderApi::TextureTarget::Cubemap:
+			return GL_TEXTURE_CUBE_MAP;
+		}
+
+		RE_ASSERT(false, "Invalid texture target !");
+		return 0;
+	}
+
+	unsigned int PixelFormatToGL(RenderApi::PixelFormat format)
+	{
+		switch (format)
+		{
+		case RenderApi::PixelFormat::RGB:
+			return GL_RGB;
+		case RenderApi::PixelFormat::RGBA:
+			return GL_RGBA;
+		case RenderApi::PixelFormat::Depth:
+			return GL_DEPTH_COMPONENT;
+		case RenderApi::PixelFormat::RGB16F:
+			return GL_RGB16F;
+		}
+
+		RE_ASSERT(false, "Invalid texture format !");
+		return 0;
+	}
+
+	unsigned int PixelTypeToGL(RenderApi::PixelType format)
+	{
+		switch (format)
+		{
+		case RenderApi::PixelType::UByte:
+			return GL_UNSIGNED_BYTE;
+		case RenderApi::PixelType::Float:
+			return GL_FLOAT;
+		case RenderApi::PixelType::Depth:
+			return GL_DEPTH_COMPONENT24;
+		}
+
+		RE_ASSERT(false, "Invalid texture format !");
+		return 0;
+	}
+
+	unsigned int TextureOptionToGL(RenderApi::TextureOption option)
+	{
+		switch (option)
+		{
+		case RenderApi::TextureOption::WrapS:
+			return GL_TEXTURE_WRAP_S;
+		case RenderApi::TextureOption::WrapT:
+			return GL_TEXTURE_WRAP_T;
+		case RenderApi::TextureOption::WrapR:
+			return GL_TEXTURE_WRAP_R;
+		case RenderApi::TextureOption::MinFilter:
+			return GL_TEXTURE_MIN_FILTER;
+		case RenderApi::TextureOption::MagFilter:
+			return GL_TEXTURE_MAG_FILTER;
+		}
+
+		RE_ASSERT(false, "Invalid texture option !");
+		return 0;
+	}
+
+	unsigned int TextureOptionValueToGL(RenderApi::TextureOptionValue value)
+	{
+		switch (value)
+		{
+		case RenderApi::TextureOptionValue::Repeat:
+			return GL_REPEAT;
+		case RenderApi::TextureOptionValue::ClampToEdge:
+			return GL_CLAMP_TO_EDGE;
+		case RenderApi::TextureOptionValue::Linear:
+			return GL_LINEAR;
+		}
+
+		RE_ASSERT(false, "Invalid texture option value !");
+		return 0;
+	}
+
+	unsigned int DepthFunctionToGL(RenderApi::DepthFunction function)
+	{
+		switch (function)
+		{
+		case RenderApi::DepthFunction::Less:
+			return GL_LESS;
+		case RenderApi::DepthFunction::LessEqual:
+			return GL_LEQUAL;
+		case RenderApi::DepthFunction::Greater:
+			return GL_GREATER;
+		case RenderApi::DepthFunction::GreaterEqual:
+			return GL_GEQUAL;
+		}
+
+		RE_ASSERT(false, "Invalid depth function !");
+		return 0;
 	}
 
 	void GlCheckErrors()
@@ -50,13 +152,14 @@ namespace {
 	}
 }
 
-#define GL_CALL(x) x;GlCheckErrors();
+#define GL_CALL(x) x;Internal::GlCheckErrors();
 
 namespace RexEngine
 {
 	void RenderApi::Init()
 	{
 		GL_CALL(glEnable(GL_DEPTH_TEST));
+		GL_CALL(glClearDepthf(1.0f));
 
 		GL_CALL(glFrontFace(GL_CW));
 	}
@@ -174,6 +277,11 @@ namespace RexEngine
 		GL_CALL(glUniform1f(location, value));
 	}
 
+	void RenderApi::SetUniformInt(int location, int value)
+	{
+		GL_CALL(glUniform1i(location, value));
+	}
+
 
 	RenderApi::BufferID RenderApi::MakeBuffer()
 	{
@@ -184,7 +292,7 @@ namespace RexEngine
 
 	void RenderApi::BindBuffer(BufferID id, BufferType type)
 	{
-		GL_CALL(glBindBuffer(BufferTypeToGLType(type), id));
+		GL_CALL(glBindBuffer(Internal::BufferTypeToGLType(type), id));
 	}
 
 	void RenderApi::DeleteBuffer(BufferID id)
@@ -195,13 +303,13 @@ namespace RexEngine
 	void RenderApi::SetBufferData(BufferID id, BufferType type, BufferMode mode, const uint8_t* data, size_t length)
 	{
 		BindBuffer(id, type);
-		GL_CALL(glBufferData(BufferTypeToGLType(type), length, data, mode == BufferMode::Static ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+		GL_CALL(glBufferData(Internal::BufferTypeToGLType(type), length, data, mode == BufferMode::Static ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
 	}
 
 	void RenderApi::SubBufferData(BufferID id, BufferType type, size_t offset, size_t size, const void* data)
 	{
 		BindBuffer(id, type);
-		GL_CALL(glBufferSubData(BufferTypeToGLType(type), offset, size, data));
+		GL_CALL(glBufferSubData(Internal::BufferTypeToGLType(type), offset, size, data));
 	}
 
 	void RenderApi::BindBufferBase(BufferID id, BufferType type, int location)
@@ -227,7 +335,7 @@ namespace RexEngine
 		int stride = 0;
 		for (auto&& type : attributes)
 		{
-			auto [_, count, size] = AttributeTypeToGLType(std::get<0>(type));
+			auto [_, count, size] = Internal::AttributeTypeToGLType(std::get<0>(type));
 			stride += count * size;
 		}
 
@@ -235,7 +343,7 @@ namespace RexEngine
 		size_t offset = 0; // Current offset
 		for (int i = 0; i < attributes.size(); i++)
 		{
-			auto [type, count, size] = AttributeTypeToGLType(std::get<0>(attributes[i]));
+			auto [type, count, size] = Internal::AttributeTypeToGLType(std::get<0>(attributes[i]));
 			int location = std::get<1>(attributes[i]);
 			GL_CALL(glVertexAttribPointer(location, count, type, GL_FALSE, stride, (void*)offset));
 			GL_CALL(glEnableVertexAttribArray(location));
@@ -243,6 +351,7 @@ namespace RexEngine
 			offset += size * count;
 		}
 
+		BindVertexAttributes(0);
 		return vao;
 	}
 
@@ -255,6 +364,74 @@ namespace RexEngine
 	{
 		GL_CALL(glBindVertexArray(id));
 	}
+
+	RenderApi::TextureID RenderApi::MakeTexture(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType)
+	{
+		TextureID id;
+		GL_CALL(glGenTextures(1, &id));
+		BindTexture(id, target);
+
+		GL_CALL(glTexImage2D(
+			Internal::TextureTargetToGL(target), 0,
+			Internal::PixelFormatToGL(gpuFormat),
+			size.x, size.y, 0,
+			Internal::PixelFormatToGL(dataFormat),
+			Internal::PixelTypeToGL(dataType),
+			data
+		));
+
+		return id;
+	}
+
+	void RenderApi::BindTexture(TextureID id, TextureTarget target)
+	{
+		GL_CALL(glBindTexture(Internal::TextureTargetToGL(target), id));
+	}
+
+	void RenderApi::SetTextureOption(TextureID id, TextureTarget target, TextureOption option, TextureOptionValue value)
+	{
+		BindTexture(id, target);
+		GL_CALL(glTexParameteri(Internal::TextureTargetToGL(target), Internal::TextureOptionToGL(option), Internal::TextureOptionValueToGL(value)));
+	}
+
+	void RenderApi::DeleteTexture(TextureID id)
+	{
+		GL_CALL(glDeleteTextures(1, &id));
+	}
+
+	RenderApi::TextureID RenderApi::MakeCubemap()
+	{
+		TextureID id;
+		GL_CALL(glGenTextures(1, &id));
+		return id;
+	}
+
+	void RenderApi::SetCubemapFace(TextureID id, CubemapFace face, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType)
+	{
+		BindTexture(id, TextureTarget::Cubemap);
+
+		GL_CALL(glTexImage2D(
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, 0,
+			Internal::PixelFormatToGL(gpuFormat),
+			size.x, size.y, 0,
+			Internal::PixelFormatToGL(dataFormat),
+			Internal::PixelTypeToGL(dataType),
+			data
+		));
+	}
+
+	int RenderApi::GetActiveTexture()
+	{
+		GLint active;
+		GL_CALL(glGetIntegerv(GL_ACTIVE_TEXTURE, &active));
+		return active;
+	}
+
+	void RenderApi::SetActiveTexture(int index)
+	{
+		GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
+	}
+
 
 
 	void RenderApi::SetViewportSize(Vector2Int size)
@@ -303,5 +480,77 @@ namespace RexEngine
 			break;
 		}
 		
+	}
+
+
+	void RenderApi::SetDepthFunction(DepthFunction function)
+	{
+		GL_CALL(glDepthFunc(Internal::DepthFunctionToGL(function)));
+	}
+
+	RenderApi::BufferID RenderApi::MakeRenderBuffer(PixelType type, Vector2Int size)
+	{
+		BufferID id;
+		GL_CALL(glGenRenderbuffers(1, &id));
+
+		GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, id));
+		GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, Internal::PixelTypeToGL(type), size.x, size.y));
+		return id;
+	}
+
+	void RenderApi::BindRenderBuffer(BufferID id)
+	{
+		GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, id));
+	}
+
+	void RenderApi::DeleteRenderBuffer(BufferID id)
+	{
+		GL_CALL(glDeleteRenderbuffers(1, &id));
+	}
+
+	RenderApi::FrameBufferID RenderApi::MakeFrameBuffer()
+	{
+		FrameBufferID id;
+		GL_CALL(glGenFramebuffers(1, &id));
+		return id;
+	}
+
+	void RenderApi::BindFrameBuffer(FrameBufferID id)
+	{
+		GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+	}
+
+	void RenderApi::DeleteFrameBuffer(FrameBufferID id)
+	{
+		GL_CALL(glDeleteFramebuffers(1, &id));
+	}
+
+	void RenderApi::BindFrameBufferTexture(FrameBufferID id, TextureID textureID, FrameBufferTextureType type)
+	{
+		BindFrameBuffer(id);
+
+		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, 
+			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
+			GL_TEXTURE_2D, textureID, 0));
+	}
+
+	void RenderApi::BindFrameBufferRenderBuffer(FrameBufferID id, BufferID renderBufferID, FrameBufferTextureType type)
+	{
+		BindFrameBuffer(id);
+		
+		//BindRenderBuffer(renderBufferID);
+
+		GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, 
+			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT
+			, GL_RENDERBUFFER, renderBufferID));
+	}
+
+	void RenderApi::BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type)
+	{
+		BindFrameBuffer(id);
+
+		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, 
+			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, cubemap, 0));
 	}
 }

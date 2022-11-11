@@ -4,6 +4,7 @@
 
 #include "../rendering/Shader.h"
 #include "../rendering/Mesh.h"
+#include "../rendering/Cubemap.h"
 #include "../math/Vectors.h"
 #include "../math/Quaternion.h"
 #include "../math/Matrix.h"
@@ -56,5 +57,10 @@ namespace RexEngine
 		float fov = 70.0f;
 		float zNear = 0.1f;
 		float zFar = 100.0f;
+	};
+
+	struct SkyboxComponent
+	{
+		std::shared_ptr<Shader> shader;
 	};
 }

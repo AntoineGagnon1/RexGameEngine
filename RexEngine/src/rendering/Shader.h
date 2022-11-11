@@ -25,7 +25,7 @@ namespace RexEngine
 		Shader(RenderApi::ShaderID id) : m_id(id) {}
 		~Shader();
 
-		static Shader FromFile(const std::string& path);
+		static std::shared_ptr<Shader> FromFile(const std::string& path);
 
 		auto GetID() const { return m_id; }
 		bool IsValid() const { return m_id != RenderApi::InvalidShaderID; };
@@ -38,6 +38,7 @@ namespace RexEngine
 		void SetUniformMatrix4(const std::string& name, const Matrix4& matrix);
 		void SetUniformVector3(const std::string& name, const Vector3& vec);
 		void SetUniformFloat(const std::string& name, float value);
+		void SetUniformInt(const std::string& name, int value);
 
 		// Register a #pragma using clause for the shader parser
 		static void RegisterParserUsing(const std::string& name, const std::string& replaceWith);

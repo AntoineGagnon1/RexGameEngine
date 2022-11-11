@@ -37,6 +37,8 @@ uniform float metallic;
 uniform float roughness;
 uniform float ao;
 
+uniform samplerCube irradianceMap;
+
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
     float a = roughness * roughness;
@@ -90,8 +92,8 @@ void main()
        
     // TODO : optimize this :
     
-    //for (int i = 0; i < 4; ++i)
-    //{
+    //for (int i = 0; i < 1; ++i)
+    {
         // calculate per-light radiance
         vec3 L = normalize(lightPos - worldPos); // lightPos[i]
         vec3 H = normalize(V + L);
@@ -115,12 +117,21 @@ void main()
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-    //}
+    }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // ambient lighting
+    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+    vec3 irradiance = texture(irradianceMap, N).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = (kD * diffuse) * ao;
+
     vec3 color = ambient + Lo;
 
+    // HDR tonemapping
     color = color / (color + vec3(1.0));
+    // gamma correct
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);

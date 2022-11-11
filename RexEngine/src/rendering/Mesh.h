@@ -12,15 +12,29 @@ namespace RexEngine
 		// Type of vertex attributes : 
 		// Position(Vertex) and Normal : Vector3
 		// TexCoords : Vector4, if less fill as : (0,0,0,1)
+		Mesh(const Mesh& mesh) = delete;
 
-		Mesh(std::span<Vector3> vertices, std::span<unsigned int> indices, std::span<Vector3> normals = {});
+		Mesh(Mesh&& from) noexcept : 
+			m_vertexData(std::move(from.m_vertexData)), 
+			m_indices(std::move(from.m_indices)),
+			m_hasNormals(from.m_hasNormals),
+			m_vertexBuffer(from.m_vertexBuffer),
+			m_indexBuffer(from.m_indexBuffer),
+			m_vertexAttributes(from.m_vertexAttributes)
+		{
+			from.m_vertexAttributes = 0;
+			from.m_indexBuffer = 0;
+			from.m_vertexBuffer = 0;
+		}
+
+		Mesh(std::span<const Vector3> vertices, std::span<const unsigned int> indices, std::span<const Vector3> normals = {});
 		
 		// TODO : Load mesh from file
 
-		void Bind();
+		void Bind() const;
 
-		auto GetID() { return m_vertexAttributes; }
-		size_t GetIndexCount() { return m_indices.size(); }
+		auto GetID() const { return m_vertexAttributes; }
+		size_t GetIndexCount() const { return m_indices.size(); }
 
 
 	private:

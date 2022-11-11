@@ -42,7 +42,7 @@ namespace RexEngine
 		RenderApi::DeleteLinkedShader(m_id);
 	}
 
-	Shader Shader::FromFile(const std::string& path)
+	std::shared_ptr<Shader> Shader::FromFile(const std::string& path)
 	{
 		std::ifstream f(path);
 		std::string str;
@@ -51,11 +51,11 @@ namespace RexEngine
 			std::ostringstream ss;
 			ss << f.rdbuf();
 			str = ss.str();
-			return Shader(str);
+			return std::make_shared<Shader>(str);
 		}
 
 		RE_LOG_ERROR("Could not open the shader at : {}", path);
-		return Shader(RenderApi::GetFallbackShader());
+		return std::make_shared<Shader>(RenderApi::GetFallbackShader()); // TODO : only make the ptr once to prevent crash on exit (multiple delete of the same shader)
 	}
 
 	void Shader::Bind() const
@@ -87,6 +87,13 @@ namespace RexEngine
 		RE_ASSERT(HasUniform(name), "No Float Uniform called {}", name);
 		Bind();
 		RenderApi::SetUniformFloat(m_uniforms[name], value);
+	}
+
+	void Shader::SetUniformInt(const std::string& name, int value)
+	{
+		RE_ASSERT(HasUniform(name), "No Int Uniform called {}", name);
+		Bind();
+		RenderApi::SetUniformInt(m_uniforms[name], value);
 	}
 
 	void Shader::RegisterParserUsing(const std::string& name, const std::string& replaceWith)

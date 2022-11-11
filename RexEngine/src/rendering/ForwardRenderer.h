@@ -5,6 +5,9 @@
 
 #include "../core/Color.h"
 
+#include "../rendering/Mesh.h"
+
+
 namespace RexEngine
 {
 	class ForwardRenderer
@@ -45,8 +48,9 @@ namespace RexEngine
 
 		static RenderApi::BufferID GetSceneDataUniforms();
 		static RenderApi::BufferID GetLightingUniforms();
-	};
 
+		static const Mesh& GetSkyboxMesh();
+	};
 
 	inline int ForwardRenderer::SceneDataUniforms::RegisterParser = [] 
 	{

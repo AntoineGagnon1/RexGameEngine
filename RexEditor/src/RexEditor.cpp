@@ -9,7 +9,7 @@ void MakeSphereMesh(std::vector<Vector3>& positions, std::vector<Vector3>& norma
 
 int main()
 {
-	Window win("Test window", 640, 480);
+	Window win("Test window", 1280, 720);
 	win.MakeActive();
 	
 	win.SetResizeCallback([](Vector2Int size) {
@@ -26,45 +26,69 @@ int main()
 
 	Cursor::SetCursorMode(CursorMode::Locked);
 
-	auto shader = Shader::FromFile("assets/TestShader.shader");
-	shader.SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
-	shader.SetUniformFloat("metallic", 0.5f);
-	shader.SetUniformFloat("roughness", 0.5f);
-	shader.SetUniformFloat("ao", 1.0f);
+	auto shader = Shader::FromFile("assets/TestShader.shader"); // TODO : use resource(asset) manager
+	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
+	shader->SetUniformFloat("metallic", 0.1f);
+	shader->SetUniformFloat("roughness", 0.5f);
+	shader->SetUniformFloat("ao", 1.0f);
+	shader->SetUniformInt("irradianceMap", 1);
 
-	auto shaderPtr = std::make_shared<Shader>(shader);
-	
+	auto skyboxShader = Shader::FromFile("assets/skybox/Skybox.shader");
+	skyboxShader->SetUniformInt("skybox", 0);
+	auto skyboxMap = Cubemap::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
+
+	// TODO : implement this https://graphics.stanford.edu/papers/ravir_thesis/chapter4.pdf
+	auto skyboxIrradiance = Cubemap::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
+
+	RenderApi::SetActiveTexture(0);
+	skyboxMap->Bind();
+	RenderApi::SetActiveTexture(1);
+	skyboxIrradiance->Bind();
+
 	// TODO : load from file
 	std::vector<Vector3> vertices;
 	std::vector<Vector3> normals;
 	std::vector<unsigned int> indices;
 	MakeSphereMesh(vertices, normals, indices);
-	auto mesh = Mesh(std::span<Vector3>(vertices), std::span<unsigned int>(indices), std::span<Vector3>(normals)); // TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
-	auto meshPtr = std::make_shared<Mesh>(mesh);
+	auto mesh = Mesh(vertices, indices, normals); // TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
+	auto meshPtr = std::make_shared<Mesh>(std::move(mesh)); // TODO : use resource(asset) manager
 
 	Scene scene;
 	auto light = scene.CreateEntity();
 	auto& lightTransform = light.AddComponent<TransformComponent>();
-	lightTransform.position = Vector3(0, 0, -3);
+	lightTransform.position = Vector3(10, 10, -10);
 	lightTransform.scale = Vector3(0.1f, 0.1f, 0.1f);
 	auto& lightMesh = light.AddComponent<MeshRendererComponent>();
-	lightMesh.shader = shaderPtr;
+	lightMesh.shader = shader;
 	lightMesh.mesh = meshPtr;
 
-	auto cube = scene.CreateEntity();
-	cube.AddComponent<TransformComponent>();
-	auto& meshRenderer = cube.AddComponent<MeshRendererComponent>();
-	meshRenderer.cullingMode = RenderApi::CullingMode::Front;
-	meshRenderer.mesh = meshPtr;
-	meshRenderer.shader = shaderPtr; // TODO : use resource(asset) manager
+	light.AddComponent<SkyboxComponent>().shader = skyboxShader;
+
+	for (int x = 0; x < 10; x++)
+	{
+		for (int y = 0; y < 10; y++)
+		{
+			auto sphere = scene.CreateEntity();
+			sphere.AddComponent<TransformComponent>().position = Vector3(x * 2, y * 2, 0);
+
+			auto& meshRenderer = sphere.AddComponent<MeshRendererComponent>();
+			meshRenderer.cullingMode = RenderApi::CullingMode::Front;
+			meshRenderer.mesh = meshPtr;
+			meshRenderer.shader = shader;
+		}
+	}
 
 	auto player = scene.CreateEntity();
-	player.AddComponent<TransformComponent>().position.z = -2;
+	player.AddComponent<TransformComponent>().position = Vector3(10,11,-10);
 	player.AddComponent<CameraComponent>();
 
 	// TODO : In RenderQueue
 	//	-Output buffer id ? 
 	//	-Textures
+
+	// TODO : Change roughness to smoothness in PBR
+	// TODO : use shapes::cube in forward renderer (skybox)
+	// TODO : move pbr code out of the cubemap file
 	
 	const float moveSpeed = 1.0f;
 	const float rotationSpeed = 40000.0f;
@@ -98,10 +122,11 @@ int main()
 
 		// Rotate the cube
 		//cube.GetComponent<TransformComponent>().rotation.Rotate(cubeSpeed * Time::DeltaTime(), Directions::Up);
-		cube.GetComponent<TransformComponent>().position.y += ballDirection * Time::DeltaTime();
+		//cube.GetComponent<TransformComponent>().position.y += ballDirection * Time::DeltaTime();
+		//shaderPtr->SetUniformFloat("roughness", abs(cube.GetComponent<TransformComponent>().position.y));
 
-		if (abs(cube.GetComponent<TransformComponent>().position.y) > 1.0f)
-			ballDirection *= -1.0f;
+		//if (abs(cube.GetComponent<TransformComponent>().position.y) > 1.0f)
+		//	ballDirection *= -1.0f;
 
 		RenderApi::ClearColorBit(); // TODO : move these to the forward renderer
 		RenderApi::ClearDepthBit();
@@ -119,8 +144,8 @@ int main()
 void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<unsigned int>& indices)
 { // From : http://www.songho.ca/opengl/gl_sphere.html
 	const float PI = 3.1415926535897;
-	const int stackCount = 32;
-	const int sectorCount = 32;
+	const int stackCount = 64;
+	const int sectorCount = 64;
 	const float radius = 1.0f;
 
 	float x, y, z, xy;                              // vertex position
