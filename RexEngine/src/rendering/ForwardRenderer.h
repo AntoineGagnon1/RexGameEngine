@@ -48,8 +48,6 @@ namespace RexEngine
 
 		static RenderApi::BufferID GetSceneDataUniforms();
 		static RenderApi::BufferID GetLightingUniforms();
-
-		static const Mesh& GetSkyboxMesh();
 	};
 
 	inline int ForwardRenderer::SceneDataUniforms::RegisterParser = [] 

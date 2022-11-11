@@ -24,6 +24,7 @@
 #include "src/rendering/Mesh.h"
 #include "src/rendering/RenderQueue.h"
 #include "src/rendering/ForwardRenderer.h"
+#include "src/rendering/Shapes.h"
 
 // Window
 #include "src/window/Window.h"

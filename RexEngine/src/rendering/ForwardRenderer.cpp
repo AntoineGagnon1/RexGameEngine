@@ -2,14 +2,12 @@
 #include "ForwardRenderer.h"
 
 #include "RenderQueue.h"
+#include "Shapes.h"
 
 namespace RexEngine
 {
 	void ForwardRenderer::RenderScene(Scene& scene, const CameraComponent& camera)
 	{
-		// Cache the skybox, this is because the mesh cannot be created between render calls
-		auto& skyboxMesh = GetSkyboxMesh();
-
 		// Get the transform of the camera
 		Entity cameraOwner = scene.GetComponentOwner<const CameraComponent>(camera);
 		RE_ASSERT(cameraOwner.HasComponent<TransformComponent>(), "Camera has no TransformComponent!");
@@ -41,10 +39,13 @@ namespace RexEngine
 			if (e.HasComponent<TransformComponent>())
  				modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform(); // Use the transform of the object
 
-
-			RenderQueue::AddCommand(RenderCommand(c.shader->GetID(), c.mesh->GetID(), c.mesh->GetIndexCount(), modelMatrix, c.cullingMode, c.priority));
+			RenderQueue::AddCommand(RenderCommand(c.shader, c.mesh, modelMatrix, c.cullingMode, c.priority));
 		}
 
+
+		// Clear the screen
+		RenderApi::ClearColorBit();
+		RenderApi::ClearDepthBit();
 
 		// Execute the render queue to actually render the objects on the screen
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::Less);
@@ -59,13 +60,14 @@ namespace RexEngine
 
 		if (skyboxes.size() >= 1)
 		{
+			auto skyboxMesh = Shapes::GetCubeMesh();
 			auto& c = skyboxes[0].second;
 
 			// New uniforms for this shader
 			newSceneData.worldToView = Matrix4(Matrix3(newSceneData.worldToView)); // Remove the translation (the skybox is always around the player)
 			RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
-
-			RenderQueue::AddCommand(RenderCommand(c.shader->GetID(), skyboxMesh.GetID(), skyboxMesh.GetIndexCount(), Matrix4::Identity, RenderApi::CullingMode::Back, 0));
+			
+			RenderQueue::AddCommand(RenderCommand(c.shader, skyboxMesh, Matrix4::Identity, RenderApi::CullingMode::Both, 0));
 		}
 
 		// Render the skybox
@@ -100,25 +102,5 @@ namespace RexEngine
 		}();
 
 		return uniforms;
-	}
-
-	const Mesh& ForwardRenderer::GetSkyboxMesh()
-	{
-		static std::vector<Vector3> vertices = {
-				{-1,-1,-1}, {-1, 1,-1}, { 1, 1,-1}, { 1 ,1,-1}, { 1,-1,-1}, {-1,-1,-1},
-				{ 1,-1,-1}, { 1, 1,-1}, { 1, 1, 1}, { 1, 1, 1}, { 1,-1, 1}, { 1,-1,-1},
-				{-1,-1, 1}, {-1, 1, 1}, {-1, 1,-1}, {-1, 1,-1}, {-1,-1,-1}, {-1,-1, 1},
-				{ 1, 1, 1}, {-1, 1, 1}, {-1,-1, 1}, {-1,-1, 1}, { 1,-1, 1}, { 1, 1, 1},
-				{-1, 1,-1}, {-1, 1, 1}, { 1, 1, 1}, { 1, 1, 1}, { 1, 1,-1}, {-1, 1,-1},
-				{-1,-1, 1}, {-1,-1,-1}, { 1,-1,-1}, { 1,-1,-1}, { 1,-1, 1}, {-1,-1, 1}
-		};
-
-		static std::vector<unsigned int> indices = {
-			0,1,2, 3,4,5, 6,7,8, 9,10,11, 12,13,14, 15,16,17, 18,19,20, 21,22,23, 24,25,26, 27,28,29, 30,31,32, 33,34,35
-		};
-
-		static Mesh mesh(vertices, indices);
-
-		return mesh;
 	}
 }

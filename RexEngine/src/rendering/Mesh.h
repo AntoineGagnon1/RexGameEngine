@@ -28,10 +28,11 @@ namespace RexEngine
 		}
 
 		Mesh(std::span<const Vector3> vertices, std::span<const unsigned int> indices, std::span<const Vector3> normals = {});
-		
+		~Mesh();
 		// TODO : Load mesh from file
 
 		void Bind() const;
+		inline static void UnBind() { RenderApi::BindVertexAttributes(0); }
 
 		auto GetID() const { return m_vertexAttributes; }
 		size_t GetIndexCount() const { return m_indices.size(); }
@@ -40,10 +41,9 @@ namespace RexEngine
 	private:
 
 		std::vector<uint8_t> m_vertexData;
-		std::vector<unsigned int> m_indices; // TODO : make int and short mode ?
+		std::vector<unsigned int> m_indices;
 		bool m_hasNormals;
 
-		// TODO : make mesh.static option
 		RenderApi::BufferID m_vertexBuffer = 0;
 		RenderApi::BufferID m_indexBuffer = 0;
 		RenderApi::VertexAttribID m_vertexAttributes = 0;

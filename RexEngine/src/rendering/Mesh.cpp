@@ -45,9 +45,17 @@ namespace RexEngine
 		m_vertexAttributes = RenderApi::MakeVertexAttributes(std::span(attributes), m_vertexBuffer, m_indexBuffer);
 	}
 
+	Mesh::~Mesh()
+	{
+		RenderApi::DeleteVertexAttributes(m_vertexAttributes);
+		RenderApi::DeleteBuffer(m_vertexBuffer);
+		RenderApi::DeleteBuffer(m_indexBuffer);
+	}
+
 	void Mesh::Bind() const
 	{
 		RenderApi::BindVertexAttributes(m_vertexAttributes);
+		RenderApi::BindBuffer(m_indexBuffer, RenderApi::BufferType::Indice);
 	}
 
 }

@@ -26,7 +26,7 @@ int main()
 
 	Cursor::SetCursorMode(CursorMode::Locked);
 
-	auto shader = Shader::FromFile("assets/TestShader.shader"); // TODO : use resource(asset) manager
+	auto shader = Shader::FromFile("assets/TestShader.shader");
 	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
 	shader->SetUniformFloat("metallic", 0.1f);
 	shader->SetUniformFloat("roughness", 0.5f);
@@ -37,7 +37,6 @@ int main()
 	skyboxShader->SetUniformInt("skybox", 0);
 	auto skyboxMap = Cubemap::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
 
-	// TODO : implement this https://graphics.stanford.edu/papers/ravir_thesis/chapter4.pdf
 	auto skyboxIrradiance = Cubemap::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
 
 	RenderApi::SetActiveTexture(0);
@@ -45,13 +44,7 @@ int main()
 	RenderApi::SetActiveTexture(1);
 	skyboxIrradiance->Bind();
 
-	// TODO : load from file
-	std::vector<Vector3> vertices;
-	std::vector<Vector3> normals;
-	std::vector<unsigned int> indices;
-	MakeSphereMesh(vertices, normals, indices);
-	auto mesh = Mesh(vertices, indices, normals); // TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
-	auto meshPtr = std::make_shared<Mesh>(std::move(mesh)); // TODO : use resource(asset) manager
+	auto meshPtr = Shapes::GetSphereMesh();
 
 	Scene scene;
 	auto light = scene.CreateEntity();
@@ -89,6 +82,12 @@ int main()
 	// TODO : Change roughness to smoothness in PBR
 	// TODO : use shapes::cube in forward renderer (skybox)
 	// TODO : move pbr code out of the cubemap file
+	// TODO : load Mesh from file
+	// TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
+	// TODO : use resource(asset) manager
+	// TODO : implement this for faster irradiance generation : https://graphics.stanford.edu/papers/ravir_thesis/chapter4.pdf
+	// TODO : make mesh.static option
+	// TODO : make mesh int and short mode ? (indices)
 	
 	const float moveSpeed = 1.0f;
 	const float rotationSpeed = 40000.0f;
@@ -120,18 +119,7 @@ int main()
 		playerTransform.rotation = Quaternion::AngleAxis(roll, Directions::Up);
 		playerTransform.rotation.Rotate(pitch, playerTransform.Right());
 
-		// Rotate the cube
-		//cube.GetComponent<TransformComponent>().rotation.Rotate(cubeSpeed * Time::DeltaTime(), Directions::Up);
-		//cube.GetComponent<TransformComponent>().position.y += ballDirection * Time::DeltaTime();
-		//shaderPtr->SetUniformFloat("roughness", abs(cube.GetComponent<TransformComponent>().position.y));
-
-		//if (abs(cube.GetComponent<TransformComponent>().position.y) > 1.0f)
-		//	ballDirection *= -1.0f;
-
-		RenderApi::ClearColorBit(); // TODO : move these to the forward renderer
-		RenderApi::ClearDepthBit();
-
-		ForwardRenderer::RenderScene(scene, player.GetComponent<CameraComponent>()); // TODO : Lights
+		ForwardRenderer::RenderScene(scene, player.GetComponent<CameraComponent>());
 
 		win.SwapBuffers();
 		Inputs::PollInputs();
@@ -213,28 +201,3 @@ void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normal
 		}
 	}
 }
-
-/*
-std::vector<Vector3> vertices = {
-		{-0.5f,-0.5f,-0.5f}, {-0.5f,0.5f,-0.5f}, {0.5f,0.5f,-0.5f}, {0.5f,0.5f,-0.5f}, {0.5f,-0.5f,-0.5f}, {-0.5f,-0.5f,-0.5f},
-		{0.5f,-0.5f,-0.5f}, {0.5f,0.5f,-0.5f}, {0.5f,0.5f,0.5f}, {0.5f,0.5f,0.5f}, {0.5f,-0.5f,0.5f}, {0.5f,-0.5f,-0.5f},
-		{-0.5f,-0.5f,0.5f}, {-0.5f,0.5f,0.5f}, {-0.5f,0.5f,-0.5f}, {-0.5f,0.5f,-0.5f}, {-0.5f,-0.5f,-0.5f}, {-0.5f,-0.5f,0.5f},
-		{0.5f,0.5f,0.5f}, {-0.5f,0.5f,0.5f}, {-0.5f,-0.5f,0.5f}, {-0.5f,-0.5f,0.5f}, {0.5f,-0.5f,0.5f}, {0.5f,0.5f,0.5f},
-		{-0.5f,0.5f,-0.5f}, {-0.5f,0.5f,0.5f}, {0.5f,0.5f,0.5f}, {0.5f,0.5f,0.5f}, {0.5f,0.5f,-0.5f}, {-0.5f,0.5f,-0.5f},
-		{-0.5f,-0.5f,0.5f}, {-0.5f,-0.5f,-0.5f}, {0.5f,-0.5f,-0.5f}, {0.5f,-0.5f,-0.5f}, {0.5f,-0.5f,0.5f}, {-0.5f,-0.5f,0.5f}
-	};
-
-	std::vector<Vector3> normals = {
-		{0,0,-1},{0,0,-1},{0,0,-1},{0,0,-1},{0,0,-1},{0,0,-1},
-		{1,0,0},{1,0,0},{1,0,0},{1,0,0},{1,0,0},{1,0,0},
-		{-1,0,0},{-1,0,0},{-1,0,0},{-1,0,0},{-1,0,0},{-1,0,0},
-		{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1},{0,0,1},
-		{0,1,0},{0,1,0},{0,1,0},{0,1,0},{0,1,0},{0,1,0},
-		{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0},{0,-1,0}
-	};
-
-	std::vector<unsigned int> indices = {
-		0,1,2, 3,4,5, 6,7,8, 9,10,11, 12,13,14, 15,16,17, 18,19,20, 21,22,23, 24,25,26, 27,28,29, 30,31,32, 33,34,35
-	};
-
-*/

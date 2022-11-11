@@ -345,8 +345,8 @@ namespace RexEngine
 		{
 			auto [type, count, size] = Internal::AttributeTypeToGLType(std::get<0>(attributes[i]));
 			int location = std::get<1>(attributes[i]);
-			GL_CALL(glVertexAttribPointer(location, count, type, GL_FALSE, stride, (void*)offset));
 			GL_CALL(glEnableVertexAttribArray(location));
+			GL_CALL(glVertexAttribPointer(location, count, type, GL_FALSE, stride, (void*)offset));
 			
 			offset += size * count;
 		}

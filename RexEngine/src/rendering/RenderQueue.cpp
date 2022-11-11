@@ -32,10 +32,10 @@ namespace RexEngine
 
 		bool returnValue;
 
-		if (CompareSmaller<RenderApi::ShaderID>(left.shader, right.shader, returnValue))
+		if (CompareSmaller<std::shared_ptr<Shader>>(left.shader, right.shader, returnValue))
 			return returnValue;
 
-		if (CompareSmaller<RenderApi::VertexAttribID>(left.vertexData, right.vertexData, returnValue))
+		if (CompareSmaller< std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
 			return returnValue;
 
 		if (CompareSmaller<unsigned char>(left.priority, right.priority, returnValue))
@@ -57,7 +57,7 @@ namespace RexEngine
 		std::sort(m_renderCommands.begin(), m_renderCommands.end());
 
 		// Used to detect state changes
-		RenderCommand tempCommand{RenderApi::InvalidShaderID, RenderApi::InvalidBufferID, 0, Matrix4::Identity, RenderApi::CullingMode::Front, 0};
+		RenderCommand tempCommand{std::shared_ptr<Shader>(), std::shared_ptr<Mesh>(), Matrix4::Identity, RenderApi::CullingMode::Front, 0};
 		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
 		
 		// Execute the commands
@@ -66,13 +66,13 @@ namespace RexEngine
 			if (command.shader != tempCommand.shader)
 			{ // The shader changed
 				tempCommand.shader = command.shader;
-				RenderApi::BindShader(command.shader);
+				command.shader->Bind();
 			}
 
-			if (command.vertexData != tempCommand.vertexData)
+			if (command.mesh != tempCommand.mesh)
 			{ // The vertex data changed
-				tempCommand.vertexData = command.vertexData;
-				RenderApi::BindVertexAttributes(command.vertexData);
+				tempCommand.mesh = command.mesh;
+				command.mesh->Bind();
 			}
 
 			if (command.cullingMode != tempCommand.cullingMode)
@@ -86,7 +86,7 @@ namespace RexEngine
 			ModelUniforms modelData {command.modelMatrix };
 			RenderApi::SubBufferData(GetModelUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(ModelUniforms), &modelData);
 
-			RenderApi::DrawElements(command.indiceCount);
+			RenderApi::DrawElements(tempCommand.mesh->GetIndexCount());
 		}
 
 		m_renderCommands.clear();

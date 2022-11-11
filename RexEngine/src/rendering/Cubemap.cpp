@@ -208,8 +208,8 @@ void main()
 
 			frameBuffer.Bind();
 
-			auto& cubeMesh = Shapes::GetCubeMesh();
-			cubeMesh.Bind(); // Bind the cube
+			auto cubeMesh = Shapes::GetCubeMesh();
+			cubeMesh->Bind(); // Bind the cube
 
 			for (unsigned int i = 0; i < 6; ++i)
 			{
@@ -220,7 +220,7 @@ void main()
 				RenderApi::ClearColorBit();
 				RenderApi::ClearDepthBit();
 
-				RenderApi::DrawElements(cubeMesh.GetIndexCount()); // Render to the cubemap
+				RenderApi::DrawElements(cubeMesh->GetIndexCount()); // Render to the cubemap
 			}
 
 			frameBuffer.UnBind();
@@ -264,8 +264,8 @@ void main()
 
 		frameBuffer.Bind();
 
-		auto& cubeMesh = Shapes::GetCubeMesh();
-		cubeMesh.Bind(); // Bind the cube
+		auto cubeMesh = Shapes::GetCubeMesh();
+		cubeMesh->Bind(); // Bind the cube
 		for (unsigned int i = 0; i < 6; ++i)
 		{
 			irradianceShader->SetUniformMatrix4("transformMatrix", projectionMatrix * Internal::ViewMatrices[i]);
@@ -275,7 +275,7 @@ void main()
 			RenderApi::ClearColorBit();
 			RenderApi::ClearDepthBit();
 
-			RenderApi::DrawElements(cubeMesh.GetIndexCount()); // Render to the cubemap
+			RenderApi::DrawElements(cubeMesh->GetIndexCount()); // Render to the cubemap
 		}
 		frameBuffer.UnBind();
 		RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size

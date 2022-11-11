@@ -19,9 +19,14 @@ namespace RexEngine
             new (m_data) T(std::forward<Args>(args)...);
         }
 
-        pointer operator->()
+        pointer GetPtr()
         {
             return reinterpret_cast<pointer>(m_data);
+        }
+
+        pointer operator->()
+        {
+            return GetPtr();
         }
 
         T& operator*()
