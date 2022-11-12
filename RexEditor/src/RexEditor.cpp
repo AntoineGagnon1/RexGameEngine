@@ -7,9 +7,9 @@ using namespace RexEngine;
 
 int main()
 {
-	Window win("Test window", 1280, 720);
+	Window win("Test window", 1280, 720, 8);
 	win.MakeActive();
-	
+
 	win.SetResizeCallback([](Vector2Int size) {
 		RenderApi::SetViewportSize(size);
 	});

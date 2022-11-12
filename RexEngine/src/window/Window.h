@@ -12,7 +12,7 @@ namespace RexEngine
 	{
 	public:
 
-		Window(const std::string& title, int width, int height);
+		Window(const std::string& title, int width, int height, int msaa);
 		~Window();
 
 		bool ShouldClose() const;
@@ -31,6 +31,7 @@ namespace RexEngine
 
 
 		static void SetVSync(bool state);
+		static void SetMSAA(int level);
 
 		inline static Window* ActiveWindow() { return s_activeWindow; }
 	

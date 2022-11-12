@@ -6,8 +6,10 @@
 namespace RexEngine
 {
 
-	Window::Window(const std::string& title, int width, int height)
+	Window::Window(const std::string& title, int width, int height, int msaa)
 	{
+		glfwWindowHint(GLFW_SAMPLES, msaa);
+
 		m_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
 		if (!m_window)
 		{

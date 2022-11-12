@@ -18,7 +18,7 @@ namespace RexEngine
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		// Create a temp window to init glad
-		Window win("", 1, 1);
+		Window win("", 1, 1, 1);
 		win.MakeActive();
 		
 		// GLAD

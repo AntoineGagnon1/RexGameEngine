@@ -162,6 +162,8 @@ namespace RexEngine
 		GL_CALL(glClearDepthf(1.0f));
 
 		GL_CALL(glFrontFace(GL_CW));
+
+		GL_CALL(glEnable(GL_MULTISAMPLE));
 	}
 
 
