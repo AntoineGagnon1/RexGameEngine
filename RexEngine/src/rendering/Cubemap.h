@@ -25,6 +25,10 @@ namespace RexEngine
 		void Bind() const { RenderApi::BindTexture(m_id, RenderApi::TextureTarget::Cubemap); }
 		static void UnBind() { RenderApi::BindTexture(RenderApi::InvalidTextureID, RenderApi::TextureTarget::Cubemap); }
 
+		void SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value);
+		
+		void GenerateMipmaps();
+
 	private:
 		RenderApi::TextureID m_id;
 

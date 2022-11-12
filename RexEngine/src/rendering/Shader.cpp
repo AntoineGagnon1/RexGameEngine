@@ -147,6 +147,7 @@ namespace RexEngine
 			{
 				ReplaceIfFound(line, "POSITION", std::to_string(PositionLocation));
 				ReplaceIfFound(line, "NORMAL", std::to_string(NormalLocation));
+				ReplaceIfFound(line, "TEXCOORDS", std::to_string(UVLocation));
 			}
 
 			(*writingTo) << line << std::endl; // Save the line to the appropriate shader

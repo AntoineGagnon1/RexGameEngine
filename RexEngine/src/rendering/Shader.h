@@ -18,6 +18,7 @@ namespace RexEngine
 		// Location of these vertex attributes
 		inline static constexpr int PositionLocation = 0;
 		inline static constexpr int NormalLocation = 1;
+		inline static constexpr int UVLocation = 2;
 
 	public:
 

@@ -57,6 +57,8 @@ namespace RexEngine::Internal {
 	{
 		switch (format)
 		{
+		case RenderApi::PixelFormat::RG:
+			return GL_RG;
 		case RenderApi::PixelFormat::RGB:
 			return GL_RGB;
 		case RenderApi::PixelFormat::RGBA:
@@ -117,6 +119,8 @@ namespace RexEngine::Internal {
 			return GL_CLAMP_TO_EDGE;
 		case RenderApi::TextureOptionValue::Linear:
 			return GL_LINEAR;
+		case RenderApi::TextureOptionValue::LinearMipmap:
+			return GL_LINEAR_MIPMAP_LINEAR;
 		}
 
 		RE_ASSERT(false, "Invalid texture option value !");
@@ -159,11 +163,13 @@ namespace RexEngine
 	void RenderApi::Init()
 	{
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-		GL_CALL(glClearDepthf(1.0f));
 
 		GL_CALL(glFrontFace(GL_CW));
 
 		GL_CALL(glEnable(GL_MULTISAMPLE));
+
+		// For lower mip levels in pbr prefilter map
+		GL_CALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
 	}
 
 
@@ -424,6 +430,11 @@ namespace RexEngine
 		GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
 	}
 
+	void RenderApi::GenerateMipmaps(TextureTarget target)
+	{
+		GL_CALL(glGenerateMipmap(Internal::TextureTargetToGL(target)));
+	}
+
 
 
 	void RenderApi::SetViewportSize(Vector2Int size)
@@ -537,12 +548,12 @@ namespace RexEngine
 			, GL_RENDERBUFFER, renderBufferID));
 	}
 
-	void RenderApi::BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type)
+	void RenderApi::BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type, int mip)
 	{
 		BindFrameBuffer(id);
 
 		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, 
 			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
-			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, cubemap, 0));
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, cubemap, mip));
 	}
 }

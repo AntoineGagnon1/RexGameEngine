@@ -13,7 +13,7 @@ out vec3 worldPos;
 
 void main()
 { 
-	normal = aNormal;
+	normal = mat3(modelToWorld) * aNormal;
 	worldPos = vec3(modelToWorld * vec4(aPos, 1.0));
 	gl_Position = viewToScreen * worldToView * modelToWorld * vec4(aPos, 1.0);
 }
@@ -38,6 +38,8 @@ uniform float roughness;
 uniform float ao;
 
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -79,17 +81,22 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
 void main()
 { 
     vec3 N = normalize(normal);
     vec3 V = normalize(cameraPos - worldPos);
+    vec3 R = reflect(-V, N);
 
     vec3 F0 = vec3(0.04); // Min value for non-metal surfaces
     F0 = mix(F0, albedo, metallic);
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-       
     // TODO : optimize this :
     
     //for (int i = 0; i < 1; ++i)
@@ -119,13 +126,23 @@ void main()
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    // ambient lighting
-    vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    // Ambient
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+    vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;
+
     vec3 irradiance = texture(irradianceMap, N).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ao;
+
+    // Specular
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular) * ao;
 
     vec3 color = ambient + Lo;
 

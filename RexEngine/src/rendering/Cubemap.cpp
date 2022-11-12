@@ -67,4 +67,15 @@ namespace RexEngine
 
 		return cubemap;
 	}
+
+	void Cubemap::SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value)
+	{
+		RenderApi::SetTextureOption(m_id, RenderApi::TextureTarget::Cubemap, option, value);
+	}
+
+	void Cubemap::GenerateMipmaps()
+	{ 
+		Bind();
+		RenderApi::GenerateMipmaps(RenderApi::TextureTarget::Cubemap);
+	}
 }

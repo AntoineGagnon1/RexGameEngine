@@ -26,10 +26,12 @@ int main()
 
 	auto shader = Shader::FromFile("assets/TestShader.shader");
 	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
-	shader->SetUniformFloat("metallic", 0.1f);
-	shader->SetUniformFloat("roughness", 0.5f);
+	shader->SetUniformFloat("metallic", 0.8f);
+	shader->SetUniformFloat("roughness", 0.1f);
 	shader->SetUniformFloat("ao", 1.0f);
 	shader->SetUniformInt("irradianceMap", 1);
+	shader->SetUniformInt("prefilterMap", 2);
+	shader->SetUniformInt("brdfLUT", 3);
 
 	auto skyboxShader = Shader::FromFile("assets/skybox/Skybox.shader");
 	skyboxShader->SetUniformInt("skybox", 0);
@@ -37,11 +39,21 @@ int main()
 
 	auto skyboxIrradiance = PBR::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
 
+	auto skyboxPrefilter = PBR::CreatePreFilterMap(*skyboxMap, Vector2Int(128,128));
+
+	auto pbrLUT = PBR::CreateBRDFLut(Vector2Int(512, 512));
+
 	RenderApi::SetActiveTexture(0);
 	skyboxMap->Bind();
+	
 	RenderApi::SetActiveTexture(1);
 	skyboxIrradiance->Bind();
+	RenderApi::SetActiveTexture(2);
+	skyboxPrefilter->Bind();
+	RenderApi::SetActiveTexture(3);
+	pbrLUT->Bind();
 
+	RenderApi::SetActiveTexture(0);
 
 	Scene scene;
 	auto light = scene.CreateEntity();
@@ -77,8 +89,6 @@ int main()
 	//	-Textures
 
 	// TODO : Change roughness to smoothness in PBR
-	// TODO : use shapes::cube in forward renderer (skybox)
-	// TODO : move pbr code out of the cubemap file
 	// TODO : load Mesh from file
 	// TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
 	// TODO : use resource(asset) manager

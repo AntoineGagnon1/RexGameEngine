@@ -6,12 +6,15 @@
 namespace RexEngine
 {
 
-	Mesh::Mesh(std::span<const Vector3> vertices, std::span<const unsigned int> indices, std::span<const Vector3> normals)
+	Mesh::Mesh(std::span<const Vector3> vertices, std::span<const unsigned int> indices, std::span<const Vector3> normals, std::span<const Vector2> uvs)
 	{
 		m_hasNormals = normals.size() > 0;
+		m_hasUVs = uvs.size() > 0;
+
 		RE_ASSERT(vertices.size() == normals.size() || !m_hasNormals, "Mesh normal count was not the same as vertex count !");
+		RE_ASSERT(vertices.size() == uvs.size() || !m_hasUVs, "Mesh uvs count was not the same as vertex count !");
 		
-		m_vertexData.reserve(vertices.size_bytes() + normals.size_bytes());
+		m_vertexData.reserve(vertices.size_bytes() + normals.size_bytes() + uvs.size_bytes());
 
 		// Make the vertex data buffer
 		for (int i = 0; i < vertices.size(); i++)
@@ -23,6 +26,12 @@ namespace RexEngine
 			{
 				for (int s = 0; s < sizeof(Vector3); s++)
 					m_vertexData.push_back(((uint8_t*)&normals[i])[s]);
+			}
+
+			if (m_hasUVs)
+			{
+				for (int s = 0; s < sizeof(Vector2); s++)
+					m_vertexData.push_back(((uint8_t*)&uvs[i])[s]);
 			}
 		}
 
@@ -41,6 +50,9 @@ namespace RexEngine
 		attributes.push_back({ RenderApi::VertexAttributeType::Float3 , Shader::PositionLocation}); // Position
 		if(m_hasNormals)
 			attributes.push_back({ RenderApi::VertexAttributeType::Float3 , Shader::NormalLocation }); // Normal
+		if(m_hasUVs)
+			attributes.push_back({ RenderApi::VertexAttributeType::Float2 , Shader::UVLocation }); // UV
+
 
 		m_vertexAttributes = RenderApi::MakeVertexAttributes(std::span(attributes), m_vertexBuffer, m_indexBuffer);
 	}

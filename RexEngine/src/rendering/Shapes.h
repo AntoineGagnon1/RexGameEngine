@@ -10,6 +10,17 @@
 
 namespace RexEngine::Shapes
 {
+	// Quad
+	constexpr Vector3 QuadVertices[] = { {-1,  1, 0}, {-1, -1, 0}, { 1,  1, 0}, { 1, -1, 0} };
+	constexpr unsigned int QuadIndices[] = { 0,1,2, 1,2,3 };
+	constexpr Vector2 QuadUvs[] = { {0, 1}, {0, 0}, {1, 1}, {1, 0} };
+
+	inline std::shared_ptr<Mesh> GetQuadMesh()
+	{
+		static const NoDestroy<std::shared_ptr<Mesh>> mesh(std::make_shared<Mesh>(QuadVertices, QuadIndices, std::span<Vector3>{}, QuadUvs));
+		return *mesh;
+	}
+
 	// Cube
 	constexpr Vector3 CubeVertices[] = {
 		{-1,-1,-1}, {-1, 1,-1}, { 1, 1,-1}, { 1 ,1,-1}, { 1,-1,-1}, {-1,-1,-1},

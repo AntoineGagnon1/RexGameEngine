@@ -70,15 +70,15 @@ namespace RexEngine
 
 		enum class TextureTarget { Texture2D, Cubemap };
 		
-		// Order is important (used in loops) :
+		// Order and values are important (used in loops) :
 		enum class CubemapFace { CubemapRight = 0, CubemapLeft = 1, CubemapTop = 2, CubemapBottom = 3, CubemapFront = 4, CubemapBack = 5 };
 
-		enum class PixelFormat { RGB, RGBA, Depth, RGB16F };
+		enum class PixelFormat { RGB, RGBA, Depth, RGB16F, RG };
 		enum class PixelType { UByte, Depth, Float };
 
 
 		enum class TextureOption { WrapS, WrapT, WrapR, MinFilter, MagFilter };
-		enum class TextureOptionValue { Repeat, ClampToEdge, Linear };
+		enum class TextureOptionValue { Repeat, ClampToEdge, Linear, LinearMipmap };
 
 		static TextureID MakeTexture(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType);
 		static void BindTexture(TextureID id, TextureTarget target);
@@ -90,6 +90,8 @@ namespace RexEngine
 
 		static int GetActiveTexture();
 		static void SetActiveTexture(int index);
+
+		static void GenerateMipmaps(TextureTarget target);
 
 		// Viewport
 		static void SetViewportSize(Vector2Int size);
@@ -125,6 +127,6 @@ namespace RexEngine
 		static void DeleteFrameBuffer(FrameBufferID id);
 		static void BindFrameBufferTexture(FrameBufferID id, TextureID textureID, FrameBufferTextureType type);
 		static void BindFrameBufferRenderBuffer(FrameBufferID id, BufferID renderBufferID, FrameBufferTextureType type);
-		static void BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type);
+		static void BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type, int mip = 0);
 	};
 }
