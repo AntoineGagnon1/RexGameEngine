@@ -11,8 +11,8 @@ namespace RexEngine
 		// Delta time in seconds
 		inline static float DeltaTime()
 		{
-			using std::chrono_literals::operator""s;
-			return deltaTime / 1.0s;
+			using namespace std::chrono_literals;
+			return (float)(deltaTime / 1.0s);
 			std::string test = "123123";
 		}
 

@@ -59,6 +59,7 @@ project "RexEditor"
     language "C++"
     cppdialect "C++20"
 
+	ignoredefaultlibraries { "MSVCRT" }
     links { "RexEngine" }
    
     targetdir "bin/%{cfg.buildcfg}-%{cfg.platform}/%{prj.name}"

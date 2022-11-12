@@ -33,7 +33,7 @@ namespace RexEngine::Shapes
 	namespace Internal{
 		inline void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<unsigned int>& indices)
 		{ // From : http://www.songho.ca/opengl/gl_sphere.html
-			const float PI = 3.1415926535897;
+			const float PI = 3.1415926f;
 			const int stackCount = 64;
 			const int sectorCount = 64;
 			const float radius = 1.0f;

@@ -242,7 +242,7 @@ namespace RexEngine
 
 		GL_CALL(glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count));
 
-		for (GLuint i = 0; i < count; i++)
+		for (GLint i = 0; i < count; i++)
 		{
 			GL_CALL(glGetActiveUniform(id, i, bufSize, NULL, &size, &type, name));
 			int index = GL_CALL(glGetUniformLocation(id, name));
@@ -322,11 +322,11 @@ namespace RexEngine
 		BindBuffer(indices, RenderApi::BufferType::Indice);
 		
 		// Calculate the stride
-		int stride = 0;
+		size_t stride = 0;
 		for (auto&& type : attributes)
 		{
 			auto [_, count, size] = Internal::AttributeTypeToGLType(std::get<0>(type));
-			stride += count * size;
+			stride += (size_t)count * size;
 		}
 
 		// Set the attributes
@@ -336,7 +336,7 @@ namespace RexEngine
 			auto [type, count, size] = Internal::AttributeTypeToGLType(std::get<0>(attributes[i]));
 			int location = std::get<1>(attributes[i]);
 			GL_CALL(glEnableVertexAttribArray(location));
-			GL_CALL(glVertexAttribPointer(location, count, type, GL_FALSE, stride, (void*)offset));
+			GL_CALL(glVertexAttribPointer(location, count, type, GL_FALSE, (GLsizei)stride, (void*)offset));
 			
 			offset += size * count;
 		}
@@ -449,7 +449,7 @@ namespace RexEngine
 
 	void RenderApi::DrawElements(size_t count)
 	{
-		GL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0));
+		GL_CALL(glDrawElements(GL_TRIANGLES, (GLsizei)count, GL_UNSIGNED_INT, 0));
 	}
 
 
