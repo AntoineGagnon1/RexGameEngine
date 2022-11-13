@@ -4,6 +4,57 @@
 
 namespace RexEngine
 {
+	class Timer
+	{
+	public:
+
+		void Start()
+		{
+			if (m_paused)
+			{
+				m_paused = false;
+				m_timeLast = ClockType::now();
+			}
+		}
+
+		void Pause()
+		{
+			if (!m_paused)
+			{
+				m_elapsed += ClockType::now() - m_timeLast;
+				m_paused = true;
+			}
+		}
+
+		void Restart()
+		{
+			using namespace std::chrono_literals;
+			m_paused = true;
+			m_elapsed = 0s;
+			Start();
+		}
+		
+		double ElapsedSeconds()
+		{
+			using namespace std::chrono_literals;
+			if (!m_paused)
+			{
+				Pause(); // Update m_elapsed
+				Start();
+			}
+
+			return (float)(m_elapsed / 1.0s);
+		}
+
+
+	private:
+		using ClockType = std::chrono::steady_clock;
+		
+		ClockType::time_point m_timeLast;
+		ClockType::duration m_elapsed;
+		bool m_paused = false;
+	};
+
 	class Time
 	{
 	public:
@@ -13,7 +64,6 @@ namespace RexEngine
 		{
 			using namespace std::chrono_literals;
 			return (float)(deltaTime / 1.0s);
-			std::string test = "123123";
 		}
 
 		// Call this once at the start of every frame

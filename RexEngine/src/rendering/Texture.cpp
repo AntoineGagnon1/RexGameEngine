@@ -23,7 +23,7 @@ namespace RexEngine
 	}
 
 	Texture::Texture(RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType)
-		: m_size(size), m_target(target)
+		: m_size(size), m_target(target), m_gpuFormat(gpuFormat)
 	{
 		m_id = RenderApi::MakeTexture(target, gpuFormat, m_size, data, dataFormat, dataType);
 
@@ -40,6 +40,7 @@ namespace RexEngine
 	{
 		RenderApi::DeleteTexture(m_id);
 	}
+
 
 	std::shared_ptr<Texture> Texture::FromFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat)
 	{
@@ -75,6 +76,12 @@ namespace RexEngine
 		stbi_image_free(data);
 
 		return std::shared_ptr<Texture>();
+	}
+
+	void Texture::SetData(Vector2Int newSize, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType)
+	{
+		m_size = newSize;
+		RenderApi::SetTextureData(m_id, m_target, m_gpuFormat, newSize, data, dataFormat, dataType);
 	}
 
 	void Texture::SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value)

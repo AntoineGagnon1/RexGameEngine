@@ -1,3 +1,4 @@
+#include "REDPch.h"
 #include "Gui.h"
 
 #include <imgui/imgui.h>
@@ -64,6 +65,36 @@ namespace RexEditor
 	void Gui::EndWindow()
 	{
 		ImGui::End();
+	}
+
+	Vector2Int Gui::GetWindowSize()
+	{
+		auto size = ImGui::GetWindowSize();
+		return {size.x, size.y};
+	}
+
+	bool Gui::IsWindowFocused()
+	{
+		return ImGui::IsWindowFocused();
+	}
+
+	void Gui::DrawFullWindowTexture(const RexEngine::Texture& texture)
+	{
+		auto min = ImGui::GetWindowContentRegionMin();
+		auto max = ImGui::GetWindowContentRegionMax();
+		auto winPos = ImGui::GetWindowPos();
+
+		min.x += winPos.x;
+		min.y += winPos.y;
+		max.x += winPos.x;
+		max.y += winPos.y;
+
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->AddImage((ImTextureID)texture.GetId(),
+			min,
+			max,
+			ImVec2(0, 1),
+			ImVec2(1, 0));
 	}
 
 }

@@ -163,7 +163,7 @@ namespace RexEngine
 	void RenderApi::Init()
 	{
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-
+		glClearColor(255,0,0,255);
 		GL_CALL(glFrontFace(GL_CW));
 
 		GL_CALL(glEnable(GL_MULTISAMPLE));
@@ -367,6 +367,14 @@ namespace RexEngine
 	{
 		TextureID id;
 		GL_CALL(glGenTextures(1, &id));
+		
+		SetTextureData(id, target, gpuFormat, size, data, dataFormat, dataType);
+
+		return id;
+	}
+
+	void RenderApi::SetTextureData(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType)
+	{
 		BindTexture(id, target);
 
 		GL_CALL(glTexImage2D(
@@ -377,8 +385,6 @@ namespace RexEngine
 			Internal::PixelTypeToGL(dataType),
 			data
 		));
-
-		return id;
 	}
 
 	void RenderApi::BindTexture(TextureID id, TextureTarget target)
@@ -496,8 +502,7 @@ namespace RexEngine
 		BufferID id;
 		GL_CALL(glGenRenderbuffers(1, &id));
 
-		GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, id));
-		GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, Internal::PixelTypeToGL(type), size.x, size.y));
+		SetRenderBufferSize(id, type, size);
 		return id;
 	}
 
@@ -510,6 +515,13 @@ namespace RexEngine
 	{
 		GL_CALL(glDeleteRenderbuffers(1, &id));
 	}
+
+	void RenderApi::SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size)
+	{
+		BindRenderBuffer(id);
+		GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, Internal::PixelTypeToGL(type), size.x, size.y));
+	}
+
 
 	RenderApi::FrameBufferID RenderApi::MakeFrameBuffer()
 	{
@@ -555,5 +567,12 @@ namespace RexEngine
 		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, 
 			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, cubemap, mip));
+	}
+
+	RenderApi::FrameBufferID RenderApi::GetBoundFrameBuffer()
+	{
+		GLint id;
+		GL_CALL(glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &id));
+		return id;
 	}
 }

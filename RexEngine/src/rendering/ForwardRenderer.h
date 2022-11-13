@@ -3,6 +3,7 @@
 #include "../scene/Scene.h"
 #include "../scene/Components.h"
 
+#include "FrameBuffer.h"
 
 namespace RexEngine
 {

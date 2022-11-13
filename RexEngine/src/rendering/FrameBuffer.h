@@ -43,6 +43,11 @@ namespace RexEngine
 			RenderApi::BindFrameBufferRenderBuffer(m_id, buffer.GetId(), type);
 		}
 
+		void UnBindRenderBuffer(RenderApi::FrameBufferTextureType type)
+		{
+			RenderApi::BindFrameBufferRenderBuffer(m_id, RenderApi::InvalidBufferID, type);
+		}
+
 		void BindCubemapFace(const Cubemap& cubemap, RenderApi::CubemapFace face, RenderApi::FrameBufferTextureType type, int mip = 0)
 		{
 			RenderApi::BindFrameBufferCubemapFace(m_id, face, cubemap.GetId(), type, mip);

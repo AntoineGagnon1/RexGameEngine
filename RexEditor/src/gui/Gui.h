@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RexEngine.h>
+#include <string>
 
 namespace RexEditor
 {
@@ -50,6 +51,11 @@ namespace RexEditor
         [[nodiscard("Usage : if(BeginWindow()){...}")]] 
         static bool BeginWindow(const std::string& name, bool& open, WindowSetting::WindowSetting_ settings = WindowSetting::None);
 		static void EndWindow();
+        static Vector2Int GetWindowSize();
+        static bool IsWindowFocused();
+
+        // Draw a texture that fils the window
+        static void DrawFullWindowTexture(const RexEngine::Texture& texture);
 
 	private:
 		inline static RexEngine::Window* s_window = nullptr;

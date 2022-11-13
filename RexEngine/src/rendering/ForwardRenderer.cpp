@@ -42,15 +42,10 @@ namespace RexEngine
 			RenderQueue::AddCommand(RenderCommand(c.shader, c.mesh, modelMatrix, c.cullingMode, c.priority));
 		}
 
-
-		// Clear the screen
-		RenderApi::ClearColorBit();
-		RenderApi::ClearDepthBit();
-
 		// Execute the render queue to actually render the objects on the screen
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::Less);
 		RenderQueue::ExecuteCommands();
-
+		
 		// Skybox
 		
 		// Get the skybox component
@@ -69,7 +64,6 @@ namespace RexEngine
 			
 			RenderQueue::AddCommand(RenderCommand(c.shader, skyboxMesh, Matrix4::Identity, RenderApi::CullingMode::Both, 0));
 		}
-
 		// Render the skybox
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
  		RenderQueue::ExecuteCommands();

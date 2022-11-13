@@ -1,41 +1,41 @@
-#include <iostream>
-#include <span>
-
-#include <RexEngine.h>
+#include "REDPch.h"
 
 #include "gui/Gui.h"
+#include "gui/panels/SceneView.h"
+#include "project/Project.h"
 
 
 int main()
 {
 	using namespace RexEngine;
 	using namespace RexEditor;
-	Window win("Test window", 1280, 720, 8);
+	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
 
 	win.SetResizeCallback([](Vector2Int size) {
 		RenderApi::SetViewportSize(size);
 		});
 
-	Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
+	Project::CurrentScene = Scene();
+	auto skyboxShader = Shader::FromFile("assets/skybox/Skybox.shader");
+	auto skyboxMap = PBR::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
+	auto light = Project::CurrentScene.CreateEntity();
+	light.AddComponent<SkyboxComponent>().shader = skyboxShader;
 
 	RenderApi::Init();
 	Gui::Init(win);
 
+	SceneView sceneView;
+
+	Timer editorFrameTime;
+	editorFrameTime.Start();
 	while (!win.ShouldClose())
 	{
+		float deltaTime = editorFrameTime.ElapsedSeconds();
+		editorFrameTime.Restart();
 		Gui::NewFrame();
-		Time::StartNewFrame();
 
-		if (Inputs::GetAction("Close").IsDown())
-			win.Close();
-
-		static bool winOpen = true;
-		if(Gui::BeginWindow("Test", winOpen))
-		{
-			
-		}
-		Gui::EndWindow();
+		sceneView.Render(deltaTime);
 
 		RenderApi::ClearColorBit();
 		RenderApi::ClearDepthBit();
@@ -47,11 +47,13 @@ int main()
 	}
 
 	Gui::Close();
+
+	Project::CurrentScene = Scene(); // Important! : delete all shared_ptr stored in the scene
 	return 0;
 }
 
 /*
-Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
+	Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
 	Inputs::AddAction("MoveForward").AddBinding<KeyboardInput>(KeyCode::W, KeyCode::S);
 	Inputs::AddAction("MoveRight").AddBinding<KeyboardInput>(KeyCode::D, KeyCode::A);
 	Inputs::AddAction("MoveUp").AddBinding<KeyboardInput>(KeyCode::Space, KeyCode::LeftShift);

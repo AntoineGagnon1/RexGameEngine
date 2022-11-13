@@ -356,6 +356,7 @@ void main()
 			Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
 
 			// Make the framebuffer
+			RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 			FrameBuffer frameBuffer;
 			RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
 			frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
@@ -389,7 +390,7 @@ void main()
 				RenderApi::DrawElements(cubeMesh->GetIndexCount()); // Render to the cubemap
 			}
 
-			frameBuffer.UnBind();
+			RenderApi::BindFrameBuffer(oldFrameBuffer);
 			RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
 		}
 
@@ -414,6 +415,7 @@ void main()
 		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
 
 		// Create the frame buffer
+		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 		FrameBuffer frameBuffer;
 		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
@@ -444,7 +446,8 @@ void main()
 
 			RenderApi::DrawElements(cubeMesh->GetIndexCount()); // Render to the cubemap
 		}
-		frameBuffer.UnBind();
+		
+		RenderApi::BindFrameBuffer(oldFrameBuffer);
 		RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
 
 		return cubemap;
@@ -468,6 +471,7 @@ void main()
 		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
 
 		// Create the frame buffer
+		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 		FrameBuffer frameBuffer;
 		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
@@ -512,7 +516,7 @@ void main()
 			}
 		}
 
-		frameBuffer.UnBind();
+		RenderApi::BindFrameBuffer(oldFrameBuffer);
 		RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
 
 		return cubemap;
@@ -526,6 +530,7 @@ void main()
 												 RenderApi::PixelType::Float);
 
 		// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 		FrameBuffer frameBuffer;
 		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
@@ -544,7 +549,7 @@ void main()
 		quad->Bind();
 		RenderApi::DrawElements(quad->GetIndexCount());
 
-		frameBuffer.UnBind();
+		RenderApi::BindFrameBuffer(oldFrameBuffer);
 		RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
 
 		return texture;

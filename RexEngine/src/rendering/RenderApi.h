@@ -81,6 +81,7 @@ namespace RexEngine
 		enum class TextureOptionValue { Repeat, ClampToEdge, Linear, LinearMipmap };
 
 		static TextureID MakeTexture(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType);
+		static void SetTextureData(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType);
 		static void BindTexture(TextureID id, TextureTarget target);
 		static void SetTextureOption(TextureID id, TextureTarget target, TextureOption option, TextureOptionValue value);
 		static void DeleteTexture(TextureID id);
@@ -115,6 +116,7 @@ namespace RexEngine
 		static BufferID MakeRenderBuffer(PixelType type, Vector2Int size);
 		static void BindRenderBuffer(BufferID id);
 		static void DeleteRenderBuffer(BufferID id);
+		static void SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size);
 			
 		// Frame buffers
 		typedef unsigned int FrameBufferID;
@@ -128,5 +130,7 @@ namespace RexEngine
 		static void BindFrameBufferTexture(FrameBufferID id, TextureID textureID, FrameBufferTextureType type);
 		static void BindFrameBufferRenderBuffer(FrameBufferID id, BufferID renderBufferID, FrameBufferTextureType type);
 		static void BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type, int mip = 0);
+
+		static FrameBufferID GetBoundFrameBuffer();
 	};
 }

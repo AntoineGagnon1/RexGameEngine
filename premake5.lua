@@ -60,10 +60,12 @@ project "RexEditor"
     cppdialect "C++20"
 
 	ignoredefaultlibraries { "MSVCRT" }
-    links { "RexEngine" }
    
     targetdir "bin/%{cfg.buildcfg}-%{cfg.platform}/%{prj.name}"
     objdir "obj/%{cfg.buildcfg}-%{cfg.platform}/%{prj.name}"
+
+	pchheader "REDPch.h"
+    pchsource "%{prj.name}/src/REDPch.cpp"
 
     files { 
 		"%{prj.name}/src/**.h", 
@@ -76,9 +78,16 @@ project "RexEditor"
 	}
 
     includedirs { 
-        "RexEngine",
+	    "RexEngine/",
         "RexEngine/vendor",
 		
 		"%{prj.name}/src",
         "%{prj.name}/vendor"
     }
+	
+	links { "RexEngine" }
+	
+	-- Disable Pch for vendors
+    filter "files:**/vendor/**.**"
+    flags {"NoPCH"}
+    filter {}

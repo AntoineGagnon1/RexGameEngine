@@ -34,3 +34,4 @@
 #include "src/inputs/Inputs.h"
 #include "src/inputs/Keyboard.h"
 #include "src/inputs/Mouse.h"
+#include "src/inputs/Input.h"

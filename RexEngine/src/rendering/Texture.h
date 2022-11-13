@@ -20,6 +20,8 @@ namespace RexEngine
 		static std::shared_ptr<Texture> FromFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
 		static std::shared_ptr<Texture> FromHDRIFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
 
+		void SetData(Vector2Int newSize, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);
+
 		int Width() const { return m_size.x; }
 		int Height() const { return m_size.y; }
 
@@ -36,5 +38,6 @@ namespace RexEngine
 		Vector2Int m_size;
 		RenderApi::TextureID m_id;
 		RenderApi::TextureTarget m_target; // Cache the target for SetOption()
+		RenderApi::PixelFormat m_gpuFormat; // Cached for SetData()
 	};
 }
