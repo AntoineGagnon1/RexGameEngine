@@ -78,6 +78,11 @@ namespace RexEditor
 		return ImGui::IsWindowFocused();
 	}
 
+	bool Gui::IsWindowHovered()
+	{
+		return ImGui::IsWindowHovered();
+	}
+
 	void Gui::DrawFullWindowTexture(const RexEngine::Texture& texture)
 	{
 		auto min = ImGui::GetWindowContentRegionMin();

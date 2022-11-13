@@ -17,6 +17,7 @@ namespace RexEditor
 
 		Vector2Int PanelSize() { return m_size; }
 		bool IsFocused() { return m_focused; }
+		bool IsHovered();
 
 	protected:
 		virtual void OnGui(float deltaTime) = 0;

@@ -18,7 +18,7 @@ namespace RexEditor
 		SceneView() : Panel("Scene View"),
 			m_viewTexture(RexEngine::RenderApi::TextureTarget::Texture2D, RexEngine::RenderApi::PixelFormat::RGB, { 0,0 }, NULL, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte),
 			m_viewDepth(RexEngine::RenderApi::PixelType::Depth, { 0,0 }),
-			m_roll(0.0f), m_pitch(0.0f)
+			m_roll(0.0f), m_pitch(0.0f), m_captured(false)
 		{
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
@@ -40,34 +40,37 @@ namespace RexEditor
 
 		virtual void OnGui(float deltaTime) override
 		{
-			// Only move if focused
-			if (IsFocused())
+			// Update the inputs
+			for (auto&& pair : m_inputs)
+				pair.second->PollInputs();
+			
+			// Free/capture the mouse if needed
+			if (m_inputs["Capture"]->IsJustDown() && IsHovered())
 			{
-				// Update the inputs
-				for (auto&& pair : m_inputs)
-					pair.second->PollInputs();
-
-				// Free/capture the mouse if needed
-				if(m_inputs["Capture"]->IsJustDown() && IsFocused())
-					RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Locked);
-				else if (m_inputs["Capture"]->IsJustUp() && IsFocused())
-					RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Free);
-
+				RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Locked);
+				m_captured = true;
+			}
+			else if (m_inputs["Capture"]->IsJustUp() && m_captured)
+			{
+				RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Free);
+				m_captured = false;
+			}
+			
+			// Only move if captured
+			if (m_captured && m_inputs["Capture"]->IsDown())
+			{
 				// FPS Controls
-				if (m_inputs["Capture"]->IsDown())
-				{
-					m_cameraTransform.position += m_cameraTransform.Forward() * (m_inputs["MoveForward"]->GetValue() * m_moveSpeed * Time::DeltaTime());
-					m_cameraTransform.position += m_cameraTransform.Right() * (m_inputs["MoveRight"]->GetValue() * m_moveSpeed * Time::DeltaTime());
-					m_cameraTransform.position += m_cameraTransform.Up() * (m_inputs["MoveUp"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+				m_cameraTransform.position += m_cameraTransform.Forward() * (m_inputs["MoveForward"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+				m_cameraTransform.position += m_cameraTransform.Right() * (m_inputs["MoveRight"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+				m_cameraTransform.position += m_cameraTransform.Up() * (m_inputs["MoveUp"]->GetValue() * m_moveSpeed * Time::DeltaTime());
 
-					m_roll += m_rotationSpeed * -m_inputs["LookRight"]->GetValue() * Time::DeltaTime();
-					m_pitch += m_rotationSpeed * -m_inputs["LookUp"]->GetValue() * Time::DeltaTime();
+				m_roll += m_rotationSpeed * -m_inputs["LookRight"]->GetValue() * Time::DeltaTime();
+				m_pitch += m_rotationSpeed * -m_inputs["LookUp"]->GetValue() * Time::DeltaTime();
 
-					m_pitch = Scalar::Clamp(m_pitch, -89.999f, 89.999f);
+				m_pitch = Scalar::Clamp(m_pitch, -89.999f, 89.999f);
 
-					m_cameraTransform.rotation = Quaternion::AngleAxis(m_roll, Directions::Up);
-					m_cameraTransform.rotation.Rotate(m_pitch, m_cameraTransform.Right());
-				}
+				m_cameraTransform.rotation = Quaternion::AngleAxis(m_roll, Directions::Up);
+				m_cameraTransform.rotation.Rotate(m_pitch, m_cameraTransform.Right());
 			}
 
 			// Tell the engine timer that a new frame has begun
@@ -102,6 +105,7 @@ namespace RexEditor
 		float m_roll, m_pitch;
 		const float m_moveSpeed = 1.0f;
 		const float m_rotationSpeed = 40000.0f;
+		bool m_captured;
 
 		RexEngine::FrameBuffer m_viewBuffer;
 		RexEngine::Texture m_viewTexture;

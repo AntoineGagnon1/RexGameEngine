@@ -51,4 +51,9 @@ namespace RexEditor
 	{
 		m_open = true;
 	}
+
+	bool Panel::IsHovered()
+	{ 
+		return Gui::IsWindowHovered();
+	}
 }

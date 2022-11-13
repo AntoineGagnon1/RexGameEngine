@@ -53,6 +53,7 @@ namespace RexEditor
 		static void EndWindow();
         static Vector2Int GetWindowSize();
         static bool IsWindowFocused();
+        static bool IsWindowHovered();
 
         // Draw a texture that fils the window
         static void DrawFullWindowTexture(const RexEngine::Texture& texture);
