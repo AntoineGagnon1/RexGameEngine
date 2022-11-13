@@ -1,21 +1,57 @@
 #include <iostream>
-
-#include <RexEngine.h>
 #include <span>
 
-using namespace RexEngine;
+#include <RexEngine.h>
+
+#include "gui/Gui.h"
+
 
 int main()
 {
+	using namespace RexEngine;
+	using namespace RexEditor;
 	Window win("Test window", 1280, 720, 8);
 	win.MakeActive();
 
 	win.SetResizeCallback([](Vector2Int size) {
 		RenderApi::SetViewportSize(size);
-	});
-
+		});
 
 	Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
+
+	RenderApi::Init();
+	Gui::Init(win);
+
+	while (!win.ShouldClose())
+	{
+		Gui::NewFrame();
+		Time::StartNewFrame();
+
+		if (Inputs::GetAction("Close").IsDown())
+			win.Close();
+
+		static bool winOpen = true;
+		if(Gui::BeginWindow("Test", winOpen))
+		{
+			
+		}
+		Gui::EndWindow();
+
+		RenderApi::ClearColorBit();
+		RenderApi::ClearDepthBit();
+
+		Gui::RenderGui();
+
+		win.SwapBuffers();
+		Inputs::PollInputs();
+	}
+
+	Gui::Close();
+	return 0;
+}
+
+/*
+Inputs::AddAction("Close").AddBinding<KeyboardInput>(KeyCode::Escape);
 	Inputs::AddAction("MoveForward").AddBinding<KeyboardInput>(KeyCode::W, KeyCode::S);
 	Inputs::AddAction("MoveRight").AddBinding<KeyboardInput>(KeyCode::D, KeyCode::A);
 	Inputs::AddAction("MoveUp").AddBinding<KeyboardInput>(KeyCode::Space, KeyCode::LeftShift);
@@ -26,7 +62,7 @@ int main()
 
 	auto shader = Shader::FromFile("assets/TestShader.shader");
 	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
-	shader->SetUniformFloat("metallic", 0.8f);
+	shader->SetUniformFloat("metallic", 0.5f);
 	shader->SetUniformFloat("roughness", 0.1f);
 	shader->SetUniformFloat("ao", 1.0f);
 	shader->SetUniformInt("irradianceMap", 1);
@@ -45,7 +81,7 @@ int main()
 
 	RenderApi::SetActiveTexture(0);
 	skyboxMap->Bind();
-	
+
 	RenderApi::SetActiveTexture(1);
 	skyboxIrradiance->Bind();
 	RenderApi::SetActiveTexture(2);
@@ -85,10 +121,9 @@ int main()
 	player.AddComponent<CameraComponent>();
 
 	// TODO : In RenderQueue
-	//	-Output buffer id ? 
+	//	-Output buffer id ?
 	//	-Textures
 
-	// TODO : Change roughness to smoothness in PBR
 	// TODO : load Mesh from file
 	// TODO : add pivot to mesh (Anchor point for rotations, negative translation before the object matrix)
 	// TODO : use resource(asset) manager
@@ -134,4 +169,6 @@ int main()
 	}
 
 	return 0;
-}
+
+
+*/

@@ -67,10 +67,18 @@ project "RexEditor"
 
     files { 
 		"%{prj.name}/src/**.h", 
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		
+		"%{prj.name}/vendor/**.h", 
+        "%{prj.name}/vendor/**.hpp",
+        "%{prj.name}/vendor/**.c",
+		"%{prj.name}/vendor/**.cpp"
 	}
 
     includedirs { 
         "RexEngine",
-        "RexEngine/vendor"
+        "RexEngine/vendor",
+		
+		"%{prj.name}/src",
+        "%{prj.name}/vendor"
     }
