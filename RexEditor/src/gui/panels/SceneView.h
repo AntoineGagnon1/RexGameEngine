@@ -23,7 +23,7 @@ namespace RexEditor
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
 
-			m_inputs.insert({"FreeMouse", std::move(std::make_unique<KeyboardInput>(KeyCode::Escape)) });
+			m_inputs.insert({"Capture", std::move(std::make_unique<MouseButtonInput>(MouseButton::Right)) });
 			m_inputs.insert({"MoveForward", std::move(std::make_unique<KeyboardInput>(KeyCode::W, KeyCode::S)) });
 			m_inputs.insert({"MoveRight", std::move(std::make_unique<KeyboardInput>(KeyCode::D, KeyCode::A)) });
 			m_inputs.insert({"MoveUp", std::move(std::make_unique<KeyboardInput>(KeyCode::Space, KeyCode::LeftShift)) });
@@ -38,16 +38,6 @@ namespace RexEditor
 			m_viewDepth.SetSize(newSize);
 		}
 
-		virtual void OnFocusEnter() override
-		{
-			RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Locked);
-		}
-		
-		virtual void OnFocusLeave() override
-		{
-			RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Free);
-		}
-
 		virtual void OnGui(float deltaTime) override
 		{
 			// Only move if focused
@@ -57,22 +47,27 @@ namespace RexEditor
 				for (auto&& pair : m_inputs)
 					pair.second->PollInputs();
 
-				// Free the mouse if needed
-				if(m_inputs["FreeMouse"]->IsJustDown())
+				// Free/capture the mouse if needed
+				if(m_inputs["Capture"]->IsJustDown() && IsFocused())
+					RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Locked);
+				else if (m_inputs["Capture"]->IsJustUp() && IsFocused())
 					RexEngine::Cursor::SetCursorMode(RexEngine::CursorMode::Free);
 
 				// FPS Controls
-				m_cameraTransform.position += m_cameraTransform.Forward() * (m_inputs["MoveForward"]->GetValue() * m_moveSpeed * Time::DeltaTime());
-				m_cameraTransform.position += m_cameraTransform.Right() * (m_inputs["MoveRight"]->GetValue() * m_moveSpeed * Time::DeltaTime());
-				m_cameraTransform.position += m_cameraTransform.Up() * (m_inputs["MoveUp"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+				if (m_inputs["Capture"]->IsDown())
+				{
+					m_cameraTransform.position += m_cameraTransform.Forward() * (m_inputs["MoveForward"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+					m_cameraTransform.position += m_cameraTransform.Right() * (m_inputs["MoveRight"]->GetValue() * m_moveSpeed * Time::DeltaTime());
+					m_cameraTransform.position += m_cameraTransform.Up() * (m_inputs["MoveUp"]->GetValue() * m_moveSpeed * Time::DeltaTime());
 
-				m_roll += m_rotationSpeed * -m_inputs["LookRight"]->GetValue() * Time::DeltaTime();
-				m_pitch += m_rotationSpeed * -m_inputs["LookUp"]->GetValue() * Time::DeltaTime();
+					m_roll += m_rotationSpeed * -m_inputs["LookRight"]->GetValue() * Time::DeltaTime();
+					m_pitch += m_rotationSpeed * -m_inputs["LookUp"]->GetValue() * Time::DeltaTime();
 
-				m_pitch = Scalar::Clamp(m_pitch, -89.999f, 89.999f);
+					m_pitch = Scalar::Clamp(m_pitch, -89.999f, 89.999f);
 
-				m_cameraTransform.rotation = Quaternion::AngleAxis(m_roll, Directions::Up);
-				m_cameraTransform.rotation.Rotate(m_pitch, m_cameraTransform.Right());
+					m_cameraTransform.rotation = Quaternion::AngleAxis(m_roll, Directions::Up);
+					m_cameraTransform.rotation.Rotate(m_pitch, m_cameraTransform.Right());
+				}
 			}
 
 			// Tell the engine timer that a new frame has begun

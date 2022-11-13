@@ -5,6 +5,18 @@
 
 #include "window/Window.h"
 
+namespace
+{
+	int MouseButtonToGLFW[] = {
+		GLFW_MOUSE_BUTTON_RIGHT,
+		GLFW_MOUSE_BUTTON_LEFT,
+		GLFW_MOUSE_BUTTON_MIDDLE,
+		GLFW_MOUSE_BUTTON_4,
+		GLFW_MOUSE_BUTTON_5,
+		-1 // None
+	};
+}
+
 namespace RexEngine
 {
 	MouseInput::MouseInput(MouseInputType type)
@@ -56,6 +68,28 @@ namespace RexEngine
 			m_value = (T)y;
 			break;
 		}
+	}
+
+	MouseButtonInput::MouseButtonInput(MouseButton positive, MouseButton negative)
+		: m_positive(positive), m_negative(negative)
+	{ }
+
+	void MouseButtonInput::PollInputs()
+	{
+		if (Window::ActiveWindow() == nullptr)
+			return;
+
+		bool positive = m_positive == MouseButton::None ? false : (glfwGetMouseButton(Window::ActiveWindow()->WindowHandle(), MouseButtonToGLFW[(int)m_positive]) == GLFW_PRESS);
+		bool negative = m_negative == MouseButton::None ? false : (glfwGetMouseButton(Window::ActiveWindow()->WindowHandle(), MouseButtonToGLFW[(int)m_negative]) == GLFW_PRESS);
+
+		bool newDown = positive; // Only the positive key is considered for down/justDown/justUp
+
+		m_justDown = newDown && !m_down;
+		m_justUp = !newDown && m_down;
+
+		m_down = newDown;
+
+		m_value = (positive ? 1.0f : 0.0f) + (negative ? -1.0f : 0.0f);
 	}
 
 

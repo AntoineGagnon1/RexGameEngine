@@ -16,11 +16,47 @@ int main()
 		RenderApi::SetViewportSize(size);
 		});
 
-	Project::CurrentScene = Scene();
+	auto shader = Shader::FromFile("assets/TestShader.shader");
+	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
+	shader->SetUniformFloat("metallic", 0.5f);
+	shader->SetUniformFloat("roughness", 0.1f);
+	shader->SetUniformFloat("ao", 1.0f);
+	shader->SetUniformInt("irradianceMap", 1);
+	shader->SetUniformInt("prefilterMap", 2);
+	shader->SetUniformInt("brdfLUT", 3);
+
 	auto skyboxShader = Shader::FromFile("assets/skybox/Skybox.shader");
+	skyboxShader->SetUniformInt("skybox", 0);
 	auto skyboxMap = PBR::FromHDRI("assets/skybox/env.hdr", Vector2Int(1024, 1024));
+
+	auto skyboxIrradiance = PBR::CreateIrradianceMap(*skyboxMap, Vector2Int(32, 32), 0.025f);
+
+	auto skyboxPrefilter = PBR::CreatePreFilterMap(*skyboxMap, Vector2Int(128, 128));
+
+	auto pbrLUT = PBR::CreateBRDFLut(Vector2Int(512, 512));
+
+	RenderApi::SetActiveTexture(0);
+	skyboxMap->Bind();
+
+	RenderApi::SetActiveTexture(1);
+	skyboxIrradiance->Bind();
+	RenderApi::SetActiveTexture(2);
+	skyboxPrefilter->Bind();
+	RenderApi::SetActiveTexture(3);
+	pbrLUT->Bind();
+
+	RenderApi::SetActiveTexture(0);
+
+
+	Project::CurrentScene = Scene();
 	auto light = Project::CurrentScene.CreateEntity();
 	light.AddComponent<SkyboxComponent>().shader = skyboxShader;
+
+	auto& lightTransform = light.AddComponent<TransformComponent>();
+	lightTransform.position = Vector3(0, 0, 5);
+	auto& lightMesh = light.AddComponent<MeshRendererComponent>();
+	lightMesh.shader = shader;
+	lightMesh.mesh = Shapes::GetSphereMesh();
 
 	RenderApi::Init();
 	Gui::Init(win);
