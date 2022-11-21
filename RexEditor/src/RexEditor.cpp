@@ -9,6 +9,10 @@ int main()
 {
 	using namespace RexEngine;
 	using namespace RexEditor;
+
+	ScriptEngine::Start();
+	ScriptEngine::test();
+
 	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
 
@@ -16,7 +20,9 @@ int main()
 		RenderApi::SetViewportSize(size);
 		});
 
-	auto shader = Shader::FromFile("assets/TestShader.shader");
+	RenderApi::Init();
+
+	/*auto shader = Shader::FromFile("assets/TestShader.shader");
 	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
 	shader->SetUniformFloat("metallic", 0.5f);
 	shader->SetUniformFloat("roughness", 0.1f);
@@ -58,20 +64,19 @@ int main()
 	lightMesh.shader = shader;
 	lightMesh.mesh = Shapes::GetSphereMesh();
 
-	RenderApi::Init();
+	*/
 	Gui::Init(win);
 
-	SceneView sceneView;
+	//SceneView sceneView;
 
 	Timer editorFrameTime;
 	editorFrameTime.Start();
 	while (!win.ShouldClose())
 	{
-		float deltaTime = editorFrameTime.ElapsedSeconds();
+		float deltaTime = (float)editorFrameTime.ElapsedSeconds();
 		editorFrameTime.Restart();
 		Gui::NewFrame();
-
-		sceneView.Render(deltaTime);
+		//sceneView.Render(deltaTime);
 
 		RenderApi::ClearColorBit();
 		RenderApi::ClearDepthBit();

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ProjectGuid>{308A4845-1CED-D7E9-C572-10A0B1B4A36C}</ProjectGuid>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<Configurations>Debug Win64; Release Win64</Configurations>
+	<Platforms>x64</Platforms>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <GenerateRuntimeConfigDevFile>true</GenerateRuntimeConfigDevFile>
+    <OutputPath>$(SolutionDir)bin\$(Configuration.Replace(" ", "-"))\ScriptEngine</OutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(Configuration.Replace(" ", "-"))\ScriptEngine</BaseIntermediateOutputPath>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

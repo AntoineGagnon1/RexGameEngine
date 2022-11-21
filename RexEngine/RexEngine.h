@@ -35,3 +35,7 @@
 #include "src/inputs/Keyboard.h"
 #include "src/inputs/Mouse.h"
 #include "src/inputs/Input.h"
+
+// Scripting
+#include "src/scripting/ScriptEngine.h"
+#include "src/scripting/ScriptHost.h"

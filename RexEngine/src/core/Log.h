@@ -25,21 +25,27 @@ namespace RexEngine::Log
 			fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str), std::forward<Args>(args)...));
 	}
 
+	// Print with no location info, used for CSharp api
+	template <typename... Args>
+	inline void Print(const fmt::v9::text_style& style, const std::string& type, fmt::format_string<Args...>&& fmt_str, Args&&... args)
+	{
+		fmt::print(style, "[{}] - {}\n", type, fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str), std::forward<Args>(args)...));
+	}
 
 	// Client Logging
 	// Print using the fmt syntax, in debug mode only
 	#ifdef RE_DEBUG
-		#define RE_LOG_DEBUG(...) RexEngine::Log::Print(fg(fmt::color::green), "DEBUG", std::source_location::current(), __VA_ARGS__);
+		#define RE_LOG_DEBUG(...) RexEngine::Log::Print(fg(fmt::color::green), "DEBUG", std::source_location::current(), __VA_ARGS__)
 	#else
-		#define RE_LOG_DEBUG(...)
+		#define RE_LOG_DEBUG(...) 
 	#endif
 
 	// Print using the fmt syntax
-	#define RE_LOG_INFO(...) RexEngine::Log::Print(fg(fmt::color::gray), "INFO", std::source_location::current(), __VA_ARGS__);
+	#define RE_LOG_INFO(...) RexEngine::Log::Print(fg(fmt::color::gray), "INFO", std::source_location::current(), __VA_ARGS__)
 
 	// Print using the fmt syntax
-	#define RE_LOG_WARN(...) RexEngine::Log::Print(fg(fmt::color::yellow), "WARNING", std::source_location::current(), __VA_ARGS__);
+	#define RE_LOG_WARN(...) RexEngine::Log::Print(fg(fmt::color::yellow), "WARNING", std::source_location::current(), __VA_ARGS__)
 
 	// Print using the fmt syntax
-	#define RE_LOG_ERROR(...) RexEngine::Log::Print(fg(fmt::color::red) | fmt::emphasis::bold, "ERROR", std::source_location::current(), __VA_ARGS__);
+	#define RE_LOG_ERROR(...) RexEngine::Log::Print(fg(fmt::color::red) | fmt::emphasis::bold, "ERROR", std::source_location::current(), __VA_ARGS__)
 }

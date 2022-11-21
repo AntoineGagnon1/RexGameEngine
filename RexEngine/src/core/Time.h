@@ -8,6 +8,14 @@ namespace RexEngine
 	{
 	public:
 
+		Timer()
+			: m_paused(false)
+		{
+			using namespace std::chrono_literals;
+			m_timeLast = ClockType::now();
+			m_elapsed = 0s;
+		}
+
 		void Start()
 		{
 			if (m_paused)
@@ -52,7 +60,7 @@ namespace RexEngine
 		
 		ClockType::time_point m_timeLast;
 		ClockType::duration m_elapsed;
-		bool m_paused = false;
+		bool m_paused;
 	};
 
 	class Time
