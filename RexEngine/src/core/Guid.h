@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <random>
 #include <chrono>
+#include <functional>
 
 namespace RexEngine
 {
@@ -46,7 +47,7 @@ namespace RexEngine
 
 		// Format this Guid to a sring
 		// Format : 00000000-00000000-00000000-00000000
-		std::string ToString()
+		std::string ToString() const
 		{
 			char addressChars[36];
 
@@ -72,8 +73,24 @@ namespace RexEngine
 			dataHigh = Empty.dataHigh;
 		}
 
+		size_t GetHash() const
+		{
+			return dataHigh * dataLow;
+		}
+
 		auto operator<=>(Guid const&) const = default;
 	};
 
 	inline Guid Guid::Empty = Guid(0,0);
+
 }
+
+template <>
+class std::hash<RexEngine::Guid>
+{
+public:
+	size_t operator()(const RexEngine::Guid& guid) const
+	{
+		return guid.GetHash();
+	}
+};

@@ -14,10 +14,17 @@ namespace RexEngine
 	{
 	private:
 		friend class Scene;
-		Entity(entt::registry& registry, entt::entity handle);
+
+		Entity(entt::registry* registry, entt::entity handle)
+			: m_registry(registry), m_handle(handle), m_entityGuid(Guid::Empty)
+		{
+			m_entityGuid = m_registry->get<Guid>(m_handle); // Dont use GetComponent<>() because the entity is not valid yet
+			AssertValid();
+		}
 
 	public:
-		Entity() : m_registry(nullptr), m_handle(entt::null), m_guid(Guid::Empty) {}
+		Entity(const Guid& guid);
+		Entity() : Entity(Guid::Empty) {}
 		Entity(const Entity& from) = default;
 		
 		// Is the entity valid and has not been deleted ?
@@ -81,17 +88,18 @@ namespace RexEngine
 
 		inline friend auto operator<=>(const Entity& left, const Entity& right)
 		{
-			return left.m_guid <=> right.m_guid;
+			return left.m_entityGuid <=> right.m_entityGuid;
 		}
 
 	private:
-		entt::registry* m_registry;
-		entt::entity m_handle;
-
 		// Used to detect if the entity was deleted, because the Guid component
 		// will set itself to 0 on deletion
-		Guid m_guid;
+		Guid m_entityGuid;
+
+		entt::entity m_handle;
+		entt::registry* m_registry; // cache
 
 		void AssertValid() const;
+		entt::registry& GetRegistry() const;
 	};
 }

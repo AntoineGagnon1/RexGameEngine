@@ -16,6 +16,7 @@
 
 // Scene
 #include "src/scene/Scene.h"
+#include "src/scene/SceneManager.h"
 #include "src/scene/Entity.h"
 #include "src/scene/Components.h"
 

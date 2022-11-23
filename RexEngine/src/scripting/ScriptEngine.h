@@ -4,6 +4,8 @@
 
 #include "ScriptHost.h"
 
+#include "../scene/Entity.h"
+
 namespace RexEngine
 {
 	class ScriptHost;
@@ -31,16 +33,16 @@ namespace RexEngine
 			RE_LOG_WARN("HereCPP {} {}", a, guid.ToString());
 		}
 
-		static void test()
+		static void test(Entity e)
 		{
-			ReloadEngine();
+			//ReloadEngine();
 			bool b = RegisterInternalCall("RexEngine.Test.TestFuncCpp", (void*)TestFuncCpp);
 			
 			//auto getFunc = m_host->GetFunction<void(*)(), const char*, const char*>("ScriptEngine", "ScriptEngine.Internal", "GetManagedFunction");
 			//auto a = getFunc("RexEngine.Test", "TestFunc");
-			auto a = GetManagedFunction<void>("RexEngine.Test", "TestFunc");
+			auto a = GetManagedFunction<void, Guid>("RexEngine.Test", "TestFunc");
 			//auto a = m_host->GetFunction<void>("ScriptApi", "RexEngine.Test", "TestFunc");
-			a();
+			a(e.GetGuid());
 		}
 
 		// Somehow works even if the function is not __stdcall ?
@@ -66,6 +68,7 @@ namespace RexEngine
 		inline static ScriptFunc<void> m_unloadAssemblies = nullptr;
 
 		inline static ScriptFunc<void, float> m_setDeltaTime = nullptr;
+		inline static ScriptFunc<void, const char*, uint8_t, float> m_setActionData = nullptr;
 
 		inline static std::vector<std::string> m_loadedAssemblies; // Used to reload all the assemblies
 	};

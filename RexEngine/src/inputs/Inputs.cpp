@@ -1,6 +1,8 @@
 #include <REPch.h>
 #include "Inputs.h"
 
+#include <ranges>
+
 #include "core/Libs.h"
 
 namespace RexEngine
@@ -16,6 +18,13 @@ namespace RexEngine
 	{
 		RE_ASSERT(m_actions.contains(name), "Action {} does not exist !", name);
 		return m_actions[name];
+	}
+
+	std::vector<std::string> Inputs::GetActions()
+	{
+		auto kv = std::views::keys(m_actions);
+		std::vector<std::string> keys{ kv.begin(), kv.end() };
+		return keys;
 	}
 
 	void Inputs::PollInputs()

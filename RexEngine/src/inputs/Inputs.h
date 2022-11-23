@@ -16,6 +16,9 @@ namespace RexEngine
 
 		static Action& GetAction(const std::string& name);
 
+		// Get the name of all the loaded actions
+		static std::vector<std::string> GetActions();
+
 		// Call every frame
 		static void PollInputs();
 		

@@ -2,7 +2,6 @@
 
 #include "gui/Gui.h"
 #include "gui/panels/SceneView.h"
-#include "project/Project.h"
 
 
 int main()
@@ -11,7 +10,12 @@ int main()
 	using namespace RexEditor;
 
 	ScriptEngine::Start();
-	ScriptEngine::test();
+	Scene scene = SceneManager::CreateScene();
+	auto e = scene.CreateEntity();
+	ScriptEngine::test(e);
+	scene.DestroyEntity(e);
+	ScriptEngine::test(e);
+
 
 	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
@@ -21,6 +25,8 @@ int main()
 		});
 
 	RenderApi::Init();
+
+	Inputs::AddAction("TestAction").AddBinding<KeyboardInput>(KeyCode::Space);
 
 	/*auto shader = Shader::FromFile("assets/TestShader.shader");
 	shader->SetUniformVector3("albedo", Vector3(1.0f, 0.0f, 0.0f));
@@ -76,6 +82,9 @@ int main()
 		float deltaTime = (float)editorFrameTime.ElapsedSeconds();
 		editorFrameTime.Restart();
 		Gui::NewFrame();
+		Time::StartNewFrame();
+		ScriptEngine::StartNewFrame();
+		//ScriptEngine::test();
 		//sceneView.Render(deltaTime);
 
 		RenderApi::ClearColorBit();
@@ -89,7 +98,7 @@ int main()
 
 	Gui::Close();
 
-	Project::CurrentScene = Scene(); // Important! : delete all shared_ptr stored in the scene
+	//Project::CurrentScene = Scene(); // Important! : delete all shared_ptr stored in the scene
 	return 0;
 }
 

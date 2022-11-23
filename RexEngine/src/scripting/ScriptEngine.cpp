@@ -4,6 +4,9 @@
 #include "ScriptHost.h"
 #include <core/FileStructure.h>
 #include <core/Time.h>
+#include <inputs/Inputs.h>
+#include <scene/Entity.h>
+#include <scene/SceneManager.h>
 
 namespace RexEngine::Internal
 {
@@ -33,6 +36,12 @@ namespace RexEngine::Internal
 	{
 		auto str = guid.ToString();
 		strcpy(writeInto, str.c_str());
+	}
+
+	uint8_t IsEntityValid(Guid guid)
+	{
+		Entity e(guid);
+		return e ? 1 : 0;
 	}
 }
 
@@ -87,9 +96,18 @@ namespace RexEngine
 
 	void ScriptEngine::StartNewFrame()
 	{
-		if (m_setDeltaTime != nullptr)
+		m_setDeltaTime(Time::DeltaTime());
+
+		for (auto&& name : Inputs::GetActions())
 		{
-			m_setDeltaTime(Time::DeltaTime());
+			auto& action = Inputs::GetAction(name);
+			
+			uint8_t bools = 0;
+			bools |= action.IsDown();
+			bools |= action.IsJustDown() << 1;
+			bools |= action.IsJustUp() << 2;
+
+			m_setActionData(name.c_str(), bools, action.GetValue());
 		}
 	}
 
@@ -116,8 +134,15 @@ namespace RexEngine
 		RE_ASSERT(RegisterInternalCall("RexEngine.CoreCalls.GuidToString", (void*)Internal::GuidToString),
 			"Error registering RexEngine.CoreCalls.GuidToString !");
 
+		// Scene
+		RE_ASSERT(RegisterInternalCall("RexEngine.SceneCalls.IsEntityValid", (void*)Internal::IsEntityValid),
+			"Error registering RexEngine.SceneCalls.IsEntityValid !");
+
 		// Get Managed functions in ScriptApi
 		m_setDeltaTime = GetManagedFunction<void, float>("RexEngine.Time", "SetDeltaTime");
 		RE_ASSERT(m_setDeltaTime != nullptr, "Error loading the RexEngine.Time.SetDeltaTime function !");
+
+		m_setActionData = GetManagedFunction<void, const char*, uint8_t, float>("RexEngine.Inputs", "SetActionData");
+		RE_ASSERT(m_setActionData != nullptr, "Error loading the RexEngine.Inputs.SetActionData function !");
 	}
 }

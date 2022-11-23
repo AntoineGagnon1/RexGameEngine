@@ -7,9 +7,7 @@
 
 #include "../Panel.h"
 #include "../Gui.h"
-
-#include "../../project/Project.h"
-
+/*
 namespace RexEditor
 {
 	class SceneView : public Panel
@@ -114,3 +112,4 @@ namespace RexEditor
 		std::map<std::string, std::unique_ptr<RexEngine::Input>> m_inputs;
 	};
 }
+*/
