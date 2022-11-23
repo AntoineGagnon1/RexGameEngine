@@ -47,31 +47,6 @@ namespace RexEngine::Internal
 
 namespace RexEngine
 {
-	bool ScriptEngine::Start()
-	{
-		m_host = std::make_unique<ScriptHost>(Dirs::ScriptEngineDir, "ScriptEngine");
-		RE_ASSERT(m_host != nullptr, "Error loading the ScriptEngine !");
-
-		// Load the functions
-		m_setInternalCall = m_host->GetFunction<uint8_t, const char*, void*>("ScriptEngine", "ScriptEngine.Internal", "SetInternalCall");
-		m_getManagedCall = m_host->GetFunction<void*, const char*, const char*>("ScriptEngine", "ScriptEngine.Internal", "GetManagedFunction");
-		m_loadAssembly = m_host->GetFunction<uint8_t, const char*>("ScriptEngine", "ScriptEngine.Internal", "LoadAssembly");
-		m_unloadAssemblies = m_host->GetFunction<void>("ScriptEngine", "ScriptEngine.Internal", "UnloadAssemblies");
-
-		RE_ASSERT(m_unloadAssemblies != nullptr, "Error loading the ScriptEngine.UnloadAssemblies function !");
-		RE_ASSERT(m_loadAssembly != nullptr, "Error loading the ScriptEngine.LoadAssembly function !");
-		RE_ASSERT(m_getManagedCall != nullptr, "Error loading the ScriptEngine.GetManagedFunction function !");
-		RE_ASSERT(m_setInternalCall != nullptr, "Error loading the ScriptEngine.SetInternalCall function !");
-
-		// Load the ScriptApi Assembly
-		LoadAssembly("Dotnet/ScriptEngine/ScriptApi.dll");
-
-		// Register the internal calls
-		RegisterApi();
-
-		return true;
-	}
-
 	bool ScriptEngine::LoadAssembly(const std::string& name)
 	{
 		m_loadedAssemblies.push_back(name);
@@ -92,23 +67,6 @@ namespace RexEngine
 			LoadAssembly(a);
 
 		RegisterApi(); // The internal calls where lost, set them again
-	}
-
-	void ScriptEngine::StartNewFrame()
-	{
-		m_setDeltaTime(Time::DeltaTime());
-
-		for (auto&& name : Inputs::GetActions())
-		{
-			auto& action = Inputs::GetAction(name);
-			
-			uint8_t bools = 0;
-			bools |= action.IsDown();
-			bools |= action.IsJustDown() << 1;
-			bools |= action.IsJustUp() << 2;
-
-			m_setActionData(name.c_str(), bools, action.GetValue());
-		}
 	}
 
 	bool ScriptEngine::RegisterInternalCall(const std::string& callName, void* func)
@@ -144,5 +102,45 @@ namespace RexEngine
 
 		m_setActionData = GetManagedFunction<void, const char*, uint8_t, float>("RexEngine.Inputs", "SetActionData");
 		RE_ASSERT(m_setActionData != nullptr, "Error loading the RexEngine.Inputs.SetActionData function !");
+	}
+
+	void ScriptEngine::StartEngine()
+	{
+		m_host = std::make_unique<ScriptHost>(Dirs::ScriptEngineDir, "ScriptEngine");
+		RE_ASSERT(m_host != nullptr, "Error loading the ScriptEngine !");
+
+		// Load the functions
+		m_setInternalCall = m_host->GetFunction<uint8_t, const char*, void*>("ScriptEngine", "ScriptEngine.Internal", "SetInternalCall");
+		m_getManagedCall = m_host->GetFunction<void*, const char*, const char*>("ScriptEngine", "ScriptEngine.Internal", "GetManagedFunction");
+		m_loadAssembly = m_host->GetFunction<uint8_t, const char*>("ScriptEngine", "ScriptEngine.Internal", "LoadAssembly");
+		m_unloadAssemblies = m_host->GetFunction<void>("ScriptEngine", "ScriptEngine.Internal", "UnloadAssemblies");
+
+		RE_ASSERT(m_unloadAssemblies != nullptr, "Error loading the ScriptEngine.UnloadAssemblies function !");
+		RE_ASSERT(m_loadAssembly != nullptr, "Error loading the ScriptEngine.LoadAssembly function !");
+		RE_ASSERT(m_getManagedCall != nullptr, "Error loading the ScriptEngine.GetManagedFunction function !");
+		RE_ASSERT(m_setInternalCall != nullptr, "Error loading the ScriptEngine.SetInternalCall function !");
+
+		// Load the ScriptApi Assembly
+		LoadAssembly("Dotnet/ScriptEngine/ScriptApi.dll");
+
+		// Register the internal calls
+		RegisterApi();
+	}
+
+	void ScriptEngine::UpdateEngine()
+	{
+		m_setDeltaTime(Time::DeltaTime());
+
+		for (auto&& name : Inputs::GetActions())
+		{
+			auto& action = Inputs::GetAction(name);
+
+			uint8_t bools = 0;
+			bools |= action.IsDown();
+			bools |= action.IsJustDown() << 1;
+			bools |= action.IsJustUp() << 2;
+
+			m_setActionData(name.c_str(), bools, action.GetValue());
+		}
 	}
 }

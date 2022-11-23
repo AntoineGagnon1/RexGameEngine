@@ -40,3 +40,7 @@
 // Scripting
 #include "src/scripting/ScriptEngine.h"
 #include "src/scripting/ScriptHost.h"
+
+// Events
+#include "src/events/Event.h"
+#include "src/events/EngineEvents.h"

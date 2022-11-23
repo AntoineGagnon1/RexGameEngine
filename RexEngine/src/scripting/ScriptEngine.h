@@ -6,6 +6,9 @@
 
 #include "../scene/Entity.h"
 
+#include "../events/EngineEvents.h"
+#include "../utils/StaticConstructor.h"
+
 namespace RexEngine
 {
 	class ScriptHost;
@@ -14,36 +17,11 @@ namespace RexEngine
 	class ScriptEngine
 	{
 	public:
-		
-		// Start the script engine, returns false if an error occured
-		static bool Start();
-
+	
 		static bool LoadAssembly(const std::string& name);
 
 		// Reload all the assemblies in the engine
 		static void ReloadEngine();
-
-		// Should be called every frame after Time::StartNewFrame
-		// TODO : move this to a Engine event
-		static void StartNewFrame();
-
-		static void __stdcall TestFuncCpp(int a, Guid guid)
-		{
-			Guid g(3, 5);
-			RE_LOG_WARN("HereCPP {} {}", a, guid.ToString());
-		}
-
-		static void test(Entity e)
-		{
-			//ReloadEngine();
-			bool b = RegisterInternalCall("RexEngine.Test.TestFuncCpp", (void*)TestFuncCpp);
-			
-			//auto getFunc = m_host->GetFunction<void(*)(), const char*, const char*>("ScriptEngine", "ScriptEngine.Internal", "GetManagedFunction");
-			//auto a = getFunc("RexEngine.Test", "TestFunc");
-			auto a = GetManagedFunction<void, Guid>("RexEngine.Test", "TestFunc");
-			//auto a = m_host->GetFunction<void>("ScriptApi", "RexEngine.Test", "TestFunc");
-			a(e.GetGuid());
-		}
 
 		// Somehow works even if the function is not __stdcall ?
 		static bool RegisterInternalCall(const std::string& callName, void* func);
@@ -57,6 +35,15 @@ namespace RexEngine
 
 	private:
 		static void RegisterApi();
+
+		static void StartEngine();
+
+		static void UpdateEngine();
+
+		RE_STATIC_CONSTRUCTOR({
+			EngineEvents::OnEngineStart().Register<&ScriptEngine::StartEngine>();
+			EngineEvents::OnUpdate().Register<&ScriptEngine::UpdateEngine>();
+		})
 
 	private:
 

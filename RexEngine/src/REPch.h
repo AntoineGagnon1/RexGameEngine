@@ -28,6 +28,7 @@
 #include "utils/Concepts.h"
 #include "utils/StringHelper.h"
 #include "utils/NoDestroy.h"
+#include "utils/StaticConstructor.h"
 
 #include "math/Vectors.h"
 #include "math/Quaternion.h"

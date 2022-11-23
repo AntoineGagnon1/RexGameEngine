@@ -1,6 +1,8 @@
 #pragma once
 #include <chrono>
 
+#include "../events/EngineEvents.h"
+#include "../utils/StaticConstructor.h"
 
 namespace RexEngine
 {
@@ -74,7 +76,7 @@ namespace RexEngine
 			return (float)(deltaTime / 1.0s);
 		}
 
-		// Call this once at the start of every frame
+	private:
 		inline static void StartNewFrame()
 		{
 			static ClockType::time_point timeLastFrame = ClockType::now(); // The first frame will have a delta time of 0
@@ -84,6 +86,10 @@ namespace RexEngine
 
 			timeLastFrame = now;
 		}
+
+		RE_STATIC_CONSTRUCTOR({ 
+			EngineEvents::OnPreUpdate().Register<&Time::StartNewFrame>();
+		})
 
 	private:
 		using ClockType = std::chrono::steady_clock;
