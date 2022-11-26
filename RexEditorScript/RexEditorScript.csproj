@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ProjectGuid>{C0575995-79D9-48EE-B4DE-4F0FF0FC7F1F}</ProjectGuid>
+    <ProjectGuid>{7BF78010-D122-4748-B3D5-5C39DE22E2AD}</ProjectGuid>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -11,17 +11,21 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <OutputPath>$(SolutionDir)bin\$(Configuration.Replace(" ", "-"))\ScriptApi</OutputPath>
-    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(Configuration.Replace(" ", "-"))\ScriptApi</BaseIntermediateOutputPath>
+    <OutputPath>$(SolutionDir)bin\$(Configuration.Replace(" ", "-"))\RexEditorScript</OutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(Configuration.Replace(" ", "-"))\RexEditorScript</BaseIntermediateOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win64|x64'">
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Win64|x64'">
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Win64|x64'">
-    <LangVersion>preview</LangVersion>
-  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ScriptApi\ScriptApi.csproj" />
+  </ItemGroup>
 
 </Project>

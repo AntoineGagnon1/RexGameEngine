@@ -8,7 +8,7 @@
 namespace RexEditor
 {
 	// Static init
-	void Gui::Init(RexEngine::Window& window)
+	void Imgui::Init(RexEngine::Window& window)
 	{
 		s_window = &window;
 
@@ -27,14 +27,14 @@ namespace RexEditor
 		ImGui_ImplOpenGL3_Init("#version 130");
 	};
 
-	void Gui::Close()
+	void Imgui::Close()
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	void Gui::NewFrame()
+	void Imgui::NewFrame()
 	{
 		// Start a new frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -43,10 +43,10 @@ namespace RexEditor
 		ImGui::DockSpaceOverViewport();
 	}
 
-	void Gui::RenderGui()
+	void Imgui::RenderGui()
 	{
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplOpenGL3_RenderDrawData(::ImGui::GetDrawData());
 
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
@@ -57,33 +57,48 @@ namespace RexEditor
 	}
 
 
-	bool Gui::BeginWindow(const std::string& name, bool& open, WindowSetting::WindowSetting_ settings)
+	bool Imgui::BeginWindow(const std::string& name, bool& open, WindowSetting::WindowSetting_ settings)
 	{
 		return ImGui::Begin(name.c_str(), &open, settings);
 	}
 
-	void Gui::EndWindow()
+	void Imgui::EndWindow()
 	{
 		ImGui::End();
 	}
 
-	Vector2Int Gui::GetWindowSize()
+	Vector2Int Imgui::GetWindowSize()
 	{
 		auto size = ImGui::GetWindowSize();
 		return {size.x, size.y};
 	}
 
-	bool Gui::IsWindowFocused()
+	bool Imgui::IsWindowFocused()
 	{
 		return ImGui::IsWindowFocused();
 	}
 
-	bool Gui::IsWindowHovered()
+	bool Imgui::IsWindowHovered()
 	{
 		return ImGui::IsWindowHovered();
 	}
 
-	void Gui::DrawFullWindowTexture(const RexEngine::Texture& texture)
+	void Imgui::BeginFullScreenWindow()
+	{
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->WorkPos);
+		ImGui::SetNextWindowSize(viewport->WorkSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+
+		bool open = true;
+		Imgui::BeginWindow("Root", open, (WindowSetting::WindowSetting_)(WindowSetting::NoDecoration | WindowSetting::NoResize | WindowSetting::MenuBar));
+
+		ImGui::PopStyleVar();
+	}
+
+	void Imgui::DrawFullWindowTexture(const RexEngine::Texture& texture)
 	{
 		auto min = ImGui::GetWindowContentRegionMin();
 		auto max = ImGui::GetWindowContentRegionMax();
@@ -102,4 +117,32 @@ namespace RexEditor
 			ImVec2(1, 0));
 	}
 
+	bool Imgui::BeginMenuBar()
+	{
+		return ImGui::BeginMenuBar();
+	}
+
+	void Imgui::EndMenuBar()
+	{
+		ImGui::EndMenuBar();
+	}
+
+	bool Imgui::BeginMenu(const std::string& name, bool enabled)
+	{
+		return ImGui::BeginMenu(name.c_str(), enabled);
+	}
+
+	void Imgui::EndMenu()
+	{
+		ImGui::EndMenu();
+	}
+
+	void Imgui::MenuItem(const std::string& name, std::function<void()> toCall, bool enabled)
+	{
+		bool selected = false;
+		ImGui::MenuItem(name.c_str(), NULL, &selected, enabled);
+
+		if (selected)
+			toCall();
+	}
 }

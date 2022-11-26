@@ -14,10 +14,10 @@ namespace RexEditor
 		if (!m_open)
 			return; // panel is hidden
 
-		if (Gui::BeginWindow(m_title.c_str(), m_open, WindowSetting::NoCollapse))
+		if (Imgui::BeginWindow(m_title.c_str(), m_open, WindowSetting::NoCollapse))
 		{
 			// Handle resize
-			auto newSize = Gui::GetWindowSize();
+			auto newSize = Imgui::GetWindowSize();
 			if (m_size != newSize)
 			{
 				auto oldSize = m_size;
@@ -26,7 +26,7 @@ namespace RexEditor
 			}
 
 			// Handle focus
-			auto newFocus = Gui::IsWindowFocused();
+			auto newFocus = Imgui::IsWindowFocused();
 			if (m_focused != newFocus)
 			{
 				m_focused = newFocus;
@@ -39,7 +39,7 @@ namespace RexEditor
 			OnGui(deltaTime);
 		}
 
-		Gui::EndWindow();
+		Imgui::EndWindow();
 	}
 
 	void Panel::Hide()
@@ -54,6 +54,6 @@ namespace RexEditor
 
 	bool Panel::IsHovered()
 	{ 
-		return Gui::IsWindowHovered();
+		return Imgui::IsWindowHovered();
 	}
 }

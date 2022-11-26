@@ -7,6 +7,7 @@
 #include "src/core/Assert.h"
 #include "src/core/Guid.h"
 #include "src/core/Time.h"
+#include "src/core/FileStructure.h"
 
 // Math
 #include "src/math/Scalar.h"

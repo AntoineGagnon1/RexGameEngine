@@ -69,6 +69,13 @@ externalproject "ScriptApi"
    uuid "C0575995-79D9-48EE-B4DE-4F0FF0FC7F1F"
    kind "SharedLib"
    language "C#"
+   
+externalproject "RexEditorScript"
+   location "%{wks.location}/RexEditorScript"
+   uuid "7BF78010-D122-4748-B3D5-5C39DE22E2AD"
+   kind "SharedLib"
+   language "C#"
+	
 	
 
 project "RexEditor"
@@ -84,6 +91,8 @@ project "RexEditor"
 
 	pchheader "REDPch.h"
     pchsource "%{prj.name}/src/REDPch.cpp"
+
+	dependson { "RexEditorScript" }
 
     files { 
 		"%{prj.name}/src/**.h", 
@@ -119,6 +128,7 @@ project "RexEditor"
 		"{COPY} ".. TargetDir .."/ScriptEngine/ScriptEngine.dll $(OutDir)Dotnet/ScriptEngine", -- copy the ScriptEngine files
 		"{COPY} ".. TargetDir .."/ScriptEngine/ScriptEngine.runtimeconfig.json $(OutDir)Dotnet/ScriptEngine",
 		"{COPY} ".. TargetDir .."/ScriptApi/ScriptApi.dll $(OutDir)Dotnet/ScriptEngine", -- ScriptApi
+		"{COPY} ".. TargetDir .."/RexEditorScript/RexEditorScript.dll $(OutDir)Dotnet/Editor", -- RexEditorScript
 	}
 	
 	-- Always run the post build commands

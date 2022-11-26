@@ -1,7 +1,13 @@
 #include "REDPch.h"
 
-#include "gui/Gui.h"
-#include "gui/panels/SceneView.h"
+#include "ui/Gui.h"
+#include "ui/MenuBar.h"
+#include "ui/panels/SceneView.h"
+
+void MenuTest()
+{
+	RE_LOG_INFO("Menu Test");
+}
 
 int main()
 {
@@ -10,7 +16,15 @@ int main()
 
 	EngineEvents::OnEngineStart().Dispatch();
 
+	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
+
+	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
 	Scene scene = SceneManager::CreateScene();
+	auto e = scene.CreateEntity();
+	f(e.GetGuid());
+	e.AddComponent<TransformComponent>();
+	f(e.GetGuid());
+
 
 	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
@@ -21,7 +35,10 @@ int main()
 
 	RenderApi::Init();
 
-	Gui::Init(win);
+	Imgui::Init(win);
+
+	MenuBar::RegisterMenuFunction("TestMenu/TestSub/Invalid", nullptr);
+	MenuBar::RegisterMenuFunction("TestMenu/TestSub/Valid", MenuTest);
 
 	//SceneView sceneView;
 
@@ -32,7 +49,12 @@ int main()
 		float deltaTime = (float)editorFrameTime.ElapsedSeconds();
 		editorFrameTime.Restart();
 		EngineEvents::OnPreUpdate().Dispatch();
-		Gui::NewFrame();
+		Imgui::NewFrame();
+
+		// Start a full screen window
+		Imgui::BeginFullScreenWindow();
+		MenuBar::DrawMenuBar();
+		Imgui::EndWindow();
 
 		EngineEvents::OnUpdate().Dispatch();
 		//sceneView.Render(deltaTime);
@@ -40,12 +62,12 @@ int main()
 		RenderApi::ClearColorBit();
 		RenderApi::ClearDepthBit();
 
-		Gui::RenderGui();
+		Imgui::RenderGui();
 
 		win.SwapBuffers();
 	}
 
-	Gui::Close();
+	Imgui::Close();
 	// TODO : unload scene
 	return 0;
 }

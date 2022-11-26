@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ namespace RexEngine
     public unsafe static class SceneCalls
     {
         public static delegate* unmanaged[Stdcall]<GUID, byte> IsEntityValid;
+        // entity guid, component type
+        public static delegate* unmanaged[Stdcall]<GUID, int, byte> HasComponent;
     }
 
     public class Entity : IEquatable<Entity>
@@ -49,5 +52,16 @@ namespace RexEngine
             return lhs.Equals(rhs);
         }
         public static bool operator !=(Entity? lhs, Entity? rhs) => !(lhs == rhs);
+
+        public unsafe bool HasComponent<T>() where T : IComponent
+        { 
+            // TODO : check for ScriptComponent
+            return SceneCalls.HasComponent(Guid, T.GetTypeId()) != 0;
+        }
+    }
+
+    public interface IComponent
+    {
+        public static abstract int GetTypeId(); // Get the ids in ScriptEngine.cpp:HasComponent
     }
 }

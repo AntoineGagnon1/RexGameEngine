@@ -18,7 +18,7 @@ namespace RexEngine
 	{
 	public:
 	
-		static bool LoadAssembly(const std::string& name);
+		static bool LoadAssembly(const std::filesystem::path& path);
 
 		// Reload all the assemblies in the engine
 		static void ReloadEngine();

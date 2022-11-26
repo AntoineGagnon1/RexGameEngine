@@ -1,12 +1,15 @@
 #include "REPch.h"
 #include "ScriptEngine.h"
 
+#include <filesystem>
+
 #include "ScriptHost.h"
 #include <core/FileStructure.h>
 #include <core/Time.h>
 #include <inputs/Inputs.h>
 #include <scene/Entity.h>
 #include <scene/SceneManager.h>
+#include <scene/Components.h>
 
 namespace RexEngine::Internal
 {
@@ -43,14 +46,29 @@ namespace RexEngine::Internal
 		Entity e(guid);
 		return e ? 1 : 0;
 	}
+
+	uint8_t HasComponent(Guid guid, int typeId)
+	{
+		Entity e(guid);
+
+		switch (typeId)
+		{
+		case 0:
+			return e.HasComponent<TransformComponent>();
+
+		default:
+			RE_ASSERT(false, "Component type {} no found !", typeId);
+			return 0;
+		}
+	}
 }
 
 namespace RexEngine
 {
-	bool ScriptEngine::LoadAssembly(const std::string& name)
+	bool ScriptEngine::LoadAssembly(const std::filesystem::path& path)
 	{
-		m_loadedAssemblies.push_back(name);
-		return (bool)m_loadAssembly(name.c_str());
+		m_loadedAssemblies.push_back(path.string());
+		return (bool)m_loadAssembly(path.string().c_str());
 	}
 
 	void ScriptEngine::ReloadEngine()
@@ -95,6 +113,8 @@ namespace RexEngine
 		// Scene
 		RE_ASSERT(RegisterInternalCall("RexEngine.SceneCalls.IsEntityValid", (void*)Internal::IsEntityValid),
 			"Error registering RexEngine.SceneCalls.IsEntityValid !");
+		RE_ASSERT(RegisterInternalCall("RexEngine.SceneCalls.HasComponent", (void*)Internal::HasComponent),
+			"Error registering RexEngine.SceneCalls.HasComponent !");
 
 		// Get Managed functions in ScriptApi
 		m_setDeltaTime = GetManagedFunction<void, float>("RexEngine.Time", "SetDeltaTime");
@@ -121,7 +141,7 @@ namespace RexEngine
 		RE_ASSERT(m_setInternalCall != nullptr, "Error loading the ScriptEngine.SetInternalCall function !");
 
 		// Load the ScriptApi Assembly
-		LoadAssembly("Dotnet/ScriptEngine/ScriptApi.dll");
+		LoadAssembly(Dirs::ScriptEngineDir / "ScriptApi.dll");
 
 		// Register the internal calls
 		RegisterApi();

@@ -38,7 +38,7 @@ namespace RexEditor
         };
     };
 
-	class Gui
+	class Imgui
 	{
 	public:
 
@@ -55,8 +55,19 @@ namespace RexEditor
         static bool IsWindowFocused();
         static bool IsWindowHovered();
 
+        static void BeginFullScreenWindow();
+
         // Draw a texture that fils the window
         static void DrawFullWindowTexture(const RexEngine::Texture& texture);
+
+        // Menu bar
+        static bool BeginMenuBar();
+        static void EndMenuBar();
+
+        static bool BeginMenu(const std::string& name, bool enabled = true);
+        static void EndMenu();
+
+        static void MenuItem(const std::string& name, std::function<void()> toCall, bool enabled = true);
 
 	private:
 		inline static RexEngine::Window* s_window = nullptr;
