@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <RexEngine.h>
 
 namespace RexEditor
 {
@@ -12,22 +13,26 @@ namespace RexEditor
 
 		void Render(float deltaTime);
 
-		void Hide();
-		void Show();
+		void Hide() { Show(false); }
+		// Set show to false to hide
+		void Show(bool show = true);
 
-		Vector2Int PanelSize() { return m_size; }
-		bool IsFocused() { return m_focused; }
-		bool IsHovered();
+		RexEngine::Vector2Int PanelSize() const { return m_size; }
+		bool IsFocused() const { return m_focused; }
+		bool IsHovered() const;
+
+		const std::string& Title() const { return m_title; }
+		bool IsVisible() const { return m_open; }
 
 	protected:
 		virtual void OnGui(float deltaTime) = 0;
-		virtual void OnResize(Vector2Int oldSize, Vector2Int newSize) {};
+		virtual void OnResize(RexEngine::Vector2Int oldSize, RexEngine::Vector2Int newSize) {};
 		virtual void OnFocusEnter() {};
 		virtual void OnFocusLeave() {};
 
 	private:
 		std::string m_title;
-		Vector2Int m_size;
+		RexEngine::Vector2Int m_size;
 		bool m_open;
 		bool m_focused;
 	};

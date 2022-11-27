@@ -7,7 +7,7 @@
 
 #include "../Panel.h"
 #include "../Gui.h"
-/*
+
 namespace RexEditor
 {
 	class SceneView : public Panel
@@ -71,11 +71,8 @@ namespace RexEditor
 				m_cameraTransform.rotation.Rotate(m_pitch, m_cameraTransform.Right());
 			}
 
-			// Tell the engine timer that a new frame has begun
-			RexEngine::Time::StartNewFrame();
-
 			// Create the camera object using the cached components, TODO : do this on scene changed
-			auto camera = Project::CurrentScene.CreateEntity();
+			auto camera = SceneManager::CurrentScene().CreateEntity();
 			auto& cameraComponent = camera.AddComponent<RexEngine::CameraComponent>(m_editorCamera);
 			camera.AddComponent<RexEngine::TransformComponent>(m_cameraTransform);
 
@@ -88,13 +85,13 @@ namespace RexEditor
 			RexEngine::RenderApi::ClearDepthBit();
 
 			// Render the scene from the pov of the editor camera
-			RexEngine::ForwardRenderer::RenderScene(Project::CurrentScene, cameraComponent);
-			Gui::DrawFullWindowTexture(m_viewTexture);
+			RexEngine::ForwardRenderer::RenderScene(SceneManager::CurrentScene(), cameraComponent);
+			Imgui::DrawFullWindowTexture(m_viewTexture);
 
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();
 			RexEngine::RenderApi::SetViewportSize(oldViewportSize);
-			Project::CurrentScene.DestroyEntity(camera);
+			SceneManager::CurrentScene().DestroyEntity(camera);
 		}
 
 	private:
@@ -112,4 +109,3 @@ namespace RexEditor
 		std::map<std::string, std::unique_ptr<RexEngine::Input>> m_inputs;
 	};
 }
-*/

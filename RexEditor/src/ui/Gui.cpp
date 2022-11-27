@@ -4,6 +4,54 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/imgui_internal.h>
+
+#include "PanelManager.h"
+
+namespace RexEditor::Internal
+{
+	// Manually add a bool in the .ini file to restore the open/closed state of each panel
+	struct PanelStateEntry
+	{
+		std::string name;
+		bool open;
+	};
+
+	void* PanelStateReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name) 
+	{ 
+		PanelStateEntry* ptr = new PanelStateEntry();
+		ptr->name = name;
+		return ptr;
+	}
+
+	void PanelStateReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
+	{
+		PanelStateEntry* ptr = (PanelStateEntry*)entry;
+		int open = 0;
+		if (sscanf(line, "Open=%d", &open) == 1) 
+		{
+			auto panel = PanelManager::GetPanel(ptr->name);
+			if (panel)
+				panel->Show(open != 0);
+
+			delete ptr; // Looks like ImGui does not delete it ?
+		}
+	}
+
+	static void PanelStateWriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+	{
+		buf->reserve(buf->size() + sizeof(PanelStateEntry) * PanelManager::PanelCount());
+
+		// Write to text buffer
+		for (size_t i = 0; i < PanelManager::PanelCount(); i++)
+		{
+			Panel* panel = PanelManager::GetPanel(i);
+			buf->appendf("[%s][%s]\n", handler->TypeName, panel->Title().c_str());
+			buf->appendf("Open=%d\n", panel->IsVisible());
+			buf->append("\n");
+		}
+	}
+}
 
 namespace RexEditor
 {
@@ -25,6 +73,15 @@ namespace RexEditor
 		
 		ImGui_ImplGlfw_InitForOpenGL(window.WindowHandle(), true);
 		ImGui_ImplOpenGL3_Init("#version 130");
+
+		// Custom data in the .ini file for the state of each panel
+		ImGuiSettingsHandler iniHandler;
+		iniHandler.TypeName = "PanelState";
+		iniHandler.TypeHash = ImHashStr("PanelState");
+		iniHandler.ReadOpenFn = Internal::PanelStateReadOpen;
+		iniHandler.ReadLineFn = Internal::PanelStateReadLine;
+		iniHandler.WriteAllFn = Internal::PanelStateWriteAll;
+		ImGui::AddSettingsHandler(&iniHandler);
 	};
 
 	void Imgui::Close()
@@ -83,21 +140,6 @@ namespace RexEditor
 		return ImGui::IsWindowHovered();
 	}
 
-	void Imgui::BeginFullScreenWindow()
-	{
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->WorkPos);
-		ImGui::SetNextWindowSize(viewport->WorkSize);
-		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-
-		bool open = true;
-		Imgui::BeginWindow("Root", open, (WindowSetting::WindowSetting_)(WindowSetting::NoDecoration | WindowSetting::NoResize | WindowSetting::MenuBar));
-
-		ImGui::PopStyleVar();
-	}
-
 	void Imgui::DrawFullWindowTexture(const RexEngine::Texture& texture)
 	{
 		auto min = ImGui::GetWindowContentRegionMin();
@@ -117,14 +159,14 @@ namespace RexEditor
 			ImVec2(1, 0));
 	}
 
-	bool Imgui::BeginMenuBar()
+	bool Imgui::BeginMainMenuBar()
 	{
-		return ImGui::BeginMenuBar();
+		return ImGui::BeginMainMenuBar();
 	}
 
-	void Imgui::EndMenuBar()
+	void Imgui::EndMainMenuBar()
 	{
-		ImGui::EndMenuBar();
+		ImGui::EndMainMenuBar();
 	}
 
 	bool Imgui::BeginMenu(const std::string& name, bool enabled)

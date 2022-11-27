@@ -5,15 +5,20 @@
 #include <unordered_map>
 
 #include "../math/Matrix.h"
+#include "../events/EngineEvents.h"
 
 namespace RexEngine
 {
 	class RenderApi
 	{
-	public:
-
-		// Init, will be called by Libs.cpp automatically
+	private:
 		static void Init();
+
+		RE_STATIC_CONSTRUCTOR({
+			EngineEvents::OnEngineStart().Register<&RenderApi::Init>();
+		});
+
+	public:
 
 		// Shaders
 		typedef unsigned int ShaderID;

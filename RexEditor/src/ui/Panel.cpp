@@ -42,17 +42,12 @@ namespace RexEditor
 		Imgui::EndWindow();
 	}
 
-	void Panel::Hide()
+	void Panel::Show(bool show)
 	{
-		m_open = false;
+		m_open = show;
 	}
 
-	void Panel::Show()
-	{
-		m_open = true;
-	}
-
-	bool Panel::IsHovered()
+	bool Panel::IsHovered() const
 	{ 
 		return Imgui::IsWindowHovered();
 	}

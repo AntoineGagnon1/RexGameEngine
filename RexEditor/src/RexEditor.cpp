@@ -2,29 +2,13 @@
 
 #include "ui/Gui.h"
 #include "ui/MenuBar.h"
+#include "ui/PanelManager.h"
 #include "ui/panels/SceneView.h"
-
-void MenuTest()
-{
-	RE_LOG_INFO("Menu Test");
-}
 
 int main()
 {
 	using namespace RexEngine;
 	using namespace RexEditor;
-
-	EngineEvents::OnEngineStart().Dispatch();
-
-	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
-
-	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
-	Scene scene = SceneManager::CreateScene();
-	auto e = scene.CreateEntity();
-	f(e.GetGuid());
-	e.AddComponent<TransformComponent>();
-	f(e.GetGuid());
-
 
 	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
@@ -33,14 +17,25 @@ int main()
 		RenderApi::SetViewportSize(size);
 	});
 
-	RenderApi::Init();
+	EditorEvents::OnEditorStart().Dispatch();
+	EngineEvents::OnEngineStart().Dispatch();
 
+	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
+
+	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
+	Scene scene = SceneManager::CreateScene();
+	SceneManager::SetCurrentScene(scene);
+	auto e = scene.CreateEntity();
+	f(e.GetGuid());
+	e.AddComponent<TransformComponent>();
+	f(e.GetGuid());
+
+	PanelManager::RegisterPanel<SceneView>("Scene View");
+	
 	Imgui::Init(win);
 
 	MenuBar::RegisterMenuFunction("TestMenu/TestSub/Invalid", nullptr);
-	MenuBar::RegisterMenuFunction("TestMenu/TestSub/Valid", MenuTest);
 
-	//SceneView sceneView;
 
 	Timer editorFrameTime;
 	editorFrameTime.Start();
@@ -51,13 +46,10 @@ int main()
 		EngineEvents::OnPreUpdate().Dispatch();
 		Imgui::NewFrame();
 
-		// Start a full screen window
-		Imgui::BeginFullScreenWindow();
 		MenuBar::DrawMenuBar();
-		Imgui::EndWindow();
 
 		EngineEvents::OnUpdate().Dispatch();
-		//sceneView.Render(deltaTime);
+		PanelManager::RenderPanels(deltaTime);
 
 		RenderApi::ClearColorBit();
 		RenderApi::ClearDepthBit();
@@ -68,7 +60,10 @@ int main()
 	}
 
 	Imgui::Close();
-	// TODO : unload scene
+	
+	EngineEvents::OnEngineStop().Dispatch();
+	EditorEvents::OnEditorStop().Dispatch();
+
 	return 0;
 }
 

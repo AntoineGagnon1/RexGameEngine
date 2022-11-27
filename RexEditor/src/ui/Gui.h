@@ -55,14 +55,12 @@ namespace RexEditor
         static bool IsWindowFocused();
         static bool IsWindowHovered();
 
-        static void BeginFullScreenWindow();
-
         // Draw a texture that fils the window
         static void DrawFullWindowTexture(const RexEngine::Texture& texture);
 
         // Menu bar
-        static bool BeginMenuBar();
-        static void EndMenuBar();
+        static bool BeginMainMenuBar();
+        static void EndMainMenuBar();
 
         static bool BeginMenu(const std::string& name, bool enabled = true);
         static void EndMenu();

@@ -25,12 +25,12 @@ namespace RexEditor
 
 	void MenuBar::DrawMenuBar()
 	{
-		Imgui::BeginMenuBar();
+		Imgui::BeginMainMenuBar();
 		for (auto& subItem : s_menuRoot.subItems)
 		{
 			DrawMenuItemRecursive(subItem.first, subItem.second);
 		}
-		Imgui::EndMenuBar();
+		Imgui::EndMainMenuBar();
 	}
 
 	void MenuBar::DrawMenuItemRecursive(const std::string& name, MenuItem& item)

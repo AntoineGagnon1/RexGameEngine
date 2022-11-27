@@ -6,7 +6,7 @@
 
 namespace RexEngine
 {
-	void ForwardRenderer::RenderScene(Scene& scene, const CameraComponent& camera)
+	void ForwardRenderer::RenderScene(Scene scene, const CameraComponent& camera)
 	{
 		// Get the transform of the camera
 		Entity cameraOwner = scene.GetComponentOwner<const CameraComponent>(camera);
