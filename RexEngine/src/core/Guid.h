@@ -5,6 +5,8 @@
 #include <chrono>
 #include <functional>
 
+#include "Serialization.h"
+
 namespace RexEngine
 {
 	struct Guid
@@ -12,6 +14,13 @@ namespace RexEngine
 	private:
 		uint64_t dataHigh;
 		uint64_t dataLow;
+
+		// Give access to the default constructor
+		template<typename Registry>
+		friend class entt::basic_snapshot_loader;
+
+		// Use explicit generation instead : Guid::Generate() or Guid::Empty
+		Guid() : Guid(0,0) {}
 
 	public:
 
@@ -34,9 +43,6 @@ namespace RexEngine
 
 			return Guid(low, high);
 		}
-
-		// Use explicit generation : Guid::Generate() or Guid::Empty
-		Guid() = delete;
 
 		Guid(const Guid& from) = default;
 
@@ -77,6 +83,15 @@ namespace RexEngine
 		{
 			return dataHigh * dataLow;
 		}
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			// Save as a 2 element array
+			archive(cereal::make_size_tag((cereal::size_type)2));
+			archive(dataHigh, dataLow);
+		}
+
 
 		auto operator<=>(Guid const&) const = default;
 	};

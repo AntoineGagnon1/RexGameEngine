@@ -2,6 +2,7 @@
 
 #include "../core/Guid.h"
 #include "../core/Assert.h"
+#include "../core/Serialization.h"
 
 #include <entt/entt.hpp>
 
@@ -14,6 +15,7 @@ namespace RexEngine
 	{
 	private:
 		friend class Scene;
+		friend class SceneManager;
 
 		Entity(entt::registry* registry, entt::entity handle)
 			: m_registry(registry), m_handle(handle), m_entityGuid(Guid::Empty)
@@ -91,6 +93,25 @@ namespace RexEngine
 			return left.m_entityGuid <=> right.m_entityGuid;
 		}
 
+		template<class Archive>
+		void save(Archive& archive) const
+		{
+			archive(CUSTOM_NAME(m_entityGuid, "Guid"));
+		}
+
+		template<class Archive>
+		void load(Archive& archive)
+		{
+			archive(CUSTOM_NAME(m_entityGuid, "Guid"));
+			
+			// Get the handle and the registry
+			InitFromGuid();
+		}
+
+	private:
+		void AssertValid() const;
+		void InitFromGuid();
+
 	private:
 		// Used to detect if the entity was deleted, because the Guid component
 		// will set itself to 0 on deletion
@@ -98,8 +119,5 @@ namespace RexEngine
 
 		entt::entity m_handle;
 		entt::registry* m_registry; // cache
-
-		void AssertValid() const;
-		entt::registry& GetRegistry() const;
 	};
 }

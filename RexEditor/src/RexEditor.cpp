@@ -2,8 +2,10 @@
 
 #include "ui/Gui.h"
 #include "ui/MenuBar.h"
-#include "ui/PanelManager.h"
+#include "ui/panels/PanelManager.h"
 #include "ui/panels/SceneView.h"
+#include "project/ProjectManager.h"
+
 
 int main()
 {
@@ -22,21 +24,45 @@ int main()
 
 	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
 
+	EditorEvents::OnEditorStarted().Dispatch();
+
 	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
 	Scene scene = SceneManager::CreateScene();
 	SceneManager::SetCurrentScene(scene);
 	auto e = scene.CreateEntity();
+	auto e2 = scene.CreateEntity();
 	f(e.GetGuid());
 	e.AddComponent<TransformComponent>();
+	e2.AddComponent<TransformComponent>().parent = e;
+	e2.AddComponent<CameraComponent>();
+	//e.AddComponent<SkyboxComponent>();
+	//e.AddComponent<MeshRendererComponent>();
 	f(e.GetGuid());
 
-	PanelManager::RegisterPanel<SceneView>("Scene View");
-	
-	Imgui::Init(win);
-
-	MenuBar::RegisterMenuFunction("TestMenu/TestSub/Invalid", nullptr);
+	// TODO : add serialization for assets in components (shader/mesh)
 
 
+	PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
+
+	std::stringstream stream;
+	scene.SerializeJson(stream);
+	std::string s = stream.str();
+
+	Scene scene2 = SceneManager::CreateScene();
+	std::istringstream stream2(s);
+	scene2.DeserializeJson(stream2);
+
+	auto transforms = scene2.GetComponents<TransformComponent>();
+	for (auto& transform : transforms)
+	{
+		auto parent = transform.second.parent;
+	}
+
+	// Temp to save some time while testing
+	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
+
+	//stream.clear();
+	//scene2.Serialize(test);
 	Timer editorFrameTime;
 	editorFrameTime.Start();
 	while (!win.ShouldClose())
@@ -45,21 +71,16 @@ int main()
 		editorFrameTime.Restart();
 		EngineEvents::OnPreUpdate().Dispatch();
 		Imgui::NewFrame();
-
+		
 		MenuBar::DrawMenuBar();
 
 		EngineEvents::OnUpdate().Dispatch();
 		PanelManager::RenderPanels(deltaTime);
 
-		RenderApi::ClearColorBit();
-		RenderApi::ClearDepthBit();
-
 		Imgui::RenderGui();
 
 		win.SwapBuffers();
 	}
-
-	Imgui::Close();
 	
 	EngineEvents::OnEngineStop().Dispatch();
 	EditorEvents::OnEditorStop().Dispatch();

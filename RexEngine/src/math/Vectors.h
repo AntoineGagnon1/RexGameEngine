@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <array>
+
 #define GLM_FORCE_SWIZZLE // .xy, .xyz, ...
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -7,6 +10,7 @@
 #include <glm/geometric.hpp>
 
 #include "../utils/Concepts.h"
+#include "../core/Serialization.h"
 
 
 namespace RexEngine
@@ -61,6 +65,15 @@ namespace RexEngine
 		VecType Cross(const VecType& rhs) const
 		{
 			return glm::cross((*this), rhs);
+		}
+
+		template<typename Archive>
+		void serialize(Archive& archive) 
+		{
+			cereal::size_type s = Size;
+			archive(cereal::make_size_tag(s));
+			for (int i = 0; i < Size; i++)
+				archive((*this).operator[](i));
 		}
 
 		// You probably want Magnitude()

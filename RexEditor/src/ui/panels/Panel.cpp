@@ -1,12 +1,13 @@
 #include "REDPch.h"
 #include "Panel.h"
 
-#include "Gui.h"
+#include "../Gui.h"
+#include "PanelManager.h"
 
 namespace RexEditor
 {
 	Panel::Panel(const std::string& title)
-		: m_title(title), m_open(true)
+		: m_title(title), m_open(true), m_canDock(true)
 	{ }
 
 	void Panel::Render(float deltaTime)
@@ -14,7 +15,10 @@ namespace RexEditor
 		if (!m_open)
 			return; // panel is hidden
 
-		if (Imgui::BeginWindow(m_title.c_str(), m_open, WindowSetting::NoCollapse))
+		WindowSetting settings = WindowSetting::NoCollapse;	
+		settings |= m_canDock == false ? WindowSetting::NoDocking : WindowSetting::None;
+
+		if (Imgui::BeginWindow(m_title.c_str(), m_open, settings))
 		{
 			// Handle resize
 			auto newSize = Imgui::GetWindowSize();

@@ -17,7 +17,7 @@ namespace RexEngine
 		Texture(const Texture&) = delete;
 
 		// TODO : convert to asset loader
-		static std::shared_ptr<Texture> FromFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
+		static std::shared_ptr<Texture> FromFile(const std::string& path, RenderApi::TextureTarget target = RenderApi::TextureTarget::Texture2D, RenderApi::PixelFormat gpuFormat = RenderApi::PixelFormat::RGBA);
 		static std::shared_ptr<Texture> FromHDRIFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
 
 		void SetData(Vector2Int newSize, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);

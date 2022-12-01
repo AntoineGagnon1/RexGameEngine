@@ -8,6 +8,7 @@
 #include "src/core/Guid.h"
 #include "src/core/Time.h"
 #include "src/core/FileStructure.h"
+#include "src/core/Serialization.h"
 
 // Math
 #include "src/math/Scalar.h"

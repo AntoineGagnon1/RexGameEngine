@@ -14,6 +14,10 @@ namespace RexEngine
 		inline static Scene CreateScene()
 		{
 			auto pair = s_scenes.emplace(Guid::Generate(), entt::registry());
+
+			pair.first->second.on_construct<Guid>().connect<&SceneManager::OnGuidAdded>(pair.first->first);
+			pair.first->second.on_destroy<Guid>().connect<&SceneManager::OnGuidRemoved>();
+
 			return Scene(&pair.first->second, pair.first->first);
 		}
 
@@ -54,16 +58,6 @@ namespace RexEngine
 			return s_scenes.contains(guid);
 		}
 
-		inline static void RegisterEntity(const Guid& e, const Guid& sceneGuid, entt::entity handle)
-		{
-			s_entities.insert({ e, {sceneGuid, handle} });
-		}
-
-		inline static void DeleteEntity(const Guid& e)
-		{
-			s_entities.erase(e);
-		}
-
 		inline static entt::entity GetEntityHandle(const Guid& e)
 		{
 			if (auto f = s_entities.find(e); f != s_entities.end())
@@ -81,6 +75,17 @@ namespace RexEngine
 		}
 
 	private:
+
+		// Called when a guid is added, add this entity to the cache
+		inline static void OnGuidAdded(Guid sceneGuid, entt::registry& registry, entt::entity handle)
+		{
+			s_entities.insert({ registry.get<Guid>(handle), {sceneGuid, handle}});
+		}
+
+		inline static void OnGuidRemoved(entt::registry& registry, entt::entity handle)
+		{
+			s_entities.erase(registry.get<Guid>(handle));
+		}
 
 		inline static void OnStop()
 		{

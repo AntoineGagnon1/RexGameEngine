@@ -30,10 +30,15 @@ namespace RexEditor
 		virtual void OnFocusEnter() {};
 		virtual void OnFocusLeave() {};
 
+		// True by default
+		bool CanDock() const { return m_canDock; }
+		void CanDock(bool canDock) { m_canDock = canDock; }
+
 	private:
 		std::string m_title;
 		RexEngine::Vector2Int m_size;
 		bool m_open;
 		bool m_focused;
+		bool m_canDock;
 	};
 }

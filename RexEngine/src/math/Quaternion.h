@@ -4,6 +4,7 @@
 #include "glm/ext/quaternion_trigonometric.hpp"
 
 #include "Vectors.h"
+#include "../core/Serialization.h"
 
 namespace RexEngine
 {
@@ -64,5 +65,14 @@ namespace RexEngine
 		}
 
 		operator GlmType() const { return *this; }
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			// Save as a 4 element array
+			archive(cereal::make_size_tag((cereal::size_type)4));
+			for (int i = 0; i < 4; i++)
+				archive((*this).operator[](i));
+		}
 	};
 }

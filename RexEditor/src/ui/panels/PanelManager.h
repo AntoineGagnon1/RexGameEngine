@@ -7,8 +7,8 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "MenuBar.h"
-#include "EditorEvents.h"
+#include "../MenuBar.h"
+#include "../../EditorEvents.h"
 
 namespace RexEditor
 {
@@ -16,12 +16,27 @@ namespace RexEditor
 	{
 	public:
 
+		// Leave menuPath empty to not create a menu button
 		template<RexEngine::IsDerivedFrom<Panel> T>
-		inline static void RegisterPanel(const std::string& menuPath)
+		inline static void RegisterPanel(const std::string& menuPath = "")
 		{
 			s_panels.push_back(std::make_unique<T>());
-			auto& panel = s_panels.back();
-			MenuBar::RegisterMenuFunction("Windows/" + menuPath, [&panel] { panel->Show(); });
+			Panel* panel = s_panels.back().get();
+
+			if(!menuPath.empty())
+				MenuBar::RegisterMenuFunction("Windows/" + menuPath, [panel] { panel->Show(); });
+		}
+
+		inline static void RemovePanel(Panel* ptr)
+		{
+			for(int i = 0; i < s_panels.size(); i++)	
+			{
+				if (s_panels[i].get() == ptr)
+				{
+					s_panels.erase(s_panels.begin() + i);
+					return;
+				}
+			}
 		}
 
 		inline static void RenderPanels(float deltaTime)
@@ -42,6 +57,17 @@ namespace RexEditor
 			}
 
 			return nullptr;
+		}
+
+		template<RexEngine::IsDerivedFrom<Panel> T>
+		inline static T* GetPanel()
+		{
+			for (auto& p : s_panels)
+			{
+				T* cast = dynamic_cast<T*>(p.get());
+				if (cast != nullptr)
+					return cast;
+			}
 		}
 
 		// Will return nullptr if the index is out if range

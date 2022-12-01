@@ -5,15 +5,15 @@
 #include <memory>
 #include <string>
 
-#include "../Panel.h"
+#include "Panel.h"
 #include "../Gui.h"
 
 namespace RexEditor
 {
-	class SceneView : public Panel
+	class SceneViewPanel : public Panel
 	{
 	public:
-		SceneView() : Panel("Scene View"),
+		SceneViewPanel() : Panel("Scene View"),
 			m_viewTexture(RexEngine::RenderApi::TextureTarget::Texture2D, RexEngine::RenderApi::PixelFormat::RGB, { 0,0 }, NULL, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte),
 			m_viewDepth(RexEngine::RenderApi::PixelType::Depth, { 0,0 }),
 			m_roll(0.0f), m_pitch(0.0f), m_captured(false)
@@ -38,6 +38,7 @@ namespace RexEditor
 
 		virtual void OnGui(float deltaTime) override
 		{
+			
 			// Update the inputs
 			for (auto&& pair : m_inputs)
 				pair.second->PollInputs();
@@ -80,14 +81,14 @@ namespace RexEditor
 
 			auto oldViewportSize = RexEngine::RenderApi::GetViewportSize(); // Cache the size to revert at the end
 			RexEngine::RenderApi::SetViewportSize(PanelSize());
-
+			
 			RexEngine::RenderApi::ClearColorBit();
 			RexEngine::RenderApi::ClearDepthBit();
-
+			
 			// Render the scene from the pov of the editor camera
 			RexEngine::ForwardRenderer::RenderScene(SceneManager::CurrentScene(), cameraComponent);
 			Imgui::DrawFullWindowTexture(m_viewTexture);
-
+			
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();
 			RexEngine::RenderApi::SetViewportSize(oldViewportSize);

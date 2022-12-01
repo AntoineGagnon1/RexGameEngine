@@ -3,6 +3,8 @@
 #include <entt/entity/registry.hpp>
 
 #include "Entity.h"
+#include "Components.h"
+#include "../core/Serialization.h"
 
 namespace RexEngine
 {
@@ -14,6 +16,8 @@ namespace RexEngine
 		Scene(entt::registry* registry, Guid guid) : m_registry(registry), m_guid(guid) {}
 
 	public:
+
+		Scene() : Scene(nullptr, Guid::Empty) {}
 
 		Scene(const Scene&) = default;
 
@@ -43,6 +47,10 @@ namespace RexEngine
 
 			return result;
 		}
+
+		void SerializeJson(std::ostream& output) const;
+
+		void DeserializeJson(std::istream& input);
 
 		Guid GetGuid() const { return m_guid; }
 

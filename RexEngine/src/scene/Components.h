@@ -9,6 +9,7 @@
 #include "../math/Quaternion.h"
 #include "../math/Matrix.h"
 #include "../core/Color.h"
+#include "../core/Serialization.h"
 
 #include "Entity.h"
 
@@ -20,6 +21,13 @@ namespace RexEngine
 		std::shared_ptr<Mesh> mesh;
 		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
 		unsigned char priority = 0;
+
+		template<typename Archive>
+		void serialize(Archive& archive) 
+		{
+			// TODO : add shader and mesh assets
+			archive(KEEP_NAME(cullingMode), KEEP_NAME(priority));
+		}
 	};
 
 	struct TransformComponent
@@ -50,6 +58,12 @@ namespace RexEngine
 
 			return parentMatrix * GetTransform();
 		}
+
+		template<typename Archive>
+		void serialize(Archive& archive) 
+		{
+			archive(KEEP_NAME(position), KEEP_NAME(scale), KEEP_NAME(rotation), KEEP_NAME(parent));
+		}
 	};
 
 	struct CameraComponent
@@ -57,10 +71,23 @@ namespace RexEngine
 		float fov = 70.0f;
 		float zNear = 0.1f;
 		float zFar = 100.0f;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(KEEP_NAME(fov), KEEP_NAME(zNear), KEEP_NAME(zFar));
+		}
 	};
 
 	struct SkyboxComponent
 	{
 		std::shared_ptr<Shader> shader;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			// TODO : add shader asset
+			//archive(KEEP_NAME(fov), KEEP_NAME(zNear), KEEP_NAME(zFar));
+		}
 	};
 }

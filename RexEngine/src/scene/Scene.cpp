@@ -13,8 +13,6 @@ namespace RexEngine
         auto handle = m_registry->create();
         Guid guid = Guid::Generate();
 
-        SceneManager::RegisterEntity(guid, m_guid, handle);
-
         m_registry->emplace<Guid>(handle, guid); // All entities must have a Guid
         return Entity(m_registry, handle);
     }
@@ -23,18 +21,37 @@ namespace RexEngine
     {
         RE_ASSERT(IsValid(), "Trying to use an invalid Scene !");
 
-
-        // Set the Guid to 0, this is IMPORTANT because this
-        // is how the entity class detects deletions
-        e.GetComponent<Guid>().Reset();
-
-        SceneManager::DeleteEntity(e.m_entityGuid);
-
         m_registry->destroy(e.m_handle);
     }
 
     bool Scene::IsValid() const
     {
         return SceneManager::IsSceneValid(m_guid);
+    }
+
+    void Scene::SerializeJson(std::ostream& output) const
+    {
+        RE_ASSERT(IsValid(), "Trying to serialize an invalid Scene !");
+        JsonSerializer serializer(output);
+        OutputArchive<JsonSerializer> archive(serializer);
+
+        entt::snapshot{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
+                                                                  TransformComponent,
+                                                                  MeshRendererComponent,
+                                                                  CameraComponent,
+                                                                  SkyboxComponent>(archive);
+    }
+
+    void Scene::DeserializeJson(std::istream& input)
+    {
+        RE_ASSERT(IsValid(), "Trying to deserialize into an invalid Scene !");
+        JsonDeserializer deserializer(input);
+        InputArchive<JsonDeserializer> archive(deserializer);
+
+        entt::snapshot_loader{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
+                                                                         TransformComponent,
+                                                                         MeshRendererComponent,
+                                                                         CameraComponent,
+                                                                         SkyboxComponent>(archive);
     }
 }

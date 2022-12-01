@@ -129,6 +129,7 @@ project "RexEditor"
 		"{COPY} ".. TargetDir .."/ScriptEngine/ScriptEngine.runtimeconfig.json $(OutDir)Dotnet/ScriptEngine",
 		"{COPY} ".. TargetDir .."/ScriptApi/ScriptApi.dll $(OutDir)Dotnet/ScriptEngine", -- ScriptApi
 		"{COPY} ".. TargetDir .."/RexEditorScript/RexEditorScript.dll $(OutDir)Dotnet/Editor", -- RexEditorScript
+		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets", -- assets
 	}
 	
 	-- Always run the post build commands

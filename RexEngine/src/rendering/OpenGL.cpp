@@ -163,7 +163,6 @@ namespace RexEngine
 	void RenderApi::Init()
 	{
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-		glClearColor(255,0,0,255);
 		GL_CALL(glFrontFace(GL_CW));
 
 		GL_CALL(glEnable(GL_MULTISAMPLE));

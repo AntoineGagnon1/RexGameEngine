@@ -6,7 +6,7 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/imgui_internal.h>
 
-#include "PanelManager.h"
+#include "panels/PanelManager.h"
 
 namespace RexEditor::Internal
 {
@@ -38,7 +38,7 @@ namespace RexEditor::Internal
 		}
 	}
 
-	static void PanelStateWriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+	void PanelStateWriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
 	{
 		buf->reserve(buf->size() + sizeof(PanelStateEntry) * PanelManager::PanelCount());
 
@@ -51,15 +51,40 @@ namespace RexEditor::Internal
 			buf->append("\n");
 		}
 	}
+
+	void Align(int width, Alignement align)
+	{
+		float alignement = 0.0f;
+		if (align == Alignement::Center)
+			alignement = 0.5f;
+		else if (align == Alignement::Right)
+			alignement = 1.0f;
+
+		ImGuiStyle& style = ImGui::GetStyle();
+		float avail = ImGui::GetContentRegionAvail().x;
+		float off = (avail - width) * alignement;
+		if (off > 0.0f)
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+	}
+
+	void AlignVertical(int height, VerticalPos pos)
+	{
+		if (pos == VerticalPos::Bottom)
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+			auto h = ImGui::GetWindowHeight();
+			ImGui::SetCursorPosY(h - (height + style.WindowPadding.y));
+		}
+	}
+
+#define GUI_LABEL_LEFT(func, label, code) ImGui::TextUnformatted(label); ImGui::NextColumn(); ImGui::SetNextItemWidth(-1); if(func) { code } ImGui::NextColumn();
 }
 
 namespace RexEditor
 {
 	// Static init
-	void Imgui::Init(RexEngine::Window& window)
+	void Imgui::Init()
 	{
-		s_window = &window;
-
 		ImGui::CreateContext();
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -71,7 +96,7 @@ namespace RexEditor
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		
-		ImGui_ImplGlfw_InitForOpenGL(window.WindowHandle(), true);
+		ImGui_ImplGlfw_InitForOpenGL(RexEngine::Window::ActiveWindow()->WindowHandle(), true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 
 		// Custom data in the .ini file for the state of each panel
@@ -102,6 +127,7 @@ namespace RexEditor
 
 	void Imgui::RenderGui()
 	{
+		RenderApi::BindFrameBuffer(RenderApi::InvalidFrameBufferID);
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(::ImGui::GetDrawData());
 
@@ -109,14 +135,14 @@ namespace RexEditor
 		ImGui::RenderPlatformWindowsDefault();
 		
 		// The context might get changed by imgui, revert back to the window
-		if (s_window != nullptr)
-			s_window->MakeActive();
+		if (RexEngine::Window::ActiveWindow() != nullptr)
+			RexEngine::Window::ActiveWindow()->MakeActive();
 	}
 
 
-	bool Imgui::BeginWindow(const std::string& name, bool& open, WindowSetting::WindowSetting_ settings)
+	bool Imgui::BeginWindow(const std::string& name, bool& open, WindowSetting settings)
 	{
-		return ImGui::Begin(name.c_str(), &open, settings);
+		return ImGui::Begin(name.c_str(), &open, (int)settings);
 	}
 
 	void Imgui::EndWindow()
@@ -186,5 +212,115 @@ namespace RexEditor
 
 		if (selected)
 			toCall();
+	}
+
+	void Imgui::TextInput(const std::string& label, std::string& result, size_t maxSize)
+	{
+		if(result.capacity() < maxSize)
+			result.resize(maxSize); // Make sure the string is big enough
+
+		ImGui::BeginColumns((label + "_col").c_str(), 2);
+		GUI_LABEL_LEFT(ImGui::InputText(("##" + label).c_str(), result.data(), result.capacity()), label.c_str());
+		ImGui::EndColumns();
+
+		// Set the new size for the string, based on the content of the buffer
+		result.resize(strlen(result.c_str()));
+	}
+
+	bool Imgui::Button(const std::string& label, Alignement align, VerticalPos vPos)
+	{
+		ImGuiStyle& style = ImGui::GetStyle();
+		float size = ImGui::CalcTextSize(label.c_str()).x + style.FramePadding.x * 2.0f;
+		
+		Internal::Align(size, align);
+		Internal::AlignVertical(ImGui::CalcTextSize(label.c_str()).y + style.FramePadding.y * 2.0f, vPos);
+
+		return ImGui::Button(label.c_str());
+	}
+
+	void Imgui::IconButton(const std::string& text, const RexEngine::Texture& icon, Vector2Int size, bool& clicked, bool& doubleClicked)
+	{
+		auto& style = ImGui::GetStyle();
+		bool selected = false;
+		ImVec2 cursor = ImGui::GetCursorPos();
+		ImGui::Selectable(("##selectable_" + text).c_str(), &selected, ImGuiSelectableFlags_None, { (float)size.x, (float)size.y + ImGui::CalcTextSize(text.c_str()).y + style.ItemSpacing.y});
+		ImGui::SetCursorPos(cursor);
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+			doubleClicked = true;
+		else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+			clicked = true;
+
+		ImGui::Image((ImTextureID)icon.GetId(), {(float)size.x, (float)size.y});
+
+		// Max size for the text
+		int textSize = (int)ImGui::CalcTextSize(text.c_str()).x;
+		std::string clippedText = text;
+		if (textSize > size.x)
+		{ // Clip
+			while (clippedText.size() > 0 && (int)ImGui::CalcTextSize(clippedText.c_str()).x > size.x)
+			{
+				clippedText.pop_back(); // Remove the last character
+			}
+
+			// Replace the last 2 characters by ..
+			if (clippedText.size() >= 2)
+			{
+				clippedText[clippedText.size() - 1] = '.';
+				clippedText[clippedText.size() - 2] = '.';
+			}
+		}
+
+
+		// Centered text
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (size.x / 2.0f - ImGui::CalcTextSize(clippedText.c_str()).x / 2.0f) - style.FramePadding.x);
+		Text(clippedText);
+	}
+
+	void Imgui::SliderFloat(const std::string& label, float min, float max, float& value, int width, int precision, VerticalPos vPos)
+	{
+		auto& style = ImGui::GetStyle();
+		Internal::AlignVertical(ImGui::GetTextLineHeight() + style.FramePadding.y * 2.0f, vPos);
+
+		Imgui::Text(label);
+		Imgui::SameLine();
+		ImGui::PushItemWidth(width);
+		ImGui::SliderFloat(("##" + label).c_str(), &value, min, max, ("%." + std::to_string(precision) + "f").c_str());
+		ImGui::PopItemWidth();
+	}
+
+	void Imgui::Text(const std::string& text)
+	{
+		ImGui::Text(text.c_str());
+	}
+
+	void Imgui::SameLine()
+	{
+		ImGui::SameLine();
+	}
+
+	void Imgui::Space()
+	{
+		ImGui::Spacing();
+	}
+
+	bool Imgui::BeginTable(const std::string& name, int nbCols, Vector2Int padding)
+	{
+		bool value = ImGui::BeginTable(name.c_str(), nbCols);
+
+		auto table = ImGui::GetCurrentTable();
+		table->CellPaddingX = padding.x;
+		table->CellPaddingY = padding.y;
+		return value;
+	}
+
+	void Imgui::EndTable()
+	{
+		ImGui::EndTable();
+	}
+
+	void Imgui::TableNextElement()
+	{
+		ImGui::TableNextColumn();
 	}
 }

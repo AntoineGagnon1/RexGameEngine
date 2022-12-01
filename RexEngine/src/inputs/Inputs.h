@@ -21,8 +21,10 @@ namespace RexEngine
 		// Get the name of all the loaded actions
 		static std::vector<std::string> GetActions();
 
-	private:
+		// Will be called automatically on EngineEvents::OnPreUpdate,
+		// can also be called manually to keep the window from being unresponsive
 		static void PollInputs();
+	private:
 
 		RE_STATIC_CONSTRUCTOR({
 			EngineEvents::OnPreUpdate().Register<&Inputs::PollInputs>();
