@@ -22,8 +22,15 @@ namespace RexEditor
 			s_fileIcon = RexEngine::Texture::FromFile("assets/icons/file.png");
 		}
 
+		inline static void UnLoadAssets()
+		{
+			s_folderIcon = nullptr;
+			s_fileIcon = nullptr;
+		}
+
 		RE_STATIC_CONSTRUCTOR({
 			EditorEvents::OnEditorStarted().Register<&EditorAssets::LoadAssets>();
+			EditorEvents::OnEditorStop().Register<&EditorAssets::UnLoadAssets>();
 		});
 
 	private:

@@ -8,6 +8,8 @@
 
 #include "panels/PanelManager.h"
 
+#include "GuiThemes.h"
+
 namespace RexEditor::Internal
 {
 	// Manually add a bool in the .ini file to restore the open/closed state of each panel
@@ -82,6 +84,12 @@ namespace RexEditor::Internal
 
 namespace RexEditor
 {
+	void Imgui::LoadAndUseFont(const std::filesystem::path& path, int size)
+	{
+		auto& io = ImGui::GetIO();
+		io.FontDefault = io.Fonts->AddFontFromFileTTF(path.string().c_str(), size);
+	}
+
 	// Static init
 	void Imgui::Init()
 	{
@@ -107,6 +115,9 @@ namespace RexEditor
 		iniHandler.ReadLineFn = Internal::PanelStateReadLine;
 		iniHandler.WriteAllFn = Internal::PanelStateWriteAll;
 		ImGui::AddSettingsHandler(&iniHandler);
+
+		GuiThemes::EnableDark();
+		Imgui::LoadAndUseFont("assets/fonts/CascadiaMono.ttf", 13);
 	};
 
 	void Imgui::Close()

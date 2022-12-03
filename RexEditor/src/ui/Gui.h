@@ -96,6 +96,10 @@ namespace RexEditor
         static void EndTable();
         static void TableNextElement();
 
+
+        // Font
+        static void LoadAndUseFont(const std::filesystem::path& path, int size);
+
 	private:
         static void Init();
         static void Close();

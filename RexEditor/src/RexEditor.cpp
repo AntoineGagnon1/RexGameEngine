@@ -6,7 +6,6 @@
 #include "ui/panels/SceneView.h"
 #include "project/ProjectManager.h"
 
-
 int main()
 {
 	using namespace RexEngine;
