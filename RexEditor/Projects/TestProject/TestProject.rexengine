@@ -1,3 +1,7 @@
---RexEngine project file--
-Name=TestProject
-LastScene=
+{
+    "Project": {
+        "Name": "TestProject",
+        "RegistryPath": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\TestProject.registry",
+        "LastScenePath": ""
+    }
+}

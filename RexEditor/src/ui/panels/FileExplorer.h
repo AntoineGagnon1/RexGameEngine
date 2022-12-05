@@ -69,7 +69,10 @@ namespace RexEditor
 			int cols = (int)floor((float)PanelSize().x / (float)(itemWidth + 8));
 			cols = RexEngine::Scalar::Clamp(cols, 0, 64); // imgui needs a value between 0 and 64
 
-			if (Imgui::BeginTable("TestTable", cols, {8,8}))
+			// The file names should be small
+			Imgui::PushFontScale(FontScale::Small);
+
+			if (Imgui::BeginTable("FileExplorerTable", cols, {8,8}))
 			{
 				for (auto& entry : std::filesystem::directory_iterator(m_currentFolder))
 				{
@@ -92,6 +95,8 @@ namespace RexEditor
 				}
 				Imgui::EndTable();
 			}
+
+			Imgui::PopFontScale();
 		}
 
 	private:
@@ -103,6 +108,6 @@ namespace RexEditor
 
 	private:
 		std::filesystem::path m_currentFolder;
-		float m_scale = 1.0f;
+		float m_scale = 1.5f;
 	};
 }

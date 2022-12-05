@@ -2,8 +2,11 @@
 
 #include <RexEngine.h>
 #include <string>
+#include <vector>
 
 #include "EditorEvents.h"
+
+struct ImFont;
 
 namespace RexEditor
 {
@@ -53,6 +56,8 @@ namespace RexEditor
     // Default is the normal top to bottom mode
     enum class VerticalPos { Default, Bottom };
 
+    enum class FontScale { Small, Normal, Large };
+
 	class Imgui
 	{
 	public:
@@ -98,11 +103,15 @@ namespace RexEditor
 
 
         // Font
-        static void LoadAndUseFont(const std::filesystem::path& path, int size);
+        static void PushFontScale(FontScale scale);
+        static void PopFontScale();
 
 	private:
         static void Init();
         static void Close();
+
+        // 0 = small, 1 = normal, 2 = large
+        inline static std::vector<ImFont*> s_fonts;
 
         RE_STATIC_CONSTRUCTOR({
             EditorEvents::OnEditorStart().Register<&Init>();

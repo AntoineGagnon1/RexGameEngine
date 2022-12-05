@@ -59,6 +59,8 @@ int main()
 
 	// Temp to save some time while testing
 	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
+	AssetManager::AddAsset(Guid::Generate(), "TestPath");
+	AssetManager::AddAsset(Guid::Generate(), "TestPath2");
 
 	//stream.clear();
 	//scene2.Serialize(test);

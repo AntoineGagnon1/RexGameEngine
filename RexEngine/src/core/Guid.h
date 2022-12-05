@@ -4,6 +4,7 @@
 #include <random>
 #include <chrono>
 #include <functional>
+#include <sstream>
 
 #include "Serialization.h"
 
@@ -15,17 +16,16 @@ namespace RexEngine
 		uint64_t dataHigh;
 		uint64_t dataLow;
 
-		// Give access to the default constructor
-		template<typename Registry>
-		friend class entt::basic_snapshot_loader;
 
-		// Use explicit generation instead : Guid::Generate() or Guid::Empty
-		Guid() : Guid(0,0) {}
 
 	public:
 
+		// Use explicit generation instead : Guid::Generate() or Guid::Empty,
+		// This is only here for cereal and entt
+		Guid() : Guid(0,0) {}
+
 		// An empty Guid
-		static Guid Empty;
+		static const Guid Empty;
 
 		// Generate a new random Guid
 		inline static Guid Generate()
@@ -84,19 +84,28 @@ namespace RexEngine
 			return dataHigh * dataLow;
 		}
 
-		template<typename Archive>
-		void serialize(Archive& archive)
+		template <class Archive>
+		std::string save_minimal(const Archive&) const
 		{
-			// Save as a 2 element array
-			archive(cereal::make_size_tag((cereal::size_type)2));
-			archive(dataHigh, dataLow);
+			std::ostringstream ss;
+			ss << dataHigh << " ";
+			ss << dataLow;
+			return ss.str();
+		}
+
+		template <class Archive>
+		void load_minimal(const Archive&, const std::string& str)
+		{
+			std::istringstream ss(str);
+			ss >> dataHigh;
+			ss >> dataLow;
 		}
 
 
 		auto operator<=>(Guid const&) const = default;
 	};
 
-	inline Guid Guid::Empty = Guid(0,0);
+	inline const Guid Guid::Empty = Guid(0,0);
 
 }
 

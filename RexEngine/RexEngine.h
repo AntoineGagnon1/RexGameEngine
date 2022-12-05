@@ -47,6 +47,10 @@
 #include "src/events/Event.h"
 #include "src/events/EngineEvents.h"
 
+// Assets
+#include "src/assets/Asset.h"
+#include "src/assets/AssetManager.h"
+
 // Utils
 #include "src/utils/Concepts.h"
 #include "src/utils/NoDestroy.h"

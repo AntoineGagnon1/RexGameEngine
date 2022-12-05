@@ -3,6 +3,66 @@
 
 #include "SceneManager.h"
 
+namespace RexEngine::Internal
+{
+	// entt archives with names
+	template<typename Serializer> // ex : JsonSerializer
+	class OutputArchive
+	{
+	public:
+
+		OutputArchive(Serializer& output) : m_output(output) {}
+
+		// count is the number of entity that will be stored
+		void operator()(std::underlying_type_t<entt::entity> count)
+		{
+			m_output(CUSTOM_NAME(count, "Count"));
+		}
+
+		void operator()(entt::entity e)
+		{
+			m_output(CUSTOM_NAME(e, "Entity"));
+		}
+
+		template<typename T>
+		void operator()(entt::entity e, const T& c)
+		{
+			m_output(CUSTOM_NAME(e, "Owner"), CUSTOM_NAME(c, typeid(c).name()));
+		}
+
+	private:
+		Serializer& m_output;
+	};
+
+	template<typename Deserializer> // ex : JsonDeserializer
+	class InputArchive
+	{
+	public:
+
+		InputArchive(Deserializer& input) : m_input(input) {}
+
+		// count is the number of entity that will be stored
+		void operator()(std::underlying_type_t<entt::entity>& count) const
+		{
+			m_input(CUSTOM_NAME(count, "Count"));
+		}
+
+		void operator()(entt::entity& e) const
+		{
+			m_input(CUSTOM_NAME(e, "Entity"));
+		}
+
+		template<typename T>
+		void operator()(entt::entity& e, T& c) const
+		{
+			m_input(CUSTOM_NAME(e, "Owner"), CUSTOM_NAME(c, typeid(c).name()));
+		}
+
+	private:
+		Deserializer& m_input;
+	};
+}
+
 namespace RexEngine
 {
 
@@ -33,7 +93,7 @@ namespace RexEngine
     {
         RE_ASSERT(IsValid(), "Trying to serialize an invalid Scene !");
         JsonSerializer serializer(output);
-        OutputArchive<JsonSerializer> archive(serializer);
+        Internal::OutputArchive<JsonSerializer> archive(serializer);
 
         entt::snapshot{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
                                                                   TransformComponent,
@@ -46,7 +106,7 @@ namespace RexEngine
     {
         RE_ASSERT(IsValid(), "Trying to deserialize into an invalid Scene !");
         JsonDeserializer deserializer(input);
-        InputArchive<JsonDeserializer> archive(deserializer);
+		Internal::InputArchive<JsonDeserializer> archive(deserializer);
 
         entt::snapshot_loader{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
                                                                          TransformComponent,

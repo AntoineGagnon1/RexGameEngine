@@ -23,21 +23,18 @@ namespace RexEditor
 
 		Project p;
 		p.Name = name;
-		p.LastScene = "";
-		p.rootPath = rootPath;
+		p.LastScenePath = "";
+		p.RegistryPath = rootPath / (name + Project::RegistryFileExtension);
 
 		std::ofstream file(rootPath / (name + Project::FileExtension));
 
-		if (file.is_open())
-		{
-			file << "--RexEngine project file--" << std::endl;
-			file << "Name=" << p.Name.substr(0, Project::MaxNameLength) << std::endl;
-			file << "LastScene=" << p.LastScene.string().substr(0, Project::MaxPathLength) << std::endl;
+		if (!file.is_open())
+			return false;
 
-			return true;
-		}
+		JsonSerializer archive(file);
+		archive(CUSTOM_NAME(p, "Project"));
 
-		return false;
+		return AssetManager::CreateRegistry(p.RegistryPath);
 	}
 
 	bool ProjectManager::Load(const std::filesystem::path& path)
@@ -47,32 +44,31 @@ namespace RexEditor
 		if (!file.is_open())
 			return false;
 
-		std::string line;
-		Project	project;
-		project.rootPath = path.parent_path();
-		char nameBuff[Project::MaxNameLength + 1] = { '\0' }; // +1 for null terminator
-		char lastSceneBuff[Project::MaxPathLength + 1] = { '\0' };
-		while (std::getline(file, line))
-		{
-			if (sscanf(line.c_str(), "Name=%s", nameBuff)) { project.Name = nameBuff; }
-			else if (sscanf(line.c_str(), "LastScene=%s", lastSceneBuff)) { project.LastScene = lastSceneBuff; }
-		}
+		Project	p;
+		p.rootPath = path.parent_path();
 
-		if (project.Name.empty())
+		JsonDeserializer archive(file);
+		archive(p);
+
+		if (p.Name.empty() || p.RegistryPath.empty())
 			return false; // Malformed
 		
-		s_currentProject = project;
+		// Load the registry
+		if (!AssetManager::SetRegistry(p.RegistryPath))
+			return false;
+
+		s_currentProject = p;
 
 		// Try to load the scene from the path, if a path was specified
-		if (!project.LastScene.empty())
+		if (!p.LastScenePath.empty())
 		{
-			std::ifstream sceneFile(path.parent_path() / project.LastScene);
+			std::ifstream sceneFile(path.parent_path() / p.LastScenePath);
 			s_currentScene = RexEngine::SceneManager::CreateScene();
 
 			if (sceneFile.is_open())
 				s_currentScene.DeserializeJson(sceneFile);
 			else
-				RE_LOG_WARN("Scene at {} not found !", project.LastScene.string()); // TODO : change this to editor log
+				RE_LOG_WARN("Scene at {} not found !", p.LastScenePath.string()); // TODO : change this to editor log
 		}
 
 		// On project load event

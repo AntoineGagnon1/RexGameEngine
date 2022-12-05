@@ -79,17 +79,17 @@ namespace RexEditor::Internal
 		}
 	}
 
+	ImFont* LoadFont(const std::filesystem::path& path, int size)
+	{
+		auto& io = ImGui::GetIO();
+		return io.Fonts->AddFontFromFileTTF(path.string().c_str(), size);
+	}
+
 #define GUI_LABEL_LEFT(func, label, code) ImGui::TextUnformatted(label); ImGui::NextColumn(); ImGui::SetNextItemWidth(-1); if(func) { code } ImGui::NextColumn();
 }
 
 namespace RexEditor
 {
-	void Imgui::LoadAndUseFont(const std::filesystem::path& path, int size)
-	{
-		auto& io = ImGui::GetIO();
-		io.FontDefault = io.Fonts->AddFontFromFileTTF(path.string().c_str(), size);
-	}
-
 	// Static init
 	void Imgui::Init()
 	{
@@ -117,7 +117,16 @@ namespace RexEditor
 		ImGui::AddSettingsHandler(&iniHandler);
 
 		GuiThemes::EnableDark();
-		Imgui::LoadAndUseFont("assets/fonts/CascadiaMono.ttf", 13);
+		
+
+		// Load the font sizes
+		s_fonts.push_back(Internal::LoadFont("assets/fonts/CascadiaMono.ttf", 10));
+		s_fonts.push_back(Internal::LoadFont("assets/fonts/CascadiaMono.ttf", 13));
+		s_fonts.push_back(Internal::LoadFont("assets/fonts/CascadiaMono.ttf", 20));
+
+		// Set the default to normal
+		auto& io = ImGui::GetIO();
+		io.FontDefault = s_fonts[(int)FontScale::Normal];
 	};
 
 	void Imgui::Close()
@@ -264,28 +273,9 @@ namespace RexEditor
 
 		ImGui::Image((ImTextureID)icon.GetId(), {(float)size.x, (float)size.y});
 
-		// Max size for the text
-		int textSize = (int)ImGui::CalcTextSize(text.c_str()).x;
-		std::string clippedText = text;
-		if (textSize > size.x)
-		{ // Clip
-			while (clippedText.size() > 0 && (int)ImGui::CalcTextSize(clippedText.c_str()).x > size.x)
-			{
-				clippedText.pop_back(); // Remove the last character
-			}
-
-			// Replace the last 2 characters by ..
-			if (clippedText.size() >= 2)
-			{
-				clippedText[clippedText.size() - 1] = '.';
-				clippedText[clippedText.size() - 2] = '.';
-			}
-		}
-
-
 		// Centered text
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (size.x / 2.0f - ImGui::CalcTextSize(clippedText.c_str()).x / 2.0f) - style.FramePadding.x);
-		Text(clippedText);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (size.x / 2.0f - ImGui::CalcTextSize(text.c_str(), NULL, false, (float)size.x).x / 2.0f));
+		ImGui::TextWrapped(text.c_str(), (float)size.x);
 	}
 
 	void Imgui::SliderFloat(const std::string& label, float min, float max, float& value, int width, int precision, VerticalPos vPos)
@@ -333,5 +323,15 @@ namespace RexEditor
 	void Imgui::TableNextElement()
 	{
 		ImGui::TableNextColumn();
+	}
+
+	void Imgui::PushFontScale(FontScale scale)
+	{
+		ImGui::PushFont(s_fonts[(int)scale]);
+	}
+
+	void Imgui::PopFontScale()
+	{
+		ImGui::PopFont();
 	}
 }
