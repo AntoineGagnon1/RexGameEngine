@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "RenderApi.h"
+//#include "../core/Serialization.h"
 
 namespace RexEngine
 {
@@ -21,14 +22,14 @@ namespace RexEngine
 		inline static constexpr int UVLocation = 2;
 
 	public:
-
+		Shader(std::istream& data);
 		Shader(const std::string& data);
 		~Shader();
 
 		Shader(const Shader&) = delete;
 
-		static std::shared_ptr<Shader> FromFile(const std::string& path);
 
+		static std::shared_ptr<Shader> FromFile(const std::string& path);
 		auto GetID() const { return m_id; }
 		bool IsValid() const { return m_id != RenderApi::InvalidShaderID; };
 
@@ -44,9 +45,22 @@ namespace RexEngine
 
 		// Register a #pragma using clause for the shader parser
 		static void RegisterParserUsing(const std::string& name, const std::string& replaceWith);
+
+		template<typename Archive>
+		inline static std::shared_ptr<Shader> LoadFromAssetFile(const Archive& metaDataArchive, std::istream& assetFile)
+		{
+			return std::make_shared<Shader>(assetFile);
+		}
+		 
+		template<typename Archive>
+		inline void SaveToAssetFile(Archive& metaDataArchive)
+		{
+			// No metadata for now
+		}
+
 	private:
 
-		static std::tuple<std::string, std::string> ParseShaders(const std::string& data);
+		static std::tuple<std::string, std::string> ParseShaders(std::istream& data);
 
 	private:
 		RenderApi::ShaderID m_id;

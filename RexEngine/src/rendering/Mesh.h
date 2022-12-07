@@ -24,6 +24,18 @@ namespace RexEngine
 		auto GetID() const { return m_vertexAttributes; }
 		size_t GetIndexCount() const { return m_indices.size(); }
 
+		template<typename Archive>
+		inline static std::shared_ptr<Mesh> LoadFromAssetFile(const Archive& metaDataArchive, std::istream& assetFile)
+		{
+			return std::shared_ptr<Mesh>(nullptr);
+		}
+
+		template<typename Archive>
+		inline void SaveToAssetFile(Archive& metaDataArchive)
+		{
+			// No metadata for now
+		}
+
 	private:
 
 		std::vector<uint8_t> m_vertexData;

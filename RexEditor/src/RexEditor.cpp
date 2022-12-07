@@ -25,6 +25,12 @@ int main()
 
 	EditorEvents::OnEditorStarted().Dispatch();
 
+	PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
+
+
+	// Temp to save some time while testing
+	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
+
 	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
 	Scene scene = SceneManager::CreateScene();
 	SceneManager::SetCurrentScene(scene);
@@ -34,33 +40,14 @@ int main()
 	e.AddComponent<TransformComponent>();
 	e2.AddComponent<TransformComponent>().parent = e;
 	e2.AddComponent<CameraComponent>();
-	//e.AddComponent<SkyboxComponent>();
+	auto skybox = e.AddComponent<SkyboxComponent>();
+	Guid shaderGuid = Guid::Empty;
+	*(uint64_t*)(&shaderGuid) += 1;
+	//AssetManager::AddAsset<Shader>(shaderGuid, "assets/skybox/Skybox.shader");
+
+	skybox.shader = AssetManager::GetAsset<Shader>(shaderGuid);
 	//e.AddComponent<MeshRendererComponent>();
 	f(e.GetGuid());
-
-	// TODO : add serialization for assets in components (shader/mesh)
-
-
-	PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
-
-	std::stringstream stream;
-	scene.SerializeJson(stream);
-	std::string s = stream.str();
-
-	Scene scene2 = SceneManager::CreateScene();
-	std::istringstream stream2(s);
-	scene2.DeserializeJson(stream2);
-
-	auto transforms = scene2.GetComponents<TransformComponent>();
-	for (auto& transform : transforms)
-	{
-		auto parent = transform.second.parent;
-	}
-
-	// Temp to save some time while testing
-	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
-	AssetManager::AddAsset(Guid::Generate(), "TestPath");
-	AssetManager::AddAsset(Guid::Generate(), "TestPath2");
 
 	//stream.clear();
 	//scene2.Serialize(test);

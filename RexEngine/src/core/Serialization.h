@@ -2,6 +2,7 @@
 #include <filesystem>
 
 #include <cereal/cereal.hpp>
+#include <cereal/details/traits.hpp>
 #include <cereal/details/util.hpp>
 
 #include <cereal/archives/json.hpp>
@@ -12,6 +13,7 @@
 #include <cereal/types/unordered_map.hpp>
 #include <cereal/types/set.hpp>
 #include <cereal/types/unordered_set.hpp>
+#include <cereal/types/memory.hpp>
 
 namespace RexEngine
 {

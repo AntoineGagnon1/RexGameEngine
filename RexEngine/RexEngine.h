@@ -48,7 +48,6 @@
 #include "src/events/EngineEvents.h"
 
 // Assets
-#include "src/assets/Asset.h"
 #include "src/assets/AssetManager.h"
 
 // Utils

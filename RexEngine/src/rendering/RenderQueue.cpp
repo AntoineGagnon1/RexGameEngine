@@ -35,7 +35,7 @@ namespace RexEngine
 		if (CompareSmaller<std::shared_ptr<Shader>>(left.shader, right.shader, returnValue))
 			return returnValue;
 
-		if (CompareSmaller< std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
+		if (CompareSmaller<std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
 			return returnValue;
 
 		if (CompareSmaller<unsigned char>(left.priority, right.priority, returnValue))

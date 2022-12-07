@@ -10,6 +10,7 @@
 #include "../math/Matrix.h"
 #include "../core/Color.h"
 #include "../core/Serialization.h"
+#include "../assets/AssetManager.h"
 
 #include "Entity.h"
 
@@ -17,16 +18,15 @@ namespace RexEngine
 {
 	struct MeshRendererComponent
 	{
-		std::shared_ptr<Shader> shader;
-		std::shared_ptr<Mesh> mesh;
+		Asset<Shader> shader;
+		Asset<Mesh> mesh;
 		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
 		unsigned char priority = 0;
 
 		template<typename Archive>
 		void serialize(Archive& archive) 
 		{
-			// TODO : add shader and mesh assets
-			archive(KEEP_NAME(cullingMode), KEEP_NAME(priority));
+			archive(KEEP_NAME(shader), KEEP_NAME(mesh), KEEP_NAME(cullingMode), KEEP_NAME(priority));
 		}
 	};
 
@@ -81,13 +81,12 @@ namespace RexEngine
 
 	struct SkyboxComponent
 	{
-		std::shared_ptr<Shader> shader;
+		Asset<Shader> shader;
 
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			// TODO : add shader asset
-			//archive(KEEP_NAME(fov), KEEP_NAME(zNear), KEEP_NAME(zFar));
+			archive(KEEP_NAME(shader));
 		}
 	};
 }

@@ -12,13 +12,12 @@ namespace {
 
 namespace RexEngine
 {
-
-	Shader::Shader(const std::string& data)
+	Shader::Shader(std::istream& data)
 		: m_id(RenderApi::InvalidShaderID)
 	{
 		// Parse the data to extract the shaders
 		auto [vertexSource, fragmentSource] = ParseShaders(data);
-		
+
 		auto vertex = RenderApi::CompileShader(vertexSource, RenderApi::ShaderType::Vertex);
 		auto fragment = RenderApi::CompileShader(fragmentSource, RenderApi::ShaderType::Fragment);
 
@@ -29,9 +28,15 @@ namespace RexEngine
 			RenderApi::DeleteShader(vertex); // Not needed anymore
 			RenderApi::DeleteShader(fragment);
 		}
-		
+
 		// Cache the uniforms
 		m_uniforms = RenderApi::GetShaderUniforms(m_id);
+	}
+
+	Shader::Shader(const std::string& data)
+		: Shader((std::istream&)std::istringstream(data))
+	{
+
 	}
 
 	Shader::~Shader()
@@ -45,10 +50,9 @@ namespace RexEngine
 		std::string str;
 		if (f) 
 		{
-			std::ostringstream ss;
+			std::stringstream ss;
 			ss << f.rdbuf();
-			str = ss.str();
-			return std::make_shared<Shader>(str);
+			return std::make_shared<Shader>(ss);
 		}
 
 		RE_LOG_ERROR("Could not open the shader at : {}", path);
@@ -99,10 +103,8 @@ namespace RexEngine
 		s_parserUsings.insert({name, replaceWith});
 	}
 
-
-	std::tuple<std::string, std::string> Shader::ParseShaders(const std::string& data)
+	std::tuple<std::string, std::string> Shader::ParseShaders(std::istream& fromStream)
 	{
-		std::istringstream fromStream(data);
 		std::ostringstream vertexStream;
 		std::ostringstream fragmentStream;
 
@@ -110,7 +112,7 @@ namespace RexEngine
 
 		std::string line;
 		std::ostringstream* writingTo = &vertexStream;
-		while (std::getline(fromStream, line)) 
+		while (std::getline(fromStream, line))
 		{	
 			
 			if (line.starts_with("#pragma")) // A directive
