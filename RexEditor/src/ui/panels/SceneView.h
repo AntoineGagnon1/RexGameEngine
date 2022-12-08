@@ -75,7 +75,7 @@ namespace RexEditor
 			// Create the camera object using the cached components, TODO : do this on scene changed
 			auto camera = SceneManager::CurrentScene().CreateEntity();
 			auto& cameraComponent = camera.AddComponent<RexEngine::CameraComponent>(m_editorCamera);
-			camera.AddComponent<RexEngine::TransformComponent>(m_cameraTransform);
+			camera.GetComponent<RexEngine::TransformComponent>() = m_cameraTransform;
 
 			m_viewBuffer.Bind();
 

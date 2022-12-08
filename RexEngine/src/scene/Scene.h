@@ -3,7 +3,6 @@
 #include <entt/entity/registry.hpp>
 
 #include "Entity.h"
-#include "Components.h"
 #include "../core/Serialization.h"
 
 namespace RexEngine
@@ -21,7 +20,7 @@ namespace RexEngine
 
 		Scene(const Scene&) = default;
 
-		Entity CreateEntity();
+		Entity CreateEntity(const std::string& name = "Unnamed");
 
 		void DestroyEntity(Entity e);
 

@@ -8,6 +8,9 @@
 
 namespace RexEngine
 {
+	class TransformComponent;
+	class TagComponent;
+
 	// Holds the id of an entity,
 	// Use the bool operator to check if the entity is null or was deleted
 	// Entities should be created by the Scene, not by calling Entity()
@@ -55,6 +58,13 @@ namespace RexEngine
 			return m_registry->emplace<T>(m_handle, std::forward<Args>(args)...);
 		}
 
+		template<>
+		decltype(auto) AddComponent<Guid>() = delete; // All entities already have a guid
+		template<>
+		decltype(auto) AddComponent<TransformComponent>() = delete; // All entities already have a TransformComponent
+		template<>
+		decltype(auto) AddComponent<TagComponent>() = delete; // All entities already have a TagComponent
+
 		// Get the components, use HasComponents() to check if the component is there first
 		template<typename ...Types>
 		decltype(auto) GetComponents()
@@ -87,11 +97,19 @@ namespace RexEngine
 
 		template<>
 		bool RemoveComponent<Guid>() = delete; // Cannot delete the Guid
+		template<>
+		bool RemoveComponent<TransformComponent>() = delete; // Cannot delete the transform
+		template<>
+		bool RemoveComponent<TagComponent>() = delete; // Cannot delete the tag
 
 		inline friend auto operator<=>(const Entity& left, const Entity& right)
 		{
 			return left.m_entityGuid <=> right.m_entityGuid;
 		}
+
+		inline friend bool operator==(const Entity& left, const Entity& right) { return left.m_entityGuid == right.m_entityGuid; }
+		inline friend bool operator!=(const Entity& left, const Entity& right) { return !(left == right); }
+
 
 		template<class Archive>
 		void save(Archive& archive) const

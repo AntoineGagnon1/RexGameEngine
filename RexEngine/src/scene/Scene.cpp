@@ -2,6 +2,7 @@
 #include "Scene.h"
 
 #include "SceneManager.h"
+#include "Components.h"
 
 namespace RexEngine::Internal
 {
@@ -66,14 +67,18 @@ namespace RexEngine::Internal
 namespace RexEngine
 {
 
-    Entity Scene::CreateEntity()
+    Entity Scene::CreateEntity(const std::string& name)
     {
         RE_ASSERT(IsValid(), "Trying to use an invalid Scene !");
 
         auto handle = m_registry->create();
         Guid guid = Guid::Generate();
+		TagComponent tag{ name };
 
-        m_registry->emplace<Guid>(handle, guid); // All entities must have a Guid
+        m_registry->emplace<Guid>(handle, guid); // All entities must have a Guid, TagComponent and Transform
+        m_registry->emplace<TagComponent>(handle, tag);
+        m_registry->emplace<TransformComponent>(handle); 
+
         return Entity(m_registry, handle);
     }
 

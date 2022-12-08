@@ -290,9 +290,29 @@ namespace RexEditor
 		ImGui::PopItemWidth();
 	}
 
+	bool Imgui::IsItemClicked(MouseButton mouseButton)
+	{
+		// Convert RexEngine::MouseButton to ImGui::MouseButton
+		static constexpr int ImGuiButtons[] = { ImGuiMouseButton_Right, ImGuiMouseButton_Left, ImGuiMouseButton_Middle, 3, 4};
+		return ImGui::IsItemClicked(ImGuiButtons[(int)mouseButton]);
+	}
+
 	void Imgui::Text(const std::string& text)
 	{
 		ImGui::Text(text.c_str());
+	}
+
+	bool Imgui::TreeNode(const std::string& text, bool leaf, bool openArrowOnly, bool selected)
+	{
+		return ImGui::TreeNodeEx(text.c_str(), 
+			(leaf ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None)
+		    | (openArrowOnly ? ImGuiTreeNodeFlags_OpenOnArrow : ImGuiTreeNodeFlags_None)
+			| (selected ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None));
+	}
+
+	void Imgui::TreePop()
+	{
+		ImGui::TreePop();
 	}
 
 	void Imgui::SameLine()
@@ -303,6 +323,11 @@ namespace RexEditor
 	void Imgui::Space()
 	{
 		ImGui::Spacing();
+	}
+
+	void Imgui::Indent(float amount)
+	{
+		ImGui::Indent(amount);
 	}
 
 	bool Imgui::BeginTable(const std::string& name, int nbCols, Vector2Int padding)

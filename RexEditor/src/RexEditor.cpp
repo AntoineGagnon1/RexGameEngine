@@ -27,18 +27,19 @@ int main()
 
 	PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
 
+	// TODO : remove using namespace RexEngine from REDPch.h
+	// TODO : Convert guid to struct based design ? (push on create/pop on destroy ?)
 
 	// Temp to save some time while testing
 	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
 
 	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
-	Scene scene = SceneManager::CreateScene();
+	auto scene = SceneManager::CreateScene();
 	SceneManager::SetCurrentScene(scene);
 	auto e = scene.CreateEntity();
 	auto e2 = scene.CreateEntity();
 	f(e.GetGuid());
-	e.AddComponent<TransformComponent>();
-	e2.AddComponent<TransformComponent>().parent = e;
+	e2.GetComponent<TransformComponent>().parent = e;
 	e2.AddComponent<CameraComponent>();
 	auto skybox = e.AddComponent<SkyboxComponent>();
 	Guid shaderGuid = Guid::Empty;

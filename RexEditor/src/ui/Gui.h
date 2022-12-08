@@ -90,13 +90,18 @@ namespace RexEditor
         static bool Button(const std::string& label, Alignement align = Alignement::Left, VerticalPos vPos = VerticalPos::Default);
         static void IconButton(const std::string& text, const RexEngine::Texture& icon, Vector2Int size, bool& clicked, bool& doubleClicked);
         static void SliderFloat(const std::string& label, float min, float max, float& value, int width, int precision = 1, VerticalPos vPos = VerticalPos::Default);
+        static bool IsItemClicked(MouseButton mouseButton = RexEngine::MouseButton::Left);
 
         // Fields
         static void Text(const std::string& text);
+        // openArrowOnly : only open if the arrow is pressed
+        static bool TreeNode(const std::string& text, bool leaf = false, bool openArrowOnly = true, bool selected = false);
+        static void TreePop();
 
         // Formating
         static void SameLine();
         static void Space();
+        static void Indent(float amount = 0.0f);
         static bool BeginTable(const std::string& name, int nbCols, Vector2Int padding);
         static void EndTable();
         static void TableNextElement();

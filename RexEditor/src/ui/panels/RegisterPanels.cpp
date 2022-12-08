@@ -6,12 +6,14 @@
 #include "NewProject.h"
 #include "FileExplorer.h"
 #include "SceneView.h"
+#include "SceneTree.h"
 
 namespace RexEditor
 {
 	RE_STATIC_CONSTRUCTOR({
 
 		PanelManager::RegisterPanel<NewProjectPanel>(); // Dont make a menubar item because the order is in PanelManager.cpp/Init
+		PanelManager::RegisterPanel<SceneTreePanel>("Scene Tree");
 		PanelManager::RegisterPanel<FileExplorerPanel>("File Explorer");
 	});
 }

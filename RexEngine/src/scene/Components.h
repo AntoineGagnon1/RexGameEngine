@@ -16,6 +16,17 @@
 
 namespace RexEngine
 {
+	struct TagComponent
+	{
+		std::string tag;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(KEEP_NAME(tag));
+		}
+	};
+
 	struct MeshRendererComponent
 	{
 		Asset<Shader> shader;

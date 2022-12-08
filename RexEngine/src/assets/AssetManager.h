@@ -42,8 +42,8 @@ namespace RexEngine
 		template<class Archive>
 		void load(Archive& archive); // Definition at the end of the file because it needs the AssetEditor
 
-		Guid GetGuid() const { return m_guid; }
-		void SetGuid(const Guid& guid) { m_guid = guid; }
+		Guid GetAssetGuid() const { return m_guid; }
+		void SetAssetGuid(const Guid& guid) { m_guid = guid; }
 
 		Asset& operator=(std::shared_ptr<T> from)
 		{
@@ -186,6 +186,19 @@ namespace RexEngine
 		}
 
 	private:
+
+		// Clear and delete all the assets
+		// this should be called on EngineEvent::OnEngineStop
+		inline static void Clear()
+		{
+			s_assets.clear();
+			s_registry.clear();
+			s_registryPath = "";
+		}
+
+		RE_STATIC_CONSTRUCTOR({
+			EngineEvents::OnEngineStop().Register<&AssetManager::Clear>();
+		});
 
 		inline static std::filesystem::path s_registryPath;
 

@@ -25,9 +25,6 @@ namespace RexEditor
 		// returns false if the file does not exist or is malformed
 		static bool Load(const std::filesystem::path& path);
 
-		// This might be an invalid scene if no current scene was set
-		inline static RexEngine::Scene CurrentScene() { return s_currentScene; }
-
 		inline static Project& CurrentProject() { return s_currentProject; }
 
 	private:
@@ -41,6 +38,5 @@ namespace RexEditor
 	private:
 
 		inline static Project s_currentProject;
-		inline static RexEngine::Scene s_currentScene;
 	};
 }

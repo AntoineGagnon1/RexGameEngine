@@ -63,10 +63,13 @@ namespace RexEditor
 		if (!p.LastScenePath.empty())
 		{
 			std::ifstream sceneFile(path.parent_path() / p.LastScenePath);
-			s_currentScene = RexEngine::SceneManager::CreateScene();
 
 			if (sceneFile.is_open())
-				s_currentScene.DeserializeJson(sceneFile);
+			{
+				auto scene = RexEngine::SceneManager::CreateScene();
+				scene.DeserializeJson(sceneFile);
+				RexEngine::SceneManager::SetCurrentScene(scene);
+			}
 			else
 				RE_LOG_WARN("Scene at {} not found !", p.LastScenePath.string()); // TODO : change this to editor log
 		}
