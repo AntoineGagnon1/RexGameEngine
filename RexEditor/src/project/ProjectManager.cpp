@@ -5,8 +5,8 @@
 
 #include "ui/MenuBar.h"
 #include "ui/SystemDialogs.h"
-#include "ui/panels/PanelManager.h"
-#include "ui/panels/NewProject.h"
+#include "panels/PanelManager.h"
+#include "panels/NewProject.h"
 
 namespace RexEditor
 {

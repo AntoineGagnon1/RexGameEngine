@@ -7,10 +7,10 @@
 
 #include "Panel.h"
 #include "PanelManager.h"
-#include "../../project/Project.h"
-#include "../../project/ProjectManager.h"
-#include "../Gui.h"
-#include "../SystemDialogs.h"
+#include "project/Project.h"
+#include "project/ProjectManager.h"
+#include "ui/Gui.h"
+#include "ui/SystemDialogs.h"
 
 namespace RexEditor
 {

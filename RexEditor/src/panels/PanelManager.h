@@ -7,8 +7,8 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "../MenuBar.h"
-#include "../../EditorEvents.h"
+#include "ui/MenuBar.h"
+#include "core/EditorEvents.h"
 
 namespace RexEditor
 {

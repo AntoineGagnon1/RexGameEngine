@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "EditorEvents.h"
+#include "core/EditorEvents.h"
 
 struct ImFont;
 
@@ -68,7 +68,7 @@ namespace RexEditor
         [[nodiscard("Usage : if(BeginWindow()){...}")]] 
         static bool BeginWindow(const std::string& name, bool& open, WindowSetting settings = WindowSetting::None);
 		static void EndWindow();
-        static Vector2Int GetWindowSize();
+        static RexEngine::Vector2Int GetWindowSize();
         static bool IsWindowFocused();
         static bool IsWindowHovered();
 
@@ -88,9 +88,9 @@ namespace RexEditor
         static void TextInput(const std::string& label, std::string& result, size_t maxSize);
         [[nodiscard("Usage : if(Button()){...}")]]
         static bool Button(const std::string& label, Alignement align = Alignement::Left, VerticalPos vPos = VerticalPos::Default);
-        static void IconButton(const std::string& text, const RexEngine::Texture& icon, Vector2Int size, bool& clicked, bool& doubleClicked);
+        static void IconButton(const std::string& text, const RexEngine::Texture& icon, RexEngine::Vector2Int size, bool& clicked, bool& doubleClicked);
         static void SliderFloat(const std::string& label, float min, float max, float& value, int width, int precision = 1, VerticalPos vPos = VerticalPos::Default);
-        static bool IsItemClicked(MouseButton mouseButton = RexEngine::MouseButton::Left);
+        static bool IsItemClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left);
 
         // Fields
         static void Text(const std::string& text);
@@ -102,7 +102,7 @@ namespace RexEditor
         static void SameLine();
         static void Space();
         static void Indent(float amount = 0.0f);
-        static bool BeginTable(const std::string& name, int nbCols, Vector2Int padding);
+        static bool BeginTable(const std::string& name, int nbCols, RexEngine::Vector2Int padding);
         static void EndTable();
         static void TableNextElement();
 

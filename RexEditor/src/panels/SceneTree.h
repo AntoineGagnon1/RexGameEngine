@@ -5,7 +5,7 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "../Gui.h"
+#include "ui/Gui.h"
 
 namespace RexEditor
 {

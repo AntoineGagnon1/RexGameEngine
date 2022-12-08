@@ -6,10 +6,10 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "../../project/ProjectManager.h"
-#include "../Gui.h"
+#include "project/ProjectManager.h"
+#include "ui/Gui.h"
 
-#include "../../EditorAssets.h"
+#include "core/EditorAssets.h"
 
 namespace RexEditor
 {

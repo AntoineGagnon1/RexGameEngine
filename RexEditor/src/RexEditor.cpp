@@ -2,8 +2,8 @@
 
 #include "ui/Gui.h"
 #include "ui/MenuBar.h"
-#include "ui/panels/PanelManager.h"
-#include "ui/panels/SceneView.h"
+#include "panels/PanelManager.h"
+#include "panels/SceneView.h"
 #include "project/ProjectManager.h"
 
 int main()
@@ -27,7 +27,6 @@ int main()
 
 	PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
 
-	// TODO : remove using namespace RexEngine from REDPch.h
 	// TODO : Convert guid to struct based design ? (push on create/pop on destroy ?)
 
 	// Temp to save some time while testing

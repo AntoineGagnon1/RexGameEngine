@@ -5,7 +5,7 @@
 
 #include <RexEngine.h>
 
-#include "EditorEvents.h"
+#include "core/EditorEvents.h"
 
 #include "Project.h"
 

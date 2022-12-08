@@ -1,7 +1,7 @@
 #include "REDPch.h"
 #include "Panel.h"
 
-#include "../Gui.h"
+#include "ui/Gui.h"
 #include "PanelManager.h"
 
 namespace RexEditor

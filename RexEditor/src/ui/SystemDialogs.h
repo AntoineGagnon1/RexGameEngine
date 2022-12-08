@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../EditorEvents.h"
+#include "../core/EditorEvents.h"
 
 namespace RexEditor
 {
