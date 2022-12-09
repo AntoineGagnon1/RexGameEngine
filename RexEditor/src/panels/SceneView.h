@@ -6,7 +6,6 @@
 #include <string>
 
 #include "Panel.h"
-#include "ui/Gui.h"
 
 namespace RexEditor
 {
@@ -30,7 +29,7 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnResize(RexEngine::Vector2Int oldSize, RexEngine::Vector2Int newSize) override
+		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
 		{
 			m_viewTexture.SetData(newSize, NULL, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
 			m_viewDepth.SetSize(newSize);
@@ -87,7 +86,7 @@ namespace RexEditor
 			
 			// Render the scene from the pov of the editor camera
 			RexEngine::ForwardRenderer::RenderScene(SceneManager::CurrentScene(), cameraComponent);
-			Imgui::DrawFullWindowTexture(m_viewTexture);
+			Window()->DrawFullWindowTexture(m_viewTexture);
 			
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();

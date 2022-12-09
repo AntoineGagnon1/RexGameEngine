@@ -5,7 +5,6 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "ui/Gui.h"
 
 namespace RexEditor
 {
@@ -35,7 +34,7 @@ namespace RexEditor
 			auto scene = RexEngine::SceneManager::CurrentScene();
 			if (!scene.IsValid())
 			{
-				Imgui::Text("No scene loaded !");
+				UI::Text t("No scene loaded !");
 				return;
 			}
 
@@ -93,19 +92,21 @@ namespace RexEditor
 		// Recursive
 		void DrawNode(std::shared_ptr<EntityNode> node)
 		{
-			bool showNode = Imgui::TreeNode(node->tag, node->children.empty(), true, node->entity == m_selected);
-			if (Imgui::IsItemClicked()) // Also process the click if the node is closed
+			UI::TreeNodeFlags flags = UI::TreeNodeFlags::OpenOnArrow;
+			flags |= node->children.empty() ? UI::TreeNodeFlags::Leaf : UI::TreeNodeFlags::None;
+			flags |= node->entity == m_selected ? UI::TreeNodeFlags::Selected : UI::TreeNodeFlags::None;
+
+			UI::TreeNode n(node->tag, flags);
+			if (n.IsClicked()) // Also process the click if the node is closed
 			{
 				m_selected = node->entity; // TODO : tell the inspector
 			}
 
 
-			if(showNode)
+			if(n.IsOpen())
 			{
 				for (auto child : node->children)
 					DrawNode(child);
-
-				Imgui::TreePop();
 			}
 		}
 

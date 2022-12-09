@@ -9,8 +9,8 @@
 #include "PanelManager.h"
 #include "project/Project.h"
 #include "project/ProjectManager.h"
-#include "ui/Gui.h"
 #include "ui/SystemDialogs.h"
+#include "ui/UIElements.h"
 
 namespace RexEditor
 {
@@ -26,18 +26,20 @@ namespace RexEditor
 	protected:
 		virtual void OnGui(float deltaTime) override
 		{
-			Imgui::TextInput("Project name : ", m_name, Project::MaxNameLength);
+			UI::TextInput nameInput("Project name : ", Project::MaxNameLength);
+			m_name = nameInput.Text();
 
-			if (Imgui::Button("Select root path ..."))
+			if (UI::Button b("Select root path ..."); b.IsClicked())
 			{
 				auto path = SystemDialogs::SelectFolder("Select a folder to create the project into");
 				m_path = path;
 			}
 
-			Imgui::SameLine();
-			Imgui::Text((m_path / m_name).string());
+			UI::SameLine();
+			UI::Text pathText((m_path / m_name).string());
 
-			if (Imgui::Button("Create", Alignement::Right, VerticalPos::Bottom))
+			UI::Anchor a(UI::AnchorPos::BottomRight);
+			if (UI::Button b("Create"); b.IsClicked())
 			{
 				if (!std::filesystem::exists(m_path))
 					SystemDialogs::Alert("Error while creating the project", "Invalid path !");

@@ -1,6 +1,6 @@
 #include "REDPch.h"
 
-#include "ui/Gui.h"
+#include "ui/UI.h"
 #include "ui/MenuBar.h"
 #include "panels/PanelManager.h"
 #include "panels/SceneView.h"
@@ -58,14 +58,14 @@ int main()
 		float deltaTime = (float)editorFrameTime.ElapsedSeconds();
 		editorFrameTime.Restart();
 		EngineEvents::OnPreUpdate().Dispatch();
-		Imgui::NewFrame();
+		UI::NewFrame();
 		
 		MenuBar::DrawMenuBar();
 
 		EngineEvents::OnUpdate().Dispatch();
 		PanelManager::RenderPanels(deltaTime);
 
-		Imgui::RenderGui();
+		UI::RenderUI();
 
 		win.SwapBuffers();
 	}

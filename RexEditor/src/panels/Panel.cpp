@@ -1,13 +1,12 @@
 #include "REDPch.h"
 #include "Panel.h"
 
-#include "ui/Gui.h"
 #include "PanelManager.h"
 
 namespace RexEditor
 {
 	Panel::Panel(const std::string& title)
-		: m_title(title), m_open(true), m_canDock(true)
+		: m_title(title), m_open(true), m_hovered(false), m_canDock(true)
 	{ }
 
 	void Panel::Render(float deltaTime)
@@ -15,13 +14,16 @@ namespace RexEditor
 		if (!m_open)
 			return; // panel is hidden
 
-		WindowSetting settings = WindowSetting::NoCollapse;	
-		settings |= m_canDock == false ? WindowSetting::NoDocking : WindowSetting::None;
+		UI::WindowSetting settings = UI::WindowSetting::NoCollapse;	
+		settings |= m_canDock == false ? UI::WindowSetting::NoDocking : UI::WindowSetting::None;
 
-		if (Imgui::BeginWindow(m_title.c_str(), m_open, settings))
+		if (UI::Window w(m_title.c_str(), &m_open, settings); w.IsVisible())
 		{
+			// Cache the window
+			m_window = &w;
+
 			// Handle resize
-			auto newSize = Imgui::GetWindowSize();
+			auto newSize = w.Size();
 			if (m_size != newSize)
 			{
 				auto oldSize = m_size;
@@ -30,7 +32,7 @@ namespace RexEditor
 			}
 
 			// Handle focus
-			auto newFocus = Imgui::IsWindowFocused();
+			auto newFocus = w.IsFocused();
 			if (m_focused != newFocus)
 			{
 				m_focused = newFocus;
@@ -40,10 +42,10 @@ namespace RexEditor
 					OnFocusLeave();
 			}
 
+			// Cache hovered
+			m_hovered = w.IsHovered();
 			OnGui(deltaTime);
 		}
-
-		Imgui::EndWindow();
 	}
 
 	void Panel::Show(bool show)
@@ -53,6 +55,6 @@ namespace RexEditor
 
 	bool Panel::IsHovered() const
 	{ 
-		return Imgui::IsWindowHovered();
+		return m_hovered;
 	}
 }

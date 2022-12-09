@@ -3,7 +3,8 @@
 
 #include <src/utils/StringHelper.h>
 
-#include "Gui.h"
+#include "imgui/imgui.h"
+#include "UIElements.h"
 
 namespace RexEditor
 {
@@ -25,27 +26,29 @@ namespace RexEditor
 
 	void MenuBar::DrawMenuBar()
 	{
-		Imgui::BeginMainMenuBar();
+		ImGui::BeginMainMenuBar();
 		for (auto& subItem : s_menuRoot.subItems)
 		{
 			DrawMenuItemRecursive(subItem.first, subItem.second);
 		}
-		Imgui::EndMainMenuBar();
+		ImGui::EndMainMenuBar();
 	}
 
 	void MenuBar::DrawMenuItemRecursive(const std::string& name, MenuItem& item)
 	{
 		if (item.subItems.empty())
-			Imgui::MenuItem(name, item.toCall, item.toCall != nullptr); // Draw the menu item
+		{
+			if (UI::MenuItem i(name, item.toCall != nullptr); i.IsClicked()) // Draw the menu item
+				item.toCall();
+		}
 		else
 		{
-			if (Imgui::BeginMenu(name)) // Make a menu
+			if (UI::Menu m(name); m.IsOpen()) // Make a sub-menu
 			{
 				for (auto& subItem : item.subItems)
 				{
 					DrawMenuItemRecursive(subItem.first, subItem.second);
 				}
-				Imgui::EndMenu();
 			}
 		}
 	}
