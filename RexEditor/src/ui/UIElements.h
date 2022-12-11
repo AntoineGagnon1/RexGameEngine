@@ -4,6 +4,14 @@
 
 #include <string>
 #include <stack>
+#include <filesystem>
+#include <vector>
+
+#include "SystemDialogs.h"
+
+// Used by AssetInput
+template<typename T>
+std::vector<std::string> GetAssetFilter(const Asset<T>&); // Overload for each asset type
 
 namespace RexEditor::UI
 {
@@ -37,7 +45,9 @@ namespace RexEditor::UI
     
     // Put the next element on the same line as the last
     void SameLine();
-
+    
+    // A thin separator line
+    void Separator();
 
     //
     // Window
@@ -138,35 +148,108 @@ namespace RexEditor::UI
         // Add an offset to the current anchor
         // if there is no current anchor it will add the offset
         // to the cursor
-        static void AddOffset(Vector2 offset);
+        static void AddOffset(RexEngine::Vector2 offset);
 
         // Used internally, sets the cursor at the right place to
         // draw an element of size = size
-        static void SetCursorPos(Vector2 size, bool moveCursor = true);
+        static void SetCursorPos(RexEngine::Vector2 size, bool moveCursor = true);
 
     private:
         AnchorPos m_anchor;
-        Vector2 m_startPos;
-        Vector2 m_currentPos;
+        RexEngine::Vector2 m_startPos;
+        RexEngine::Vector2 m_currentPos;
 
         inline static std::stack<Anchor*> s_currentAnchors;
     };
 
     //
-    // Text Input
+    // Input Fields
     //
-    // Only hovered when over the input part
-    class TextInput : public Clickable
+    
+    // Base class for input types (TextInput, Vector3Input, ...)
+    template<typename T>
+    class Input : public Clickable
     {
     public:
-        TextInput(const std::string& label, size_t maxSize);
 
-        std::string Text() const { return m_text; }
+        Input(T& value) : m_value(value) {}
 
-    private:
-        std::string m_text;
+        T Value() const { return m_value; }
+
+    protected:
+        T& m_value;
+    };
+    
+    // Only hovered when over the input part
+    class TextInput : public Input<std::string>
+    {
+    public:
+        // maxSize : max size of the input string
+        TextInput(const std::string& label, size_t maxSize, std::string& value);
     };
 
+    class Vector3Input : public Input<RexEngine::Vector3>
+    {
+    public:
+        Vector3Input(const std::string& label, Vector3& value);
+    };
+
+ 
+    namespace Internal
+    {
+        // Non template functon for AssetInput
+        // returns the new path, or an empty path if the asset has not changed
+        std::filesystem::path AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
+    }
+
+    // Used to select an asset, 
+    // supports both drag/drop and a file selection prompt
+    // The function std::string GetAssetFilter<T>(const Asset<T>& value) must be implemented
+    template<typename T>
+    class AssetInput : public Input<Asset<T>>
+    {
+    private:
+        using AssetType = Asset<T>;
+    public:
+        AssetInput(const std::string& label, AssetType& value)
+            : Input<AssetType>(value)
+        {
+            // Get the filter for this asset
+            auto filter = GetAssetFilter<T>(value);
+
+            auto newPath = Internal::AssetInputUI(label, filter, value.GetAssetGuid(), Hoverable::m_hovered);
+
+            if (!newPath.empty())
+            {
+                auto newGuid = AssetManager::GetAssetGuidFromPath(newPath);
+                if (newGuid == Guid::Empty)
+                {// Load the asset
+                    newGuid = Guid::Generate();
+                    if (!AssetManager::AddAsset<T>(newGuid, newPath))
+                    {
+                        SystemDialogs::Alert("Error", "Could not load the asset !");
+                        return;
+                    }
+                }
+
+                // Replace the asset
+                value = AssetManager::GetAsset<T>(newGuid);
+            }
+        }
+    };
+
+    // A char (number, not character) input
+    class ByteInput : public Input<char>
+    {
+    public:
+        ByteInput(const std::string& label, char& value);
+    };
+
+    class FloatInput : public Input<float>
+    {
+    public:
+        FloatInput(const std::string& label, float& value);
+    };
 
     //
     // Button
@@ -188,37 +271,45 @@ namespace RexEditor::UI
     class Icon : public Clickable
     {
     public:
-        Icon(const std::string& label, const RexEngine::Texture& icon, Vector2 iconSize);
+        Icon(const std::string& label, const RexEngine::Texture& icon, RexEngine::Vector2 iconSize);
     };
 
 
     //
     // Sliders
     //
-    template<typename T>
-    class Slider : public Hoverable
-    {
-    public:
-        
-        Slider(T& value) : m_valueInner(static_cast<T>(0)), m_value(value) {}
-        Slider() : m_valueInner(static_cast<T>(0)), m_value(m_valueInner) {}
-
-        T Value() const { return m_value; }
-
-    protected:
-        T& m_value; // Can be m_valueInner or an external value passed by the constructor
-    private:
-        T m_valueInner;
-    };
-
-    class FloatSlider : public Slider<float>
+    class FloatSlider : public Input<float>
     {
     public:
 
         FloatSlider(const std::string& label, float min, float max, float width, float& value, int precision = 1);
-        FloatSlider(const std::string& label, float min, float max, float width, int precision = 1);
     };
 
+
+    //
+    // ComboBox
+    //
+    // A drop down selection menu
+    class ComboBox : public Input<int>
+    {
+    public:
+        ComboBox(const std::string& label, std::vector<std::string> options, int& selected);
+    };
+
+    // ComboBox for enums
+    template<typename T>
+    class ComboBoxEnum : public Input<T>
+    {
+    public:
+        ComboBoxEnum(const std::string& label, std::vector<std::string> options, T& selected)
+            : Input<T>(selected)
+        {
+            int value = static_cast<int>(selected);
+            ComboBox combo(label, options, value);
+            Hoverable::CacheHovered();
+            selected = static_cast<T>(combo.Value());
+        }
+    };
 
     //
     // Trees
@@ -252,13 +343,14 @@ namespace RexEditor::UI
     class TreeNode : public Clickable
     {
     public:
-        TreeNode(const std::string& label, TreeNodeFlags flags);
+        TreeNode(const std::string& label, TreeNodeFlags flags = TreeNodeFlags::None);
         ~TreeNode();
 
         bool IsOpen() const { return m_open; }
 
     private:
         bool m_open;
+        bool m_shouldPop;
     };
 
 
@@ -275,7 +367,7 @@ namespace RexEditor::UI
         Table(const std::string& name, int nbCols);
         ~Table();
 
-        void SetCellPadding(Vector2Int padding);
+        void SetCellPadding(RexEngine::Vector2Int padding);
         // Move to the next element
         void NextElement();
 
@@ -295,6 +387,12 @@ namespace RexEditor::UI
         Text(const std::string& text);
     };
 
+    class FramedText : public Clickable
+    {
+    public:
+        // Will take the full width if padding.x == -1
+        FramedText(const std::string& text, bool border = false, RexEngine::Vector2 padding = {0.0f, 0.0f});
+    };
 
 
     //
@@ -324,4 +422,5 @@ namespace RexEditor::UI
     private:
         bool m_clicked;
     };
+
 }

@@ -57,6 +57,10 @@ namespace RexEngine
 			return glm::rotate(glm::inverse(glm::normalize(*this)), toRotate);
 		}
 
+		Vector3 EulerAngles() const
+		{
+			return glm::degrees(glm::eulerAngles(*this));
+		}
 
 		// Member operators need to defined
 		Quaternion operator*=(const Quaternion& rhs)

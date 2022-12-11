@@ -38,7 +38,7 @@ namespace RexEngine
 		if (CompareSmaller<std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
 			return returnValue;
 
-		if (CompareSmaller<unsigned char>(left.priority, right.priority, returnValue))
+		if (CompareSmaller<decltype(left.priority)>(left.priority, right.priority, returnValue))
 			return returnValue;
 
 		return false; // Equal

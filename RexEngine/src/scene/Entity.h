@@ -37,6 +37,12 @@ namespace RexEngine
 
 		Guid GetGuid() const;
 
+		std::string& Name();
+		const std::string& Name() const;
+
+		TransformComponent& Transform();
+		const TransformComponent& Transform() const;
+
 		// TODO : GetTransform
 		// TODO : Get Name
 		

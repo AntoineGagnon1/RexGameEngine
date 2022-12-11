@@ -51,6 +51,13 @@ namespace RexEngine
 			return *this;
 		}
 
+		Asset& operator=(Asset<T> from)
+		{
+			m_asset = from.m_asset;
+			m_guid = from.m_guid;
+			return *this;
+		}
+
 		operator std::shared_ptr<T>() const
 		{
 			return m_asset;
@@ -59,6 +66,11 @@ namespace RexEngine
 		T* operator->() const 
 		{
 			return m_asset.get();
+		}
+
+		operator bool() const
+		{
+			return m_asset != nullptr;
 		}
 
 	private:
@@ -103,6 +115,28 @@ namespace RexEngine
 			s_assets[guid] = a;
 
 			return a;
+		}
+
+		// Will return an empty guid if no asset with the specified path was found
+		inline static Guid GetAssetGuidFromPath(const std::filesystem::path& path)
+		{
+			for (auto& pair : s_registry)
+			{
+				if (pair.second == path)
+					return pair.first;
+			}
+
+			return Guid::Empty;
+		}
+
+		// Returns the .asset file
+		// Will return an empty path if no asset with the specified guid was found
+		inline static std::filesystem::path GetAssetPathFromGuid(const Guid& guid)
+		{
+			if (s_registry.contains(guid))
+				return s_registry[guid];
+			else
+				return "";
 		}
 
 		// Save the asset to the .asset file, returns false if the file could not be opened or if the asset is not loaded

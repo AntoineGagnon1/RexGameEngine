@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
+#include "SystemDialogs.h"
 
 // Widget sizes : https://github.com/ocornut/imgui/issues/3714
 
@@ -26,6 +27,27 @@ namespace RexEditor::UI::Internal
 
 	// Convert RexEngine::MouseButton to ImGui::MouseButton
 	constexpr int ImGuiButtons[] = { ImGuiMouseButton_Right, ImGuiMouseButton_Left, ImGuiMouseButton_Middle, 3, 4 };
+
+	// Setup for a simple full width input field
+	// usage : 
+	// SetupInput(label);
+	// ImGui::Input...();
+	void SetupInput(const std::string& label)
+	{
+		auto& style = ImGui::GetStyle();
+		const Vector2 size{ ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() };
+
+		// Label (to the left of the box)
+		Anchor::SetCursorPos(size);
+		if (label.substr(0, 2) != "##")
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(label.c_str());
+			ImGui::SameLine();
+		}
+		// Text box
+		ImGui::SetNextItemWidth(-1); // Full width
+	}
 }
 
 
@@ -49,6 +71,12 @@ namespace RexEditor::UI
 	void UI::SameLine()
 	{
 		ImGui::SameLine();
+	}
+
+	void UI::Separator()
+	{
+		Anchor::SetCursorPos({ ImGui::GetContentRegionAvail().x, ImGui::GetCurrentWindow()->DC.CurrLineSize.y});
+		ImGui::Separator();
 	}
 
 
@@ -179,33 +207,70 @@ namespace RexEditor::UI
 			current->m_currentPos.y += size.y + style.ItemSpacing.y;
 	}
 
-
-	TextInput::TextInput(const std::string& label, size_t maxSize)
+	TextInput::TextInput(const std::string& label, size_t maxSize, std::string& value)
+		: Input(value)
 	{
-		if (m_text.capacity() < maxSize)
-			m_text.resize(maxSize); // Make sure the string is big enough
+		if (m_value.capacity() < maxSize)
+			m_value.resize(maxSize); // Make sure the string is big enough
 
-		auto& style = ImGui::GetStyle();
-
-		const Vector2 size{
-			ImGui::GetContentRegionAvail().x,
-			ImGui::GetFrameHeight()
-		};
-
-
-
-		// Label (to the left of the box)
-		Anchor::SetCursorPos(size);
-		ImGui::TextUnformatted(label.c_str()); 
-		ImGui::SameLine();
-		// Text box
-		ImGui::SetNextItemWidth(-1); // Full width
-		ImGui::InputText(("##" + label).c_str(), m_text.data(), m_text.capacity());
+		Internal::SetupInput(label);
+		ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity());
 		CacheHovered();
 		// Set the new size for the string, based on the content of the buffer
-		m_text.resize(strlen(m_text.c_str()));
+		m_value.resize(strlen(m_value.c_str()));
 	}
 
+
+	Vector3Input::Vector3Input(const std::string& label, Vector3& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		ImGui::InputFloat3(("##" + label).c_str(), &m_value.x);
+		CacheHovered();
+	}
+
+	std::filesystem::path Internal::AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
+	{
+		auto& style = ImGui::GetStyle();
+		auto& io = ImGui::GetIO();
+		const Vector2 size{ ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() };
+
+		// Get the name of this asset (if any)
+		// The name is the filename (stem)
+		std::string name = "";
+		auto path = AssetManager::GetAssetPathFromGuid(currentGuid);
+		if (path.has_stem() && path.stem().has_stem())
+			name = path.stem().stem().string(); // Remove both the .asset and file extension
+
+		Internal::SetupInput(label);
+		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
+		hovered = ImGui::IsItemHovered();
+		
+		if (ImGui::IsItemClicked()) // Clicked the text, open the file selector
+		{
+			auto path = SystemDialogs::SelectFile("Select an asset", filter);
+			if (std::filesystem::exists(path)) // Selected a valid file
+				return path;
+		}
+
+		return ""; // No change
+	}
+
+	ByteInput::ByteInput(const std::string& label, char& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		ImGui::InputScalar(("##" + label).c_str(), ImGuiDataType_S8, &m_value);
+		CacheHovered();
+	}
+
+	FloatInput::FloatInput(const std::string& label, float& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		ImGui::InputFloat(("##" + label).c_str(), &m_value);
+		CacheHovered();
+	}
 
 	Button::Button(const std::string& label)
 	{
@@ -252,7 +317,7 @@ namespace RexEditor::UI
 
 
 	FloatSlider::FloatSlider(const std::string& label, float min, float max, float width, float& value, int precision)
-		: Slider(value)
+		: Input(value)
 	{
 		auto& style = ImGui::GetStyle();
 		const Vector2 size = { width + ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x,
@@ -260,6 +325,7 @@ namespace RexEditor::UI
 
 		// Label to the left
 		Anchor::SetCursorPos(size);
+		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(label.c_str());
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(width);
@@ -267,10 +333,19 @@ namespace RexEditor::UI
 		CacheHovered();
 	}
 
-	FloatSlider::FloatSlider(const std::string& label, float min, float max, float width, int precision)
-		: FloatSlider(label, min, max, width, m_value, precision)
-	{ }
 
+	ComboBox::ComboBox(const std::string& label, std::vector<std::string> options, int& selected)
+		: Input(selected)
+	{
+		std::string optionsStr = "";
+		for (auto& str : options)
+			optionsStr += str + '\0';
+
+		// Label to the left
+		Internal::SetupInput(label);
+		ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), options.size());
+		CacheHovered();
+	}
 
 
 	TreeNodeFlags operator | (TreeNodeFlags lhs, TreeNodeFlags rhs)
@@ -286,6 +361,7 @@ namespace RexEditor::UI
 	}
 
 	TreeNode::TreeNode(const std::string& label, TreeNodeFlags flags) 
+		: m_shouldPop(!((int)flags & ImGuiTreeNodeFlags_NoTreePushOnOpen))
 	{
 		// Ripped the size calculation from the imgui treenode function
 		auto& style = ImGui::GetStyle();
@@ -301,7 +377,7 @@ namespace RexEditor::UI
 
 	TreeNode::~TreeNode()
 	{
-		if (m_open)
+		if (m_open && m_shouldPop)
 			ImGui::TreePop();
 	}
 
@@ -335,6 +411,27 @@ namespace RexEditor::UI
 		Anchor::SetCursorPos(Internal::VecConvert(ImGui::CalcTextSize(text.c_str())));
 		ImGui::Text(text.c_str());
 		CacheHovered();
+	}
+
+	FramedText::FramedText(const std::string& text, bool border, RexEngine::Vector2 padding)
+	{
+		auto& style = ImGui::GetStyle();
+		const ImVec2 size{
+			(padding.x == -1 ? ImGui::GetContentRegionAvail().x : (ImGui::CalcTextSize(text.c_str()).x + style.FramePadding.x * 2 + padding.x)),
+			ImGui::CalcTextSize(text.c_str()).y + style.FramePadding.y * 2 + padding.y
+		};
+		const float paddingX = size.x - ImGui::CalcTextSize(text.c_str()).x;
+
+		Anchor::SetCursorPos(Internal::VecConvert(size));
+		const ImVec2 pos = ImGui::GetCursorScreenPos();
+		const ImRect bb(pos, { pos.x + size.x, pos.y + size.y });
+		const ImU32 col = ImGui::GetColorU32(ImGuiCol_FrameBg);
+
+		ImGui::RenderFrame(bb.Min, bb.Max, col, border, style.FrameRounding);
+		CacheHovered();
+		ImGui::AlignTextToFramePadding();
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (paddingX / 2));
+		ImGui::Text(text.c_str());
 	}
 
 

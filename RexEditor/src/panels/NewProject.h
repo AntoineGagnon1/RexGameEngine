@@ -26,8 +26,7 @@ namespace RexEditor
 	protected:
 		virtual void OnGui(float deltaTime) override
 		{
-			UI::TextInput nameInput("Project name : ", Project::MaxNameLength);
-			m_name = nameInput.Text();
+			UI::TextInput nameInput("Project name : ", Project::MaxNameLength, m_name);
 
 			if (UI::Button b("Select root path ..."); b.IsClicked())
 			{

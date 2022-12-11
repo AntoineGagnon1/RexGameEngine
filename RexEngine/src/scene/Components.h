@@ -18,12 +18,12 @@ namespace RexEngine
 {
 	struct TagComponent
 	{
-		std::string tag;
+		std::string name;
 
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(KEEP_NAME(tag));
+			archive(KEEP_NAME(name));
 		}
 	};
 
@@ -32,7 +32,7 @@ namespace RexEngine
 		Asset<Shader> shader;
 		Asset<Mesh> mesh;
 		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
-		unsigned char priority = 0;
+		char priority = 0;
 
 		template<typename Archive>
 		void serialize(Archive& archive) 

@@ -2,6 +2,7 @@
 #include "Entity.h"
 
 #include "SceneManager.h"
+#include "Components.h"
 
 namespace RexEngine
 {
@@ -20,6 +21,26 @@ namespace RexEngine
 	Guid Entity::GetGuid() const
 	{
 		return m_entityGuid;
+	}
+
+	std::string& Entity::Name()
+	{
+		return GetComponent<TagComponent>().name;
+	}
+
+	const std::string& Entity::Name() const
+	{
+		return GetComponent<TagComponent>().name;
+	}
+
+	TransformComponent& Entity::Transform()
+	{
+		return GetComponent<TransformComponent>();
+	}
+
+	const TransformComponent& Entity::Transform() const
+	{
+		return GetComponent<TransformComponent>();
 	}
 
 

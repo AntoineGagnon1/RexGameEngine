@@ -40,6 +40,7 @@ int main()
 	f(e.GetGuid());
 	e2.GetComponent<TransformComponent>().parent = e;
 	e2.AddComponent<CameraComponent>();
+	e2.AddComponent<MeshRendererComponent>();
 	auto skybox = e.AddComponent<SkyboxComponent>();
 	Guid shaderGuid = Guid::Empty;
 	*(uint64_t*)(&shaderGuid) += 1;

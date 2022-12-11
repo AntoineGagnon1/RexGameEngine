@@ -10,9 +10,8 @@ namespace RexEngine
 	{
 		// Get the transform of the camera
 		Entity cameraOwner = scene.GetComponentOwner<const CameraComponent>(camera);
-		RE_ASSERT(cameraOwner.HasComponent<TransformComponent>(), "Camera has no TransformComponent!");
 
-		auto& cameraTransform = cameraOwner.GetComponent<TransformComponent>();
+		auto& cameraTransform = cameraOwner.Transform();
 		
 		// Make the view matrix
 		auto[cameraPos, cameraRotation, _] = cameraTransform.GetGlobalTransform().Decompose();
@@ -35,11 +34,10 @@ namespace RexEngine
 		// Draw objects (put them in the RenderQueue)
 		for (auto&& [e, c] : scene.GetComponents<MeshRendererComponent>())
 		{
-			Matrix4 modelMatrix = Matrix4::Identity;
-			if (e.HasComponent<TransformComponent>())
- 				modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform(); // Use the transform of the object
-
-			RenderQueue::AddCommand(RenderCommand(c.shader, c.mesh, modelMatrix, c.cullingMode, c.priority));
+			const Matrix4 modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
+			
+			if(c.shader && c.mesh)
+				RenderQueue::AddCommand(RenderCommand(c.shader, c.mesh, modelMatrix, c.cullingMode, c.priority));
 		}
 
 		// Execute the render queue to actually render the objects on the screen

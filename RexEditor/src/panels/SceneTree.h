@@ -5,6 +5,8 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
+#include "Inspector.h"
+#include "../inspectors/EntityInspector.h"
 
 namespace RexEditor
 {
@@ -45,13 +47,13 @@ namespace RexEditor
 			auto transforms = scene.GetComponents<TransformComponent>();
 			for (auto&& [entity, transform] : transforms)
 			{
-				auto tag = entity.GetComponent<TagComponent>().tag;
+				auto tag = entity.Name();
 				if (nodes.contains(tag))
 				{
 					// Fix orphans
 					if (transform.parent)
 					{
-						auto parentTag = transform.parent.GetComponent<TagComponent>().tag;
+						auto parentTag = transform.parent.Name();
 						if(!nodes.contains(parentTag)) // Create the parent if needed, it will be an orphan for now
 							nodes.insert({ parentTag, std::make_shared<EntityNode>(parentTag, transform.parent) });
 						
@@ -67,7 +69,7 @@ namespace RexEditor
 					std::shared_ptr<EntityNode> addTo = root;
 					if (transform.parent)
 					{
-						auto parentTag = transform.parent.GetComponent<TagComponent>().tag;
+						auto parentTag = transform.parent.Name();
 						if (!nodes.contains(parentTag))
 						{ // Create the parent, this parent will be an orphan for now
 							nodes.insert({ parentTag, std::make_shared<EntityNode>(parentTag, transform.parent) });
@@ -97,9 +99,11 @@ namespace RexEditor
 			flags |= node->entity == m_selected ? UI::TreeNodeFlags::Selected : UI::TreeNodeFlags::None;
 
 			UI::TreeNode n(node->tag, flags);
-			if (n.IsClicked()) // Also process the click if the node is closed
+			if (n.IsClicked() && node->entity) // Also process the click if the node is closed
 			{
-				m_selected = node->entity; // TODO : tell the inspector
+				m_selected = node->entity;
+				// Tell the inspector
+				InspectorPanel::InspectElement(std::bind(InspectEntity, std::placeholders::_1, node->entity));
 			}
 
 
