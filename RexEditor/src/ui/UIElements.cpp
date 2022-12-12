@@ -450,6 +450,7 @@ namespace RexEditor::UI
 		: m_clicked(false)
 	{
 		ImGui::MenuItem(name.c_str(), NULL, &m_clicked, enabled);
+		CacheHovered();
 	}
 
 	bool MenuItem::IsClicked(RexEngine::MouseButton mouseButton) const
@@ -458,5 +459,18 @@ namespace RexEditor::UI
 			return m_clicked;
 		else
 			Clickable::IsClicked(mouseButton);
+	}
+
+
+
+	Popup::Popup(const std::string& name)
+	{
+		m_open = ImGui::BeginPopupContextWindow(name.c_str());
+	}
+
+	Popup::~Popup()
+	{
+		if(m_open)
+			ImGui::EndPopup();
 	}
 }

@@ -87,7 +87,7 @@ namespace RexEditor::UI
 
 	// Usage : 
 	// If(Window w(title); w.IsVisible()) {...}
-    class Window : public Hoverable
+    class Window : public Clickable
 	{
     public:
         // Closed to nullptr will display no X to close the window
@@ -415,7 +415,7 @@ namespace RexEditor::UI
     class MenuItem : public Clickable
     {
     public:
-        MenuItem(const std::string& name, bool enabled);
+        MenuItem(const std::string& name, bool enabled = true);
 
         bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left) const override;
 
@@ -423,4 +423,24 @@ namespace RexEditor::UI
         bool m_clicked;
     };
 
+
+    //
+    // Popup
+    //
+    // Usage :
+    // if(...) 
+    //   Popup::OpenPopup("name");
+    //
+    // if(Popup p("name"); p.IsOpen()) {...}
+    class Popup
+    {
+    public:
+        Popup(const std::string& name);
+        ~Popup();
+
+        bool IsOpen() const { return m_open; }
+
+    private:
+        bool m_open;
+    };
 }

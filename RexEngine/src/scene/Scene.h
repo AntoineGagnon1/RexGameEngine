@@ -22,7 +22,7 @@ namespace RexEngine
 
 		Entity CreateEntity(const std::string& name = "Unnamed");
 
-		void DestroyEntity(Entity e);
+		void DestroyEntity(Entity e, bool destroyChildren = false);
 
 		// Returns a null Entity if no owner is found
 		template<typename T>

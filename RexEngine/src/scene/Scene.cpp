@@ -82,9 +82,25 @@ namespace RexEngine
         return Entity(m_registry, handle);
     }
 
-    void Scene::DestroyEntity(Entity e)
+    void Scene::DestroyEntity(Entity e, bool destroyChildren)
     {
         RE_ASSERT(IsValid(), "Trying to use an invalid Scene !");
+		
+		// TODO : cache parent/child ?
+		for (auto& [child, t] : GetComponents<TransformComponent>())
+		{
+			if (t.parent == e && child != e)
+			{
+				if (destroyChildren)
+				{ // Destroy the child
+					DestroyEntity(child, true);
+				}
+				else
+				{ // Make the parent of the child the root
+					t.parent = Entity();
+				}
+			}
+		}
 
         m_registry->destroy(e.m_handle);
     }
