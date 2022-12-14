@@ -3,8 +3,11 @@
 #include <string>
 #include <map>
 
-namespace RexEditor
+#include "MenuSystem.h"
+
+namespace RexEditor::UI
 {
+	// The main menu bar
 	class MenuBar
 	{
 	public:
@@ -14,14 +17,7 @@ namespace RexEditor
 		static void DrawMenuBar();
 
 	private:
-		struct MenuItem
-		{
-			std::function<void()> toCall = nullptr;
-			std::map<std::string, MenuItem> subItems;
-		};
 
-		static void DrawMenuItemRecursive(const std::string& name, MenuItem& item);
-
-		inline static MenuItem s_menuRoot;
+		inline static MenuSystem<> s_menuSystem;
 	};
 }

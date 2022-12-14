@@ -24,7 +24,7 @@ namespace RexEditor
 			Panel* panel = s_panels.back().get();
 
 			if(!menuPath.empty())
-				MenuBar::RegisterMenuFunction("Windows/" + menuPath, [panel] { panel->Show(); });
+				UI::MenuBar::RegisterMenuFunction("Windows/" + menuPath, [panel] { panel->Show(); });
 		}
 
 		inline static void RemovePanel(Panel* ptr)

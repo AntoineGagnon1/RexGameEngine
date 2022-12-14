@@ -95,7 +95,7 @@ namespace RexEditor
 				DrawNode(node);
 
 			// Render the context menu
-			if (UI::Popup p("SceneTreeContext"); p.IsOpen())
+			if (UI::ContextMenu p("SceneTreeContext"); p.IsOpen())
 			{
 				if (UI::Menu create("Create"); create.IsOpen())
 				{
@@ -107,7 +107,7 @@ namespace RexEditor
 					{
 						// Select the new Entity
 						m_selected = created;
-						InspectorPanel::InspectElement(std::bind(InspectEntity, std::placeholders::_1, created));
+						InspectorPanel::InspectElement(std::bind(EntityInspector::InspectEntity, std::placeholders::_1, created));
 					}
 						
 
@@ -141,7 +141,7 @@ namespace RexEditor
 			{
 				m_selected = node->entity;
 				// Tell the inspector
-				InspectorPanel::InspectElement(std::bind(InspectEntity, std::placeholders::_1, node->entity));
+				InspectorPanel::InspectElement(std::bind(EntityInspector::InspectEntity, std::placeholders::_1, node->entity));
 			}
 
 			// Context menu

@@ -61,7 +61,7 @@ int main()
 		EngineEvents::OnPreUpdate().Dispatch();
 		UI::NewFrame();
 		
-		MenuBar::DrawMenuBar();
+		UI::MenuBar::DrawMenuBar();
 
 		EngineEvents::OnUpdate().Dispatch();
 		PanelManager::RenderPanels(deltaTime);

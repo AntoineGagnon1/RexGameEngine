@@ -84,8 +84,8 @@ namespace RexEditor
 	void ProjectManager::Init()
 	{
 		// Register MenuBar functions
-		MenuBar::RegisterMenuFunction("Project/New", [] { PanelManager::GetPanel<NewProjectPanel>()->Show(); });
-		MenuBar::RegisterMenuFunction("Project/Open...", [] { 
+		UI::MenuBar::RegisterMenuFunction("Project/New", [] { PanelManager::GetPanel<NewProjectPanel>()->Show(); });
+		UI::MenuBar::RegisterMenuFunction("Project/Open...", [] {
 			
 			auto path = SystemDialogs::SelectFile("Select a project to open", {"RexEngine Project (.rexengine)", "*.rexengine"});
 

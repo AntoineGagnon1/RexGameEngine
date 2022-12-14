@@ -49,6 +49,9 @@ namespace RexEditor::UI
     // A thin separator line
     void Separator();
 
+    // An empty line, the height of a text line
+    void EmptyLine();
+
     //
     // Window
     //
@@ -429,7 +432,7 @@ namespace RexEditor::UI
     //
     // Usage :
     // if(...) 
-    //   Popup::OpenPopup("name");
+    //   Popup::Open("name");
     //
     // if(Popup p("name"); p.IsOpen()) {...}
     class Popup
@@ -440,7 +443,25 @@ namespace RexEditor::UI
 
         bool IsOpen() const { return m_open; }
 
+        static void Open(const std::string& name);
+
     private:
         bool m_open;
+    };
+
+    // Opens on right click on the window
+    // Usage :
+    // if(ContextMenu c("name"); c.IsOpen()) {...}
+    class ContextMenu
+    {
+    public:
+        ContextMenu(const std::string& name);
+        ~ContextMenu();
+
+        bool IsOpen() const { return m_open; }
+
+    private:
+        bool m_open;
+
     };
 }

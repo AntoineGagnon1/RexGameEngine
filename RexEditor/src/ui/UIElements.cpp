@@ -79,6 +79,11 @@ namespace RexEditor::UI
 		ImGui::Separator();
 	}
 
+	void EmptyLine()
+	{
+		Anchor::AddOffset({0, ImGui::GetTextLineHeight()});
+	}
+
 
 	WindowSetting operator|(WindowSetting lhs, WindowSetting rhs)
 	{
@@ -465,12 +470,27 @@ namespace RexEditor::UI
 
 	Popup::Popup(const std::string& name)
 	{
-		m_open = ImGui::BeginPopupContextWindow(name.c_str());
+		m_open = ImGui::BeginPopup(name.c_str());
 	}
 
 	Popup::~Popup()
 	{
 		if(m_open)
+			ImGui::EndPopup();
+	}
+
+	void Popup::Open(const std::string& name)
+	{
+		ImGui::OpenPopup(name.c_str());
+	}
+
+	ContextMenu::ContextMenu(const std::string& name)
+	{
+		m_open = ImGui::BeginPopupContextWindow(name.c_str());
+	}
+	ContextMenu::~ContextMenu()
+	{
+		if (m_open)
 			ImGui::EndPopup();
 	}
 }
