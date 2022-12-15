@@ -6,10 +6,12 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
-#include "project/ProjectManager.h"
+#include "../project/ProjectManager.h"
 
-#include "core/EditorAssets.h"
+#include "../core/EditorAssets.h"
 #include "../ui/DragDrop.h"
+#include "../inspectors/AssetInspector.h"
+#include "Inspector.h"
 
 namespace RexEditor
 {
@@ -82,17 +84,31 @@ namespace RexEditor
 					}
 					else // File
 					{
-						UI::Icon icon(entry.path().filename().string(), EditorAssets::FileIcon(), { itemWidth ,itemWidth });
-						// TODO : click : Tell inspector
-						// TODO : double click : do something based on the file type
+						auto extension = entry.path().extension().string();
+						if (extension != Asset<int>::FileExtension) // Dont show .asset metadata files
+						{
+							UI::Icon icon(entry.path().filename().string(), EditorAssets::FileIcon(), { itemWidth ,itemWidth });
 
-						// Asset drag and drop
-						auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(entry.path().extension().string());
-						if (!type.Empty())
-						{ // This is an asset
-							UI::DragDrop::Source<std::filesystem::path>("Asset" + type.name,
-								entry.path(),
-								entry.path().filename().string());
+							// Get the asset type
+							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
+							if (!type.Empty())
+							{
+								if (icon.IsClicked()) // Tell the inspector
+								{
+									// Get the asset guid
+									auto asset = AssetManager::GetAssetGuidFromPath(entry.path());
+
+									InspectorPanel::InspectElement(std::bind(&AssetInspector::InspectAsset,
+										std::placeholders::_1, type, asset));
+								}
+
+								// TODO : double click : do something based on the file type
+
+								// Asset drag and drop
+								UI::DragDrop::Source<std::filesystem::path>("Asset" + type.name,
+									entry.path(),
+									entry.path().filename().string());
+							}
 						}
 					}
 				}
