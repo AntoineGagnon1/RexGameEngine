@@ -118,11 +118,12 @@ namespace RexEngine
 		}
 
 		// Will return an empty guid if no asset with the specified path was found
+		// path is the path of this asset (NO .asset extension)
 		inline static Guid GetAssetGuidFromPath(const std::filesystem::path& path)
 		{
 			for (auto& pair : s_registry)
 			{
-				if (pair.second == path)
+				if (std::filesystem::equivalent(pair.second, path.string() + Asset<int>::FileExtension))
 					return pair.first;
 			}
 

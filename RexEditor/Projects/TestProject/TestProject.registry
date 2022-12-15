@@ -1,19 +1,7 @@
 {
     "Paths": [
         {
-            "key": "1 0",
-            "value": "assets/skybox/Skybox.shader.asset"
-        },
-        {
-            "key": "11794659037877629549 1670727603588949",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Shaders\\TestShader.shader.asset"
-        },
-        {
-            "key": "2902323880541380731 1670727725438060",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Shaders\\TestShader.shader.asset"
-        },
-        {
-            "key": "9519250971994275135 1670727805142305",
+            "key": "9354911781615849764 1671066378637340",
             "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Shaders\\TestShader.shader.asset"
         }
     ]
