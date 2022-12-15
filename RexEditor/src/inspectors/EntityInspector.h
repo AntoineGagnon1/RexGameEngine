@@ -34,6 +34,7 @@ namespace RexEditor
 				UI::PopFontScale();
 			}
 
+			UI::Separator();
 			// Transform
 			UI::Vector3Input posInput("Position", entity.Transform().position);
 
@@ -43,6 +44,7 @@ namespace RexEditor
 			entity.Transform().rotation = Quaternion::FromEuler(angles);
 
 			UI::Vector3Input posScale("Scale   ", entity.Transform().scale);
+			UI::Separator();
 
 			// Other components
 			TryDrawComponent<SkyboxComponent>("Skybox", entity);
@@ -100,22 +102,24 @@ namespace RexEditor
 		{
 			if (entity && entity.HasComponent<T>())
 			{
-				if (UI::TreeNode n(label, UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen); n.IsOpen())
+				UI::TreeNode n(label, UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
+				if (n.IsOpen())
 				{
-					if(n.IsClicked(RexEngine::MouseButton::Right))
-					{
-						UI::Popup::Open("ComponentContextMenu" + label);
-					}
-
 					DrawComponent<T>(entity);
-					UI::Separator();
-
-					if (UI::Popup p("ComponentContextMenu" + label); p.IsOpen())
-					{
-						if(UI::MenuItem i("Remove " + label); i.IsClicked())
-							entity.RemoveComponent<T>();
-					}
 				}
+				UI::Separator();
+
+				if(n.IsClicked(RexEngine::MouseButton::Right))
+				{
+					UI::Popup::Open("ComponentContextMenu" + label);
+				}
+
+				if (UI::Popup p("ComponentContextMenu" + label); p.IsOpen())
+				{
+					if(UI::MenuItem i("Remove " + label); i.IsClicked())
+						entity.RemoveComponent<T>();
+				}
+
 			}
 		}
 
