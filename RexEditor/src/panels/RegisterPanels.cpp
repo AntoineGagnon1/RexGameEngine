@@ -19,16 +19,3 @@ namespace RexEditor
 		PanelManager::RegisterPanel<InspectorPanel>("Inspector");
 	});
 }
-
-// Asset filters
-template<>
-std::vector<std::string> GetAssetFilter<Shader>(const Asset<Shader>&)
-{
-	return { "Shader File (.shader)", "*.shader" };
-}
-
-template<>
-std::vector<std::string> GetAssetFilter<Mesh>(const Asset<Mesh>&)
-{
-	return { "Mesh File (.obj)", "*.obj" };
-}

@@ -218,7 +218,18 @@ namespace RexEditor::UI
             : Input<AssetType>(value)
         {
             // Get the filter for this asset
-            auto filter = GetAssetFilter<T>(value);
+            auto type = RexEngine::AssetTypes::GetAssetType<T>();
+            if (type.Empty())
+            {
+                RE_LOG_ERROR("Unregistered asset type : {} !", typeid(T).name());
+                return;
+            }
+
+            std::vector<std::string> filter = {type.name};
+            for (auto& ex : type.extensions)
+            {
+                filter.push_back("*" + ex);
+            }
 
             auto newPath = Internal::AssetInputUI(label, filter, value.GetAssetGuid(), Hoverable::m_hovered);
 

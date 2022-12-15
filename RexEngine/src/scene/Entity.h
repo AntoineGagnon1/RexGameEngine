@@ -8,8 +8,8 @@
 
 namespace RexEngine
 {
-	class TransformComponent;
-	class TagComponent;
+	struct TransformComponent;
+	struct TagComponent;
 
 	// Holds the id of an entity,
 	// Use the bool operator to check if the entity is null or was deleted

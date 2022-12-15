@@ -8,7 +8,7 @@
 
 #include "../core/Guid.h"
 #include "../core/Serialization.h"
-
+#include "../events/EngineEvents.h"
 
 namespace RexEngine
 {
@@ -58,23 +58,16 @@ namespace RexEngine
 			return *this;
 		}
 
-		operator std::shared_ptr<T>() const
-		{
-			return m_asset;
-		}
+		operator std::shared_ptr<T>() const { return m_asset; }
 
-		T* operator->() const 
-		{
-			return m_asset.get();
-		}
+		// Use the underlying asset directly using ->
+		const T* operator->() const  { return m_asset.get(); }
+		T* operator->()  { return m_asset.get(); }
 
-		operator bool() const
-		{
-			return m_asset != nullptr;
-		}
+		// Check if an asset is empty
+		operator bool() const { return m_asset != nullptr; }
 
 	private:
-
 		friend class AssetManager;
 
 		Guid m_guid;
@@ -109,7 +102,7 @@ namespace RexEngine
 				return Asset<T>(); // Failed
 
 			JsonDeserializer metaDataArchive(metaDataFile);
-			a.m_guid = guid;
+			a.SetAssetGuid(guid);
 			a.m_asset = T::LoadFromAssetFile(metaDataArchive, assetFile);
 
 			s_assets[guid] = a;
@@ -119,26 +112,11 @@ namespace RexEngine
 
 		// Will return an empty guid if no asset with the specified path was found
 		// path is the path of this asset (NO .asset extension)
-		inline static Guid GetAssetGuidFromPath(const std::filesystem::path& path)
-		{
-			for (auto& pair : s_registry)
-			{
-				if (std::filesystem::equivalent(pair.second, path.string() + Asset<int>::FileExtension))
-					return pair.first;
-			}
-
-			return Guid::Empty;
-		}
+		static Guid GetAssetGuidFromPath(const std::filesystem::path& path);
 
 		// Returns the .asset file
 		// Will return an empty path if no asset with the specified guid was found
-		inline static std::filesystem::path GetAssetPathFromGuid(const Guid& guid)
-		{
-			if (s_registry.contains(guid))
-				return s_registry[guid];
-			else
-				return "";
-		}
+		static std::filesystem::path GetAssetPathFromGuid(const Guid& guid);
 
 		// Save the asset to the .asset file, returns false if the file could not be opened or if the asset is not loaded
 		template<typename T>
@@ -190,35 +168,10 @@ namespace RexEngine
 		}
 
 		// Change the registry in use, returns false if the file could not be opened
-		inline static bool SetRegistry(const std::filesystem::path& path)
-		{
-			s_registry.clear();
-			s_assets.clear();
-
-			s_registryPath = path;
-
-			// Read the registry
-			std::ifstream file(s_registryPath);
-			if (!file.is_open())
-				return false;
-
-			JsonDeserializer archive(file);
-			archive(CUSTOM_NAME(s_registry, "Paths"));
-			return true;
-		}
+		static bool SetRegistry(const std::filesystem::path& path);
 
 		// Create an empty registry at the path, returns false if the file could not be opened
-		inline static bool CreateRegistry(const std::filesystem::path& path)
-		{
-			std::ofstream file(path, std::ios::trunc);
-			if (!file.is_open())
-				return false;
-
-			JsonSerializer archive(file);
-			std::unordered_map<Guid, std::filesystem::path> emptyRegistry;
-			archive(CUSTOM_NAME(emptyRegistry, "Paths"));
-			return true;
-		}
+		static bool CreateRegistry(const std::filesystem::path& path);
 
 	private:
 

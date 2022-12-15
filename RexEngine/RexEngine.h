@@ -49,6 +49,7 @@
 
 // Assets
 #include "src/assets/AssetManager.h"
+#include "src/assets/AssetTypes.h"
 
 // Utils
 #include "src/utils/Concepts.h"
