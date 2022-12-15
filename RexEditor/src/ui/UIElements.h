@@ -9,10 +9,6 @@
 
 #include "SystemDialogs.h"
 
-// Used by AssetInput
-template<typename T>
-std::vector<std::string> GetAssetFilter(const Asset<T>&); // Overload for each asset type
-
 namespace RexEditor::UI
 {
     //

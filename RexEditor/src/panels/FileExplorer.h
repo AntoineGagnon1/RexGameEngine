@@ -9,6 +9,7 @@
 #include "project/ProjectManager.h"
 
 #include "core/EditorAssets.h"
+#include "../ui/DragDrop.h"
 
 namespace RexEditor
 {
@@ -81,9 +82,18 @@ namespace RexEditor
 					}
 					else // File
 					{
+						UI::Icon icon(entry.path().filename().string(), EditorAssets::FileIcon(), { itemWidth ,itemWidth });
 						// TODO : click : Tell inspector
 						// TODO : double click : do something based on the file type
-						UI::Icon icon(entry.path().filename().string(), EditorAssets::FileIcon(), { itemWidth ,itemWidth });
+
+						// Asset drag and drop
+						auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(entry.path().extension().string());
+						if (!type.Empty())
+						{ // This is an asset
+							UI::DragDrop::Source<std::filesystem::path>("Asset" + type.name,
+								entry.path(),
+								entry.path().filename().string());
+						}
 					}
 				}
 			}

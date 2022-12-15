@@ -5,6 +5,7 @@
 #include <imgui/imgui_internal.h>
 
 #include "SystemDialogs.h"
+#include "DragDrop.h"
 
 // Widget sizes : https://github.com/ocornut/imgui/issues/3714
 
@@ -250,7 +251,13 @@ namespace RexEditor::UI
 		Internal::SetupInput(label);
 		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
 		hovered = ImGui::IsItemHovered();
-		
+		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + filter[0]); // The first element in filter is always type.name
+		if (payload)
+		{
+			return *payload;
+		}
+
+
 		if (ImGui::IsItemClicked()) // Clicked the text, open the file selector
 		{
 			auto path = SystemDialogs::SelectFile("Select an asset", filter);
@@ -317,6 +324,7 @@ namespace RexEditor::UI
 		ImGui::SetCursorPosX(cursor.x + 
 			(iconSize.x - ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).x) * 0.5f);
 		ImGui::TextWrapped(label.c_str(), (float)iconSize.x);
+		ImGui::Selectable(("##selectable_" + label).c_str()); // Act as the whole selectable area for other tools (like DragDrop)
 	}
 
 
