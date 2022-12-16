@@ -122,6 +122,15 @@ namespace RexEditor::UI
 		ImGui::PopFont();
 	}
 
+	void PushFontColor(RexEngine::Color color)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, *((ImVec4*)&color));
+	}
+
+	void PopFontColor()
+	{
+		ImGui::PopStyleColor();
+	}
 
 	void UI::NewFrame()
 	{

@@ -3,6 +3,7 @@
 #include <RexEngine.h>
 
 #include "../ui/UIElements.h"
+#include "../ui/UI.h"
 
 namespace RexEditor
 {
@@ -39,9 +40,31 @@ namespace RexEditor
 
 		inline static void InspectShader(const std::filesystem::path& assetPath)
 		{
+			using namespace RexEngine;
 			auto shader = GetAsset<Shader>(assetPath);
 
-			UI::Text("Shader");
+			// Valid or not
+			{
+				UI::Anchor a(UI::AnchorPos::Center);
+				UI::PushFontColor(shader->IsValid() ? Color(0, 1, 0) : Color(1, 0, 0));
+				UI::FramedText("Compilation : " + std::string((shader->IsValid() ? "Success" : "Failed")));
+				UI::PopFontColor();
+			}
+
+			UI::EmptyLine();
+
+			if (UI::TreeNode n("Source", UI::TreeNodeFlags::DefaultOpen | UI::TreeNodeFlags::Framed); n.IsOpen())
+			{
+				std::ifstream file(assetPath);
+				if (!file.is_open())
+					UI::Text("Could not open the source file !");
+
+				std::stringstream strStream;
+				strStream << file.rdbuf();
+				auto content = strStream.str();
+
+				UI::Text t(content);
+			}
 		}
 
 	};

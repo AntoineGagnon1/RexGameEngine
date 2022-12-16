@@ -216,14 +216,14 @@ namespace RexEditor::UI
 			current->m_currentPos.y += size.y + style.ItemSpacing.y;
 	}
 
-	TextInput::TextInput(const std::string& label, size_t maxSize, std::string& value)
+	TextInput::TextInput(const std::string& label, size_t maxSize, std::string& value, bool readOnly)
 		: Input(value)
 	{
 		if (m_value.capacity() < maxSize)
 			m_value.resize(maxSize); // Make sure the string is big enough
 
 		Internal::SetupInput(label);
-		ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity());
+		ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity(), readOnly ? ImGuiInputTextFlags_ReadOnly : 0);
 		CacheHovered();
 		// Set the new size for the string, based on the content of the buffer
 		m_value.resize(strlen(m_value.c_str()));

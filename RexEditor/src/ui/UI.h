@@ -7,6 +7,9 @@ namespace RexEditor::UI
     void PushFontScale(FontScale scale);
     void PopFontScale();
 
+    void PushFontColor(RexEngine::Color color);
+    void PopFontColor();
+
     void NewFrame();
     // Will render to the default frame buffer (id = 0)
     void RenderUI();

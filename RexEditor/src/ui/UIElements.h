@@ -186,7 +186,7 @@ namespace RexEditor::UI
     {
     public:
         // maxSize : max size of the input string
-        TextInput(const std::string& label, size_t maxSize, std::string& value);
+        TextInput(const std::string& label, size_t maxSize, std::string& value, bool readOnly = false);
     };
 
     class Vector3Input : public Input<RexEngine::Vector3>
