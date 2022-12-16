@@ -14,8 +14,7 @@ namespace RexEngine
 
 	Entity::operator bool() const
 	{
-		// This will check if the entity is valid implicitly because GetEntitySceneGuid() will return an empty guid
-		return SceneManager::IsSceneValid(SceneManager::GetEntitySceneGuid(m_entityGuid));
+		return Scene::IsEntityValid(m_entityGuid);
 	}
 
 	Guid Entity::GetGuid() const
@@ -51,9 +50,10 @@ namespace RexEngine
 
 	void Entity::InitFromGuid()
 	{
-		m_handle = SceneManager::GetEntityHandle(m_entityGuid);
-		if (auto scene = SceneManager::GetEntitySceneGuid(m_entityGuid); scene != Guid::Empty)
-			m_registry = &SceneManager::GetSceneRegistry(scene);
+		m_handle = Scene::GetEntityHandle(m_entityGuid);
+		auto scene = AssetManager::GetAsset<Scene>(Scene::GetEntityScene(m_entityGuid));
+		if (scene)
+			m_registry = scene->GetRegistry();
 		else
 			m_registry = nullptr;
 	}

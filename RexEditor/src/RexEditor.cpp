@@ -33,7 +33,7 @@ int main()
 	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
 
 	auto f = ScriptEngine::GetManagedFunction<void, Guid>("RexEditor.Class1", "Test");
-	auto scene = SceneManager::CreateScene();
+	/*auto scene = SceneManager::CreateScene();
 	SceneManager::SetCurrentScene(scene);
 	auto e = scene.CreateEntity();
 	auto e2 = scene.CreateEntity();
@@ -48,7 +48,7 @@ int main()
 
 	skybox.shader = AssetManager::GetAsset<Shader>(shaderGuid);
 	//e.AddComponent<MeshRendererComponent>();
-	f(e.GetGuid());
+	f(e.GetGuid());*/
 
 	//stream.clear();
 	//scene2.Serialize(test);

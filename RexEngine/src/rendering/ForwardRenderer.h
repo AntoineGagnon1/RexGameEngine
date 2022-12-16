@@ -39,7 +39,7 @@ namespace RexEngine
 	public:
 
 		// Render a scene using a camera
-		static void RenderScene(Scene scene, const CameraComponent& camera);
+		static void RenderScene(Asset<Scene> scene, const CameraComponent& camera);
 
 	private:
 

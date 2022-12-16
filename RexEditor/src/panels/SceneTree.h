@@ -32,10 +32,10 @@ namespace RexEditor
 	protected:
 		virtual void OnGui(float deltaTime) override
 		{
-			auto scene = RexEngine::SceneManager::CurrentScene();
-			if (!scene.IsValid())
+			auto scene = RexEngine::Scene::CurrentScene();
+			if (!scene)
 			{
-				UI::Text t("No scene loaded !");
+				UI::Text t("No active scene !");
 				return;
 			}
 
@@ -43,7 +43,7 @@ namespace RexEditor
 			auto root = std::make_shared<EntityNode>(Entity());
 			std::unordered_map<Guid, std::shared_ptr<EntityNode>> nodes;
 
-			auto transforms = scene.GetComponents<TransformComponent>();
+			auto transforms = scene->GetComponents<TransformComponent>();
 			// This will create each entity and its parent if needed,
 			// if a node already exists it means that it was added as a parent,
 			// the parent of this parent node node is then added if needed
@@ -101,7 +101,7 @@ namespace RexEditor
 				{
 					Entity created = Entity();
 					if (UI::MenuItem item("Empty"); item.IsClicked())
-						created = scene.CreateEntity("New Entity");
+						created = scene->CreateEntity("New Entity");
 
 					if (created)
 					{
@@ -120,7 +120,7 @@ namespace RexEditor
 				if (m_popupSelected)
 				{
 					if (UI::MenuItem item("Delete"); item.IsClicked())
-						scene.DestroyEntity(m_popupSelected, true);
+						scene->DestroyEntity(m_popupSelected, true);
 				}
 			}
 		}

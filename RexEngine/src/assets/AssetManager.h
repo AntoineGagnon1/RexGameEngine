@@ -16,7 +16,7 @@ namespace RexEngine
 	// member functions : 
 	// 
 	// template<typename Archive>
-	// static std::shared_ptr<Type> LoadFromAssetFile(const Archive& metaDataArchive, std::istream& assetFile)
+	// static std::shared_ptr<Type> LoadFromAssetFile(Guid assetGuid, const Archive& metaDataArchive, std::istream& assetFile)
 	// 
 	// template<typename Archive>
 	// void SaveToAssetFile(Archive& metaDataArchive)
@@ -103,7 +103,7 @@ namespace RexEngine
 
 			JsonDeserializer metaDataArchive(metaDataFile);
 			a.SetAssetGuid(guid);
-			a.m_asset = T::LoadFromAssetFile(metaDataArchive, assetFile);
+			a.m_asset = T::LoadFromAssetFile(guid, metaDataArchive, assetFile);
 
 			s_assets[guid] = a;
 
@@ -138,8 +138,15 @@ namespace RexEngine
 			if (!metaDataFile.is_open())
 				return false; // Failed to open the file
 
-			JsonSerializer metaDataArchive(metaDataFile);
-			std::any_cast<Asset<T>*>(asset->second)->m_asset->SaveToAssetFile(metaDataArchive);
+			{
+				JsonSerializer metaDataArchive(metaDataFile);
+				std::any_cast<Asset<T>>(asset->second).m_asset->SaveToAssetFile(metaDataArchive);
+			}
+
+			if (metaDataFile.cur == 1)
+			{ // If the file is still empty, add a json node
+				metaDataFile << "{}";
+			}
 
 			return true;
 		}

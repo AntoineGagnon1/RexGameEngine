@@ -10,6 +10,7 @@
 
 #include "../core/EditorAssets.h"
 #include "../ui/DragDrop.h"
+#include "../ui/MenuSystem.h"
 #include "../inspectors/AssetInspector.h"
 #include "Inspector.h"
 

@@ -1,0 +1,40 @@
+{
+    "Count": 3,
+    "Entity": 4293918721,
+    "Entity": 635437056,
+    "Entity": 334495743,
+    "Count": 1,
+    "Owner": 635437056,
+    "struct RexEngine::Guid": "8228403930289807288 1671163441620106",
+    "Count": 1,
+    "Owner": 635437056,
+    "struct RexEngine::TagComponent": {
+        "name": "New Entity"
+    },
+    "Count": 1,
+    "Owner": 635437056,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Count": 0,
+    "Count": 0,
+    "Count": 0
+}

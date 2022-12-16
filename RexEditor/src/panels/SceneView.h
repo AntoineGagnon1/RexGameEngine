@@ -37,7 +37,12 @@ namespace RexEditor
 
 		virtual void OnGui(float deltaTime) override
 		{
-			
+			if (!Scene::CurrentScene())
+			{ // No scene loaded
+				UI::Text("No active scene !");
+				return;
+			}
+
 			// Update the inputs
 			for (auto&& pair : m_inputs)
 				pair.second->PollInputs();
@@ -72,7 +77,7 @@ namespace RexEditor
 			}
 
 			// Create the camera object using the cached components, TODO : do this on scene changed
-			auto camera = SceneManager::CurrentScene().CreateEntity();
+			auto camera = Scene::CurrentScene()->CreateEntity();
 			auto& cameraComponent = camera.AddComponent<RexEngine::CameraComponent>(m_editorCamera);
 			camera.GetComponent<RexEngine::TransformComponent>() = m_cameraTransform;
 
@@ -85,13 +90,13 @@ namespace RexEditor
 			RexEngine::RenderApi::ClearDepthBit();
 			
 			// Render the scene from the pov of the editor camera
-			RexEngine::ForwardRenderer::RenderScene(SceneManager::CurrentScene(), cameraComponent);
+			RexEngine::ForwardRenderer::RenderScene(Scene::CurrentScene(), cameraComponent);
 			Window()->DrawFullWindowTexture(m_viewTexture);
 			
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();
 			RexEngine::RenderApi::SetViewportSize(oldViewportSize);
-			SceneManager::CurrentScene().DestroyEntity(camera);
+			Scene::CurrentScene()->DestroyEntity(camera);
 		}
 
 	private:

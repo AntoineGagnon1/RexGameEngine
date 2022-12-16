@@ -1,7 +1,6 @@
 #include "REPch.h"
 #include "Scene.h"
 
-#include "SceneManager.h"
 #include "Components.h"
 
 namespace RexEngine::Internal
@@ -66,26 +65,28 @@ namespace RexEngine::Internal
 
 namespace RexEngine
 {
+	Scene::Scene(const Guid& guid)
+		: m_guid(guid)
+	{
+		m_registry.on_construct<Guid>().connect<&Scene::OnGuidAdded>(guid);
+		m_registry.on_destroy<Guid>().connect<&Scene::OnGuidRemoved>();
+	}
 
     Entity Scene::CreateEntity(const std::string& name)
     {
-        RE_ASSERT(IsValid(), "Trying to use an invalid Scene !");
-
-        auto handle = m_registry->create();
+        auto handle = m_registry.create();
         Guid guid = Guid::Generate();
 		TagComponent tag{ name };
 
-        m_registry->emplace<Guid>(handle, guid); // All entities must have a Guid, TagComponent and Transform
-        m_registry->emplace<TagComponent>(handle, tag);
-        m_registry->emplace<TransformComponent>(handle); 
+        m_registry.emplace<Guid>(handle, guid); // All entities must have a Guid, TagComponent and Transform
+        m_registry.emplace<TagComponent>(handle, tag);
+        m_registry.emplace<TransformComponent>(handle); 
 
-        return Entity(m_registry, handle);
+        return Entity(&m_registry, handle);
     }
 
     void Scene::DestroyEntity(Entity e, bool destroyChildren)
     {
-        RE_ASSERT(IsValid(), "Trying to use an invalid Scene !");
-		
 		// TODO : cache parent/child ?
 		for (auto& [child, t] : GetComponents<TransformComponent>())
 		{
@@ -102,22 +103,17 @@ namespace RexEngine
 			}
 		}
 
-        m_registry->destroy(e.m_handle);
-    }
-
-    bool Scene::IsValid() const
-    {
-        return SceneManager::IsSceneValid(m_guid);
+        m_registry.destroy(e.m_handle);
     }
 
     void Scene::SerializeJson(std::ostream& output) const
     {
-        RE_ASSERT(IsValid(), "Trying to serialize an invalid Scene !");
         JsonSerializer serializer(output);
         Internal::OutputArchive<JsonSerializer> archive(serializer);
 
-        entt::snapshot{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
-                                                                  TransformComponent,
+        entt::snapshot{ m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
+                                                                  TagComponent,
+																  TransformComponent,
                                                                   MeshRendererComponent,
                                                                   CameraComponent,
                                                                   SkyboxComponent>(archive);
@@ -125,12 +121,12 @@ namespace RexEngine
 
     void Scene::DeserializeJson(std::istream& input)
     {
-        RE_ASSERT(IsValid(), "Trying to deserialize into an invalid Scene !");
         JsonDeserializer deserializer(input);
 		Internal::InputArchive<JsonDeserializer> archive(deserializer);
 
-        entt::snapshot_loader{ *m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
-                                                                         TransformComponent,
+        entt::snapshot_loader{ m_registry }.entities(archive).component<Guid, // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
+																		 TagComponent,
+																		 TransformComponent,
                                                                          MeshRendererComponent,
                                                                          CameraComponent,
                                                                          SkyboxComponent>(archive);

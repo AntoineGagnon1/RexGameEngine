@@ -1,12 +1,8 @@
 {
     "Paths": [
         {
-            "key": "16702959816142299817 1671151373622449",
-            "value": "../../../RexEditor/Projects/TestProject\\Assets\\Shaders\\TestShader.shader.asset"
-        },
-        {
-            "key": "6349393802101790188 1671151382509541",
-            "value": "../../../RexEditor/Projects/TestProject\\Assets\\Skybox\\Skybox.shader.asset"
+            "key": "17596687310401547268 1671163438954368",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\Test.scene.asset"
         }
     ]
 }

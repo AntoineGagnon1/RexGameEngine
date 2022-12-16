@@ -6,10 +6,13 @@
 
 namespace RexEngine
 {
-	void ForwardRenderer::RenderScene(Scene scene, const CameraComponent& camera)
+	void ForwardRenderer::RenderScene(Asset<Scene> scene, const CameraComponent& camera)
 	{
+		if (!scene) // No scene
+			return;
+
 		// Get the transform of the camera
-		Entity cameraOwner = scene.GetComponentOwner<const CameraComponent>(camera);
+		Entity cameraOwner = scene->GetComponentOwner<const CameraComponent>(camera);
 
 		auto& cameraTransform = cameraOwner.Transform();
 		
@@ -32,7 +35,7 @@ namespace RexEngine
 
 
 		// Draw objects (put them in the RenderQueue)
-		for (auto&& [e, c] : scene.GetComponents<MeshRendererComponent>())
+		for (auto&& [e, c] : scene->GetComponents<MeshRendererComponent>())
 		{
 			const Matrix4 modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
 			
@@ -47,7 +50,7 @@ namespace RexEngine
 		// Skybox
 		
 		// Get the skybox component
-		auto&& skyboxes = scene.GetComponents<SkyboxComponent>();
+		auto&& skyboxes = scene->GetComponents<SkyboxComponent>();
 		if (skyboxes.size() > 1)
 			RE_LOG_WARN("Multiple skyboxes active !");
 

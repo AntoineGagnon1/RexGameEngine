@@ -47,7 +47,7 @@ namespace RexEngine
 		static void RegisterParserUsing(const std::string& name, const std::string& replaceWith);
 
 		template<typename Archive>
-		inline static std::shared_ptr<Shader> LoadFromAssetFile(const Archive& metaDataArchive, std::istream& assetFile)
+		inline static std::shared_ptr<Shader> LoadFromAssetFile(Guid _, const Archive& metaDataArchive, std::istream& assetFile)
 		{
 			return std::make_shared<Shader>(assetFile);
 		}

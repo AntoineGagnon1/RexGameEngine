@@ -25,7 +25,7 @@ namespace RexEngine
 		size_t GetIndexCount() const { return m_indices.size(); }
 
 		template<typename Archive>
-		inline static std::shared_ptr<Mesh> LoadFromAssetFile(const Archive& metaDataArchive, std::istream& assetFile)
+		inline static std::shared_ptr<Mesh> LoadFromAssetFile(Guid _, const Archive& metaDataArchive, std::istream& assetFile)
 		{
 			return std::shared_ptr<Mesh>(nullptr);
 		}
