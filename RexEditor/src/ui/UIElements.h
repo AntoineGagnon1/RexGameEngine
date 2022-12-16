@@ -27,11 +27,13 @@ namespace RexEditor::UI
         bool m_hovered; // Needs to be set, either manually or by calling CacheHovered()
     };
 
+    enum class MouseAction { Clicked, Released };
+
     class Clickable : public Hoverable
     {
     public:
 
-        virtual bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left) const;
+        virtual bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const;
         virtual bool IsDoubleClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left) const;
     };
 
@@ -271,7 +273,7 @@ namespace RexEditor::UI
     public:
         Button(const std::string& label);
 
-        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left) const override;
+        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const override;
 
     private:
         bool m_clicked;
@@ -282,6 +284,11 @@ namespace RexEditor::UI
     {
     public:
         Icon(const std::string& label, const RexEngine::Texture& icon, RexEngine::Vector2 iconSize);
+
+        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const override;
+
+    private:
+        bool m_clicked;
     };
 
 
@@ -427,7 +434,7 @@ namespace RexEditor::UI
     public:
         MenuItem(const std::string& name, bool enabled = true);
 
-        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left) const override;
+        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const override;
 
     private:
         bool m_clicked;

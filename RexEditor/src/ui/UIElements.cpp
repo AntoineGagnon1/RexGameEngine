@@ -59,9 +59,12 @@ namespace RexEditor::UI
 		m_hovered = ImGui::IsItemHovered();
 	}
 
-	bool Clickable::IsClicked(RexEngine::MouseButton mouseButton) const
+	bool Clickable::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
 	{
-		return(IsHovered() && ImGui::IsMouseClicked(Internal::ImGuiButtons[(int)mouseButton]));
+		if(action == MouseAction::Clicked)
+			return(IsHovered() && ImGui::IsMouseClicked(Internal::ImGuiButtons[(int)mouseButton]));
+		else
+			return(IsHovered() && ImGui::IsMouseReleased(Internal::ImGuiButtons[(int)mouseButton]));
 	}
 
 	bool Clickable::IsDoubleClicked(RexEngine::MouseButton mouseButton) const
@@ -294,9 +297,9 @@ namespace RexEditor::UI
 		CacheHovered();
 	}
 
-	bool Button::IsClicked(RexEngine::MouseButton mouseButton) const
+	bool Button::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
 	{
-		if (mouseButton == MouseButton::Left)
+		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
 		else
 			return Clickable::IsClicked(mouseButton);
@@ -314,6 +317,7 @@ namespace RexEditor::UI
 		const ImVec2 cursor = ImGui::GetCursorPos();
 		ImGui::Selectable(("##selectable_" + label).c_str(), &selected, ImGuiSelectableFlags_None, Internal::VecConvert(totalSize));
 
+		m_clicked = ImGui::IsItemClicked();
 		CacheHovered(); // Hovered is on the selectable
 
 		ImGui::SetCursorPos(cursor);
@@ -325,6 +329,14 @@ namespace RexEditor::UI
 			(iconSize.x - ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).x) * 0.5f);
 		ImGui::TextWrapped(label.c_str(), (float)iconSize.x);
 		ImGui::Selectable(("##selectable_" + label).c_str()); // Act as the whole selectable area for other tools (like DragDrop)
+	}
+
+	bool Icon::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
+	{
+		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
+			return m_clicked;
+		else
+			return Clickable::IsClicked(mouseButton);
 	}
 
 
@@ -466,9 +478,9 @@ namespace RexEditor::UI
 		CacheHovered();
 	}
 
-	bool MenuItem::IsClicked(RexEngine::MouseButton mouseButton) const
+	bool MenuItem::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
 	{
-		if (mouseButton == MouseButton::Left)
+		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
 		else
 			Clickable::IsClicked(mouseButton);

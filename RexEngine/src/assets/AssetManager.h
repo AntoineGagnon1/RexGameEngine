@@ -79,7 +79,7 @@ namespace RexEngine
 	{
 	public:
 
-		// Will load the asset if needed
+		// Will load the asset if needed, but wont add the path into the registry
 		// Will return an invalid asset if the asset does not exist
 		template<typename T>
 		inline static Asset<T> GetAsset(const Guid& guid)

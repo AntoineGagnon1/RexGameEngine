@@ -7,7 +7,8 @@ namespace RexEngine
 	{
 		for (auto& pair : s_registry)
 		{
-			if (std::filesystem::equivalent(pair.second, path.string() + Asset<int>::FileExtension))
+			std::error_code code;
+			if (std::filesystem::equivalent(pair.second, path.string() + Asset<int>::FileExtension, code))
 				return pair.first;
 		}
 

@@ -87,19 +87,19 @@ namespace RexEditor
 						auto extension = entry.path().extension().string();
 						if (extension != Asset<int>::FileExtension) // Dont show .asset metadata files
 						{
-							UI::Icon icon(entry.path().filename().string(), EditorAssets::FileIcon(), { itemWidth ,itemWidth });
+							UI::Icon icon(entry.path().filename().string(), 
+								EditorAssets::FileIcon(),
+								{ itemWidth ,itemWidth }
+							);
 
 							// Get the asset type
 							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
 							if (!type.Empty())
 							{
-								if (icon.IsClicked()) // Tell the inspector
+								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Released)) // Tell the inspector
 								{
-									// Get the asset guid
-									auto asset = AssetManager::GetAssetGuidFromPath(entry.path());
-
 									InspectorPanel::InspectElement(std::bind(&AssetInspector::InspectAsset,
-										std::placeholders::_1, type, asset));
+										std::placeholders::_1, type, entry.path()));
 								}
 
 								// TODO : double click : do something based on the file type
