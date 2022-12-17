@@ -25,6 +25,11 @@ namespace RexEditor
 		// returns false if the file does not exist or is malformed
 		static bool Load(const std::filesystem::path& path);
 
+		// This will save the project to the .rexengine file,
+		// this only saves the properties of the Project class, not scenes
+		// returns false if the save failed
+		static bool SaveProject(const Project& project);
+
 		inline static Project& CurrentProject() { return s_currentProject; }
 
 	private:

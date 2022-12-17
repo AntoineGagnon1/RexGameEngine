@@ -22,7 +22,7 @@ namespace RexEditor
 
 
 		// Not serialized
-		std::filesystem::path rootPath; // Path to the root of this project (location of the .rexengine file)
+		std::filesystem::path rootPath; // Path to the root of this project (directory of the .rexengine file)
 
 		template<typename Archive>
 		void serialize(Archive& archive)

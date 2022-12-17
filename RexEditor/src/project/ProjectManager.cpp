@@ -25,14 +25,9 @@ namespace RexEditor
 		p.Name = name;
 		p.LastScenePath = "";
 		p.RegistryPath = rootPath / (name + Project::RegistryFileExtension);
+		p.rootPath = rootPath;
 
-		std::ofstream file(rootPath / (name + Project::FileExtension));
-
-		if (!file.is_open())
-			return false;
-
-		JsonSerializer archive(file);
-		archive(CUSTOM_NAME(p, "Project"));
+		SaveProject(p);
 
 		return AssetManager::CreateRegistry(p.RegistryPath);
 	}
@@ -75,6 +70,17 @@ namespace RexEditor
 		return true;
 	}
 
+	bool ProjectManager::SaveProject(const Project& project)
+	{
+		std::ofstream file(project.rootPath / (project.Name + Project::FileExtension));
+
+		if (!file.is_open())
+			return false;
+
+		JsonSerializer archive(file);
+		archive(CUSTOM_NAME(project, "Project"));
+		return true;
+	}
 
 	void ProjectManager::Init()
 	{
@@ -116,6 +122,10 @@ namespace RexEditor
 
 				// Load the new scene
 				Scene::SetCurrentScene(AssetManager::GetAsset<Scene>(scene->GetGuid()));
+
+				// Save as the last open scene
+				s_currentProject.LastScenePath = path;
+				SaveProject(s_currentProject);
 			}
 		});
 
@@ -126,7 +136,13 @@ namespace RexEditor
 			auto scene = AssetManager::GetAsset<Scene>(AssetManager::GetAssetGuidFromPath(path));
 
 			if (scene)
+			{
 				Scene::SetCurrentScene(scene);
+
+				// Save as the last open scene
+				s_currentProject.LastScenePath = path;
+				SaveProject(s_currentProject);
+			}
 		});
 
 	}
