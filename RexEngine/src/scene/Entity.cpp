@@ -1,8 +1,8 @@
 #include "REPch.h"
 #include "Entity.h"
 
-#include "SceneManager.h"
 #include "Components.h"
+#include "Scene.h"
 
 namespace RexEngine
 {

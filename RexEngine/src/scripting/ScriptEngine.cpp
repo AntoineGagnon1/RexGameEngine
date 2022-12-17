@@ -8,7 +8,6 @@
 #include <core/Time.h>
 #include <inputs/Inputs.h>
 #include <scene/Entity.h>
-#include <scene/SceneManager.h>
 #include <scene/Components.h>
 
 namespace RexEngine::Internal
