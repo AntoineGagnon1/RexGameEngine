@@ -13,7 +13,7 @@ namespace RexEditor::UI
 		s_menuSystem.AddMenuItem(menuPath, toCall);
 	}
 
-	void MenuBar::DrawMenuBar()
+	void MenuBar::DrawMenuBar(float deltaTime)
 	{
 		ImGui::BeginMainMenuBar();
 		s_menuSystem.DrawMenu();

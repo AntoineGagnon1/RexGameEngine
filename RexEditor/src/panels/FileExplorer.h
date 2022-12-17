@@ -115,7 +115,7 @@ namespace RexEditor
 
 	private:
 
-		void OnProjectLoad()
+		void OnProjectLoad(Project p)
 		{
 			m_currentFolder = ProjectManager::CurrentProject().rootPath;
 		}

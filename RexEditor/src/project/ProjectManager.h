@@ -34,6 +34,8 @@ namespace RexEditor
 
 	private:
 
+		static void OpenScene(const std::filesystem::path& path);
+
 		static void Init();
 
 		RE_STATIC_CONSTRUCTOR({

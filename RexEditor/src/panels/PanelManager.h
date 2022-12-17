@@ -39,14 +39,6 @@ namespace RexEditor
 			}
 		}
 
-		inline static void RenderPanels(float deltaTime)
-		{
-			for (auto& p : s_panels)
-			{
-				p->Render(deltaTime);
-			}
-		}
-
 		// Will return nullptr if no panel with the title where found
 		inline static Panel* GetPanel(const std::string& title)
 		{
@@ -87,8 +79,17 @@ namespace RexEditor
 			s_panels.clear(); // Important, will delete the unique_ptrs
 		}
 
+		inline static void RenderPanels(float deltaTime)
+		{
+			for (auto& p : s_panels)
+			{
+				p->Render(deltaTime);
+			}
+		}
+
 		RE_STATIC_CONSTRUCTOR({
 			EditorEvents::OnEditorStop().Register<&PanelManager::OnStop>();
+			EditorEvents::OnUI().Register<&PanelManager::RenderPanels>();
 		});
 
 	private:

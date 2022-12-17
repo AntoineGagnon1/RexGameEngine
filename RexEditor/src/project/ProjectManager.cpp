@@ -55,17 +55,10 @@ namespace RexEditor
 		s_currentProject = p;
 
 		// Try to load the scene from the path, if a path was specified
-		if (!p.LastScenePath.empty())
-		{
-			auto scene = AssetManager::GetAsset<Scene>(AssetManager::GetAssetGuidFromPath(path.parent_path() / p.LastScenePath));
-			if (scene)
-				Scene::SetCurrentScene(scene);
-			else
-				RE_LOG_WARN("Scene at {} not found !", p.LastScenePath.string());
-		}
+		OpenScene(path.parent_path() / p.LastScenePath);
 
 		// On project load event
-		EditorEvents::OnLoadProject().Dispatch();
+		EditorEvents::OnLoadProject().Dispatch(std::forward<Project>(p));
 
 		return true;
 	}
@@ -80,6 +73,24 @@ namespace RexEditor
 		JsonSerializer archive(file);
 		archive(CUSTOM_NAME(project, "Project"));
 		return true;
+	}
+
+	void ProjectManager::OpenScene(const std::filesystem::path& path)
+	{
+		auto scene = AssetManager::GetAsset<Scene>(AssetManager::GetAssetGuidFromPath(path));
+		if (scene)
+		{
+			Scene::SetCurrentScene(scene);
+
+			// Save as the last open scene
+			s_currentProject.LastScenePath = path;
+			SaveProject(s_currentProject);
+
+			// Callback
+			EditorEvents::OnOpenScene().Dispatch(std::forward<Asset<Scene>>(scene));
+		}
+		else
+			RE_LOG_WARN("Scene at {} not found !", path.string());
 	}
 
 	void ProjectManager::Init()
@@ -121,11 +132,7 @@ namespace RexEditor
 				file.close();
 
 				// Load the new scene
-				Scene::SetCurrentScene(AssetManager::GetAsset<Scene>(scene->GetGuid()));
-
-				// Save as the last open scene
-				s_currentProject.LastScenePath = path;
-				SaveProject(s_currentProject);
+				OpenScene(path);
 			}
 		});
 
@@ -133,16 +140,8 @@ namespace RexEditor
 
 			auto path = SystemDialogs::SelectFile("Select a scene to open", { "RexEngine Scene (.scene)", "*.scene" });
 
-			auto scene = AssetManager::GetAsset<Scene>(AssetManager::GetAssetGuidFromPath(path));
-
-			if (scene)
-			{
-				Scene::SetCurrentScene(scene);
-
-				// Save as the last open scene
-				s_currentProject.LastScenePath = path;
-				SaveProject(s_currentProject);
-			}
+			if (!path.empty()) // Not canceled
+				OpenScene(path);
 		});
 
 	}

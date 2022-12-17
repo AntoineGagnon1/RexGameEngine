@@ -14,9 +14,12 @@ namespace RexEditor::UI
 
 		static void RegisterMenuFunction(const std::string& menuPath, std::function<void()> toCall);
 
-		static void DrawMenuBar();
-
 	private:
+		static void DrawMenuBar(float deltaTime);
+
+		RE_STATIC_CONSTRUCTOR({
+			EditorEvents::OnUI().Register<&MenuBar::DrawMenuBar>();
+		});
 
 		inline static MenuSystem<> s_menuSystem;
 	};

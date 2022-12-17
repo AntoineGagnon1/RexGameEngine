@@ -103,10 +103,20 @@ namespace RexEditor::UI::Internal
 		ImGui::DestroyContext();
 	}
 
+	void NewFrame()
+	{
+		// Start a new frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		ImGui::DockSpaceOverViewport();
+	}
 
 	RE_STATIC_CONSTRUCTOR({
 		EditorEvents::OnEditorStart().Register<&ImGuiInit>();
 		EditorEvents::OnEditorStop().Register<&ImGuiClose>();
+
+		EngineEvents::OnPreUpdate().Register<&NewFrame>();
 	});
 }
 
@@ -130,15 +140,6 @@ namespace RexEditor::UI
 	void PopFontColor()
 	{
 		ImGui::PopStyleColor();
-	}
-
-	void UI::NewFrame()
-	{
-		// Start a new frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport();
 	}
 
 	void UI::RenderUI()
