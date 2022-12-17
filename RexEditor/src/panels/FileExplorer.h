@@ -18,21 +18,6 @@ namespace RexEditor
 {
 	class FileExplorerPanel : public Panel
 	{
-	private:
-		struct File
-		{
-			std::string name;
-			// TODO : icon
-		};
-
-		struct Folder
-		{
-			std::string name;
-
-			std::vector<File> files;
-			std::vector<Folder> subFolders;
-		};
-
 	public:
 		FileExplorerPanel() : Panel("File Explorer")
 		{
@@ -59,7 +44,10 @@ namespace RexEditor
 
 			// Path label, start the path at the root folder
 			UI::SameLine();
-			UI::Text pathText(m_currentFolder.string().substr(ProjectManager::CurrentProject().rootPath.parent_path().string().size()));
+			// Remove everyting before the root
+			auto pathString = m_currentFolder.string().substr(ProjectManager::CurrentProject().rootPath.parent_path().string().size());
+			RexEngine::StringHelper::ReplaceChars(pathString, '\\', '/'); // Replace all \ with /
+			UI::Text pathText(pathString);
 
 			// Calculate the number of columns
 			int itemWidth = 64 * m_scale;

@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 namespace RexEngine::StringHelper
 {
@@ -18,5 +19,13 @@ namespace RexEngine::StringHelper
 		}
 
 		return result;
+	}
+
+	inline std::string& ReplaceChars(std::string& source, char toReplace, char replaceWith)
+	{
+		std::replace_if(source.begin(), source.end(),
+			[&toReplace](std::string::value_type v) { return v == toReplace; },
+			replaceWith);
+		return source;
 	}
 }
