@@ -21,6 +21,8 @@ namespace RexEditor
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
 
+			m_cameraTransform.position.y = 2.0f; // Dont start in the grid
+
 			m_inputs.insert({"Capture", std::move(std::make_unique<MouseButtonInput>(MouseButton::Right)) });
 			m_inputs.insert({"MoveForward", std::move(std::make_unique<KeyboardInput>(KeyCode::W, KeyCode::S)) });
 			m_inputs.insert({"MoveRight", std::move(std::make_unique<KeyboardInput>(KeyCode::D, KeyCode::A)) });
