@@ -99,7 +99,7 @@ namespace RexEditor::UI
         Window& operator=(const Window&) = delete;
 
         // Draw a texture that fills the window
-        void DrawFullWindowTexture(const RexEngine::Texture& texture);
+        void DrawFullWindowTexture(const Texture& texture);
 
         bool IsVisible() const { return m_visible; }
         RexEngine::Vector2 Size() const;

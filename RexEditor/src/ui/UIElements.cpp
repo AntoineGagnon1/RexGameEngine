@@ -112,7 +112,7 @@ namespace RexEditor::UI
 		ImGui::End();
 	}
 
-	void Window::DrawFullWindowTexture(const RexEngine::Texture& texture)
+	void Window::DrawFullWindowTexture(const Texture& texture)
 	{
 		auto min = ImGui::GetWindowContentRegionMin();
 		auto max = ImGui::GetWindowContentRegionMax();

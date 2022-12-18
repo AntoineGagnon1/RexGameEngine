@@ -47,6 +47,8 @@ namespace RexEngine::Internal {
 			return GL_TEXTURE_2D;
 		case RenderApi::TextureTarget::Cubemap:
 			return GL_TEXTURE_CUBE_MAP;
+		case RenderApi::TextureTarget::Texture2D_Multisample:
+			return GL_TEXTURE_2D_MULTISAMPLE;
 		}
 
 		RE_ASSERT(false, "Invalid texture target !");
@@ -166,6 +168,9 @@ namespace RexEngine
 		GL_CALL(glFrontFace(GL_CW));
 
 		GL_CALL(glEnable(GL_MULTISAMPLE));
+
+		GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+		GL_CALL(glEnable(GL_BLEND));
 
 		// For lower mip levels in pbr prefilter map
 		GL_CALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
@@ -364,6 +369,8 @@ namespace RexEngine
 
 	RenderApi::TextureID RenderApi::MakeTexture(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType)
 	{
+		RE_ASSERT(target != TextureTarget::Texture2D_Multisample, "RenderApi::MakeTexture Cannot be used with target == Texture2D_Multisample, use MakeTextureMultisampled instead");
+
 		TextureID id;
 		GL_CALL(glGenTextures(1, &id));
 		
@@ -372,8 +379,22 @@ namespace RexEngine
 		return id;
 	}
 
+	RenderApi::TextureID RenderApi::MakeTextureMultisampled(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, int sampleCount)
+	{
+		RE_ASSERT(target == TextureTarget::Texture2D_Multisample, "RenderApi::MakeTextureMultisampled Can only be used width target == MakeTexture");
+
+		TextureID id;
+		GL_CALL(glGenTextures(1, &id));
+
+		SetTextureDataMultisampled(id, target, gpuFormat, size, sampleCount);
+
+		return id;
+	}
+
+
 	void RenderApi::SetTextureData(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType)
 	{
+		RE_ASSERT(target != TextureTarget::Texture2D_Multisample, "RenderApi::SetTextureData Cannot be used with target == Texture2D_Multisample, use SetTextureDataMultisampled instead");
 		BindTexture(id, target);
 
 		GL_CALL(glTexImage2D(
@@ -383,6 +404,20 @@ namespace RexEngine
 			Internal::PixelFormatToGL(dataFormat),
 			Internal::PixelTypeToGL(dataType),
 			data
+		));
+	}
+
+	void RenderApi::SetTextureDataMultisampled(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, int sampleCount)
+	{
+		RE_ASSERT(target == TextureTarget::Texture2D_Multisample, "RenderApi::SetTextureDataMultisampled Can only be used width target == Texture2D_Multisample");
+		BindTexture(id, target);
+
+		GL_CALL(glTexImage2DMultisample(
+			Internal::TextureTargetToGL(target),
+			sampleCount,
+			Internal::PixelFormatToGL(gpuFormat),
+			size.x, size.y,
+			GL_TRUE
 		));
 	}
 
@@ -496,12 +531,12 @@ namespace RexEngine
 		GL_CALL(glDepthFunc(Internal::DepthFunctionToGL(function)));
 	}
 
-	RenderApi::BufferID RenderApi::MakeRenderBuffer(PixelType type, Vector2Int size)
+	RenderApi::BufferID RenderApi::MakeRenderBuffer(PixelType type, Vector2Int size, int sampleCount)
 	{
 		BufferID id;
 		GL_CALL(glGenRenderbuffers(1, &id));
 
-		SetRenderBufferSize(id, type, size);
+		SetRenderBufferSize(id, type, size, sampleCount);
 		return id;
 	}
 
@@ -515,10 +550,17 @@ namespace RexEngine
 		GL_CALL(glDeleteRenderbuffers(1, &id));
 	}
 
-	void RenderApi::SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size)
+	void RenderApi::SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size, int sampleCount)
 	{
 		BindRenderBuffer(id);
-		GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, Internal::PixelTypeToGL(type), size.x, size.y));
+		if(sampleCount == -1)
+		{
+			GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, Internal::PixelTypeToGL(type), size.x, size.y));
+		}
+		else
+		{
+			GL_CALL(glRenderbufferStorageMultisample(GL_RENDERBUFFER, sampleCount, Internal::PixelTypeToGL(type), size.x, size.y));
+		}
 	}
 
 
@@ -534,6 +576,16 @@ namespace RexEngine
 		GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, id));
 	}
 
+	void RenderApi::BindFrameBufferRead(FrameBufferID id)
+	{
+		GL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, id));
+	}
+
+	void RenderApi::BindFrameBufferDraw(FrameBufferID id)
+	{
+		GL_CALL(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, id));
+	}
+
 	void RenderApi::DeleteFrameBuffer(FrameBufferID id)
 	{
 		GL_CALL(glDeleteFramebuffers(1, &id));
@@ -546,6 +598,15 @@ namespace RexEngine
 		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, 
 			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
 			GL_TEXTURE_2D, textureID, 0));
+	}
+
+	void RenderApi::BindFrameBufferTextureMultisampled(FrameBufferID id, TextureID textureID, FrameBufferTextureType type)
+	{
+		BindFrameBuffer(id);
+
+		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER,
+			type == FrameBufferTextureType::Color ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT,
+			GL_TEXTURE_2D_MULTISAMPLE, textureID, 0));
 	}
 
 	void RenderApi::BindFrameBufferRenderBuffer(FrameBufferID id, BufferID renderBufferID, FrameBufferTextureType type)
@@ -568,10 +629,32 @@ namespace RexEngine
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + (int)face, cubemap, mip));
 	}
 
+	void RenderApi::BlitFrameBuffer(Vector2Int inStart, Vector2Int inEnd, Vector2Int outStart, Vector2Int outEnd, FrameBufferTextureType type)
+	{
+		GL_CALL(glBlitFramebuffer(inStart.x, inStart.y,
+				inEnd.x, inEnd.y,
+				outStart.x, outStart.y,
+				outEnd.x, outEnd.y,
+				type == FrameBufferTextureType::Color ? GL_COLOR_BUFFER_BIT : GL_DEPTH_BUFFER_BIT,
+				GL_NEAREST));
+	}
+
 	RenderApi::FrameBufferID RenderApi::GetBoundFrameBuffer()
+	{
+		return GetBoundDrawFrameBuffer();
+	}
+
+	RenderApi::FrameBufferID RenderApi::GetBoundDrawFrameBuffer()
 	{
 		GLint id;
 		GL_CALL(glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &id));
+		return id;
+	}
+
+	RenderApi::FrameBufferID RenderApi::GetBoundReadFrameBuffer()
+	{
+		GLint id;
+		GL_CALL(glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &id));
 		return id;
 	}
 }

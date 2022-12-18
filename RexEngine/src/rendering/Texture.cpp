@@ -25,6 +25,7 @@ namespace RexEngine
 	Texture::Texture(RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType)
 		: m_size(size), m_target(target), m_gpuFormat(gpuFormat)
 	{
+		RE_ASSERT(target != RenderApi::TextureTarget::Texture2D_Multisample, "Use MSAATexture for multisampled textures !");
 		m_id = RenderApi::MakeTexture(target, gpuFormat, m_size, data, dataFormat, dataType);
 
 		// Default texture options

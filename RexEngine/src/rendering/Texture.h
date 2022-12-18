@@ -10,7 +10,6 @@ namespace RexEngine
 	class Texture
 	{
 	public:
-
 		Texture(RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);
 		~Texture();
 

@@ -7,10 +7,11 @@ namespace RexEngine
 	class RenderBuffer
 	{
 	public:
-		RenderBuffer(RenderApi::PixelType type, Vector2Int size)
-			: m_pixelType(type)
+		// sampleCount = -1 for no multisampling
+		RenderBuffer(RenderApi::PixelType type, Vector2Int size, int sampleCount = -1)
+			: m_pixelType(type), m_sampleCount(sampleCount)
 		{
-			m_id = RenderApi::MakeRenderBuffer(type, size);
+			m_id = RenderApi::MakeRenderBuffer(type, size, sampleCount);
 		}
 
 		~RenderBuffer()
@@ -32,7 +33,7 @@ namespace RexEngine
 
 		void SetSize(Vector2Int newSize)
 		{
-			RenderApi::SetRenderBufferSize(m_id, m_pixelType, newSize);
+			RenderApi::SetRenderBufferSize(m_id, m_pixelType, newSize, m_sampleCount);
 		}
 
 		RenderApi::BufferID GetId() const { return m_id; }
@@ -40,5 +41,6 @@ namespace RexEngine
 	private:
 		RenderApi::BufferID m_id;
 		RenderApi::PixelType m_pixelType;
+		int m_sampleCount;
 	};
 }

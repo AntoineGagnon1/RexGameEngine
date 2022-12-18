@@ -28,6 +28,7 @@
 #include "src/rendering/ForwardRenderer.h"
 #include "src/rendering/Shapes.h"
 #include "src/rendering/PBR.h"
+#include "src/rendering/MSAATexture.h"
 
 // Window
 #include "src/window/Window.h"

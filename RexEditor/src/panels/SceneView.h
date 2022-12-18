@@ -13,9 +13,10 @@ namespace RexEditor
 	{
 	public:
 		SceneViewPanel() : Panel("Scene View"),
-			m_viewTexture(RexEngine::RenderApi::TextureTarget::Texture2D, RexEngine::RenderApi::PixelFormat::RGB, { 0,0 }, NULL, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte),
+			m_viewTexture(RexEngine::RenderApi::TextureTarget::Texture2D, RexEngine::RenderApi::PixelFormat::RGB, {0,0}, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte),
 			m_viewDepth(RexEngine::RenderApi::PixelType::Depth, { 0,0 }),
-			m_roll(0.0f), m_pitch(0.0f), m_captured(false)
+			m_roll(0.0f), m_pitch(0.0f), m_captured(false),
+			m_gridShader(RexEngine::Shader::FromFile("assets/shaders/Grid.shader"))
 		{
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
@@ -31,7 +32,7 @@ namespace RexEditor
 	protected:
 		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
 		{
-			m_viewTexture.SetData(newSize, NULL, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
+			m_viewTexture.SetData(newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
 			m_viewDepth.SetSize(newSize);
 		}
 
@@ -81,6 +82,25 @@ namespace RexEditor
 			auto& cameraComponent = camera.AddComponent<RexEngine::CameraComponent>(m_editorCamera);
 			camera.GetComponent<RexEngine::TransformComponent>() = m_cameraTransform;
 
+			auto grid = Scene::CurrentScene()->CreateEntity();
+			Vector3 pos = camera.Transform().position;
+			float gridSize = (pos.y * 2) + 10;
+			// Make the scale of the grid the closest power of 2 of pos.y / 10
+			int gridScale = 0x1 << (int)std::ceil(std::max(log2(pos.y / 10.0f), 0.0f));
+			pos.y = 0; // The plane is always at y = 0 (worldspace)
+
+			grid.Transform().rotation = Quaternion::FromEuler({90, 0, 0});
+			grid.Transform().scale = Vector3{ gridSize, gridSize, 1}; // scale is on x and y because the plane mesh is vertical
+			grid.Transform().position = pos; 
+			m_gridShader->SetUniformFloat("falloffDistance", gridSize);
+			m_gridShader->SetUniformInt("gridSize", gridScale);
+
+			MeshRendererComponent gridComponent;
+			gridComponent.cullingMode = RenderApi::CullingMode::Both;
+			gridComponent.mesh = RexEngine::Shapes::GetQuadMesh();
+			gridComponent.shader = m_gridShader;
+			grid.AddComponent<MeshRendererComponent>(gridComponent);
+
 			m_viewBuffer.Bind();
 
 			auto oldViewportSize = RexEngine::RenderApi::GetViewportSize(); // Cache the size to revert at the end
@@ -91,25 +111,30 @@ namespace RexEditor
 			
 			// Render the scene from the pov of the editor camera
 			RexEngine::ForwardRenderer::RenderScene(Scene::CurrentScene(), cameraComponent);
+
+			// Display the texture to the ui
 			Window()->DrawFullWindowTexture(m_viewTexture);
 			
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();
 			RexEngine::RenderApi::SetViewportSize(oldViewportSize);
 			Scene::CurrentScene()->DestroyEntity(camera);
+			Scene::CurrentScene()->DestroyEntity(grid);
 		}
 
 	private:
 		RexEngine::CameraComponent m_editorCamera;
 		RexEngine::TransformComponent m_cameraTransform;
 		float m_roll, m_pitch;
-		const float m_moveSpeed = 1.0f;
+		const float m_moveSpeed = 2.0f;
 		const float m_rotationSpeed = 40000.0f;
 		bool m_captured;
 
 		RexEngine::FrameBuffer m_viewBuffer;
 		RexEngine::Texture m_viewTexture;
 		RexEngine::RenderBuffer m_viewDepth;
+
+		std::shared_ptr<RexEngine::Shader> m_gridShader;
 
 		std::map<std::string, std::unique_ptr<RexEngine::Input>> m_inputs;
 	};

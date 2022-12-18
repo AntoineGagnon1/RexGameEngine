@@ -73,7 +73,7 @@ namespace RexEngine
 		typedef unsigned int TextureID;
 		inline static constexpr TextureID InvalidTextureID = 0;
 
-		enum class TextureTarget { Texture2D, Cubemap };
+		enum class TextureTarget { Texture2D, Cubemap, Texture2D_Multisample };
 		
 		// Order and values are important (used in loops) :
 		enum class CubemapFace { CubemapRight = 0, CubemapLeft = 1, CubemapTop = 2, CubemapBottom = 3, CubemapFront = 4, CubemapBack = 5 };
@@ -85,8 +85,16 @@ namespace RexEngine
 		enum class TextureOption { WrapS, WrapT, WrapR, MinFilter, MagFilter };
 		enum class TextureOptionValue { Repeat, ClampToEdge, Linear, LinearMipmap };
 
+		// Cannot be used with target == Texture2D_Multisample, use SetTextureDataMultisampled instead
 		static TextureID MakeTexture(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType);
+		// Can only be used width target == Texture2D_Multisample
+		static TextureID MakeTextureMultisampled(TextureTarget target, PixelFormat gpuFormat, Vector2Int size, int sampleCount);
+		
+		// Cannot be used with target == Texture2D_Multisample, use SetTextureDataMultisampled instead
 		static void SetTextureData(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, const void* data, PixelFormat dataFormat, PixelType dataType);
+		// Can only be used width target == Texture2D_Multisample
+		static void SetTextureDataMultisampled(TextureID id, TextureTarget target, PixelFormat gpuFormat, Vector2Int size, int sampleCount);
+		
 		static void BindTexture(TextureID id, TextureTarget target);
 		static void SetTextureOption(TextureID id, TextureTarget target, TextureOption option, TextureOptionValue value);
 		static void DeleteTexture(TextureID id);
@@ -118,10 +126,12 @@ namespace RexEngine
 		static void SetDepthFunction(DepthFunction function);
 	
 		// Render buffers
-		static BufferID MakeRenderBuffer(PixelType type, Vector2Int size);
+		// sampleCount = -1 for no multisampling
+		static BufferID MakeRenderBuffer(PixelType type, Vector2Int size, int sampleCount = -1);
 		static void BindRenderBuffer(BufferID id);
 		static void DeleteRenderBuffer(BufferID id);
-		static void SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size);
+		// sampleCount = -1 for no multisampling
+		static void SetRenderBufferSize(BufferID id, PixelType type, Vector2Int size, int sampleCount = -1);
 			
 		// Frame buffers
 		typedef unsigned int FrameBufferID;
@@ -131,11 +141,19 @@ namespace RexEngine
 
 		static FrameBufferID MakeFrameBuffer();
 		static void BindFrameBuffer(FrameBufferID id);
+		static void BindFrameBufferRead(FrameBufferID id);
+		static void BindFrameBufferDraw(FrameBufferID id);
 		static void DeleteFrameBuffer(FrameBufferID id);
 		static void BindFrameBufferTexture(FrameBufferID id, TextureID textureID, FrameBufferTextureType type);
+		static void BindFrameBufferTextureMultisampled(FrameBufferID id, TextureID textureID, FrameBufferTextureType type);
 		static void BindFrameBufferRenderBuffer(FrameBufferID id, BufferID renderBufferID, FrameBufferTextureType type);
 		static void BindFrameBufferCubemapFace(FrameBufferID id, CubemapFace face, TextureID cubemap, FrameBufferTextureType type, int mip = 0);
 
+		// Will blit from read framebuffer to draw framebuffer
+		static void BlitFrameBuffer(Vector2Int inStart, Vector2Int inEnd, Vector2Int outStart, Vector2Int outEnd, FrameBufferTextureType type);
+
 		static FrameBufferID GetBoundFrameBuffer();
+		static FrameBufferID GetBoundDrawFrameBuffer();
+		static FrameBufferID GetBoundReadFrameBuffer();
 	};
 }
