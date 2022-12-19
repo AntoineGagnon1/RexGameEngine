@@ -3,14 +3,21 @@
 
 #include "rendering/Shader.h"
 #include "rendering/Mesh.h"
+#include "rendering/Material.h"
+#include "rendering/Texture.h"
+#include "rendering/Cubemap.h"
 
 namespace RexEngine
 {
 	std::vector<AssetType> AssetTypes::GetDefaultTypes()
 	{
 		std::vector<AssetType> types = {
-			{"Shader", { ".shader" }, typeid(Shader)},
-			{ "Mesh", {".obj"}, typeid(Mesh)}
+			{ "Shader", { ".shader" }, typeid(Shader), false},
+			{ "Mesh", {".obj"}, typeid(Mesh), false},
+			{ "Scene", {".scene"}, typeid(Mesh), false},
+			{ "Material", {".mat"}, typeid(Material), false},
+			{ "Texture", {".png"}, typeid(Texture), true},
+			{ "Cubemap", {".hdr"}, typeid(Cubemap), true}
 		};
 
 		return types;

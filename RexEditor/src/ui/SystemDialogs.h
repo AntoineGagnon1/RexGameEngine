@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <RexEngine.h>
+
 #include "../core/EditorEvents.h"
 
 namespace RexEditor
@@ -30,6 +32,27 @@ namespace RexEditor
 		// An alert with a ok button, wont wait for user input
 		// This will poll events while waiting for an action from the user
 		static void Alert(const std::string& title, const std::string& message);
+
+		// Get the filter for an asset type
+		template<typename T>
+		inline static std::vector<std::string> GetAssetTypeFilter()
+		{
+			auto type = RexEngine::AssetTypes::GetAssetType<T>();
+			if (type.Empty())
+			{
+				RE_LOG_ERROR("Unregistered asset type : {} !", typeid(T).name());
+				return std::vector<std::string>();
+			}
+
+			std::vector<std::string> filter;
+			for (auto& ex : type.extensions)
+			{
+				filter.push_back(std::format("{} ({})", type.name, ex));
+				filter.push_back("*" + ex);
+			}
+
+			return filter;
+		}
 
     private:
 

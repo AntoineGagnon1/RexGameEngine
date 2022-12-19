@@ -66,6 +66,15 @@ namespace RexEngine
 		{
 			return glm::lookAt(eye, lookAt, up);
 		}
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			cereal::size_type s = Size;
+			archive(cereal::make_size_tag(s));
+			for (int i = 0; i < Size; i++)
+				archive((Vector<T, Size>&)(*this).operator[](i));
+		}
 	};
 
 	using Matrix3 = Matrix<float, 3>;

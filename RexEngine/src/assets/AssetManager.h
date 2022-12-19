@@ -5,7 +5,9 @@
 #include <fstream>
 #include <filesystem>
 #include <memory>
+#include <sstream>
 
+#include "AssetTypes.h"
 #include "../core/Guid.h"
 #include "../core/Serialization.h"
 #include "../events/EngineEvents.h"
@@ -16,10 +18,15 @@ namespace RexEngine
 	// member functions : 
 	// 
 	// template<typename Archive>
-	// static std::shared_ptr<Type> LoadFromAssetFile(Guid assetGuid, const Archive& metaDataArchive, std::istream& assetFile)
+	// static std::shared_ptr<Type> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
 	// 
+	// And : (these can be ommited if they are not needed (ie read-only assets))
 	// template<typename Archive>
 	// void SaveToAssetFile(Archive& metaDataArchive)
+	// 
+	// Or (WARNING : this version will empty the assetFile before passing it):
+	// template<typename Archive>
+	// void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
 	// 
 	// the path to the original asset is 
 	// the metadata path - the .asset
@@ -75,6 +82,26 @@ namespace RexEngine
 	};
 
 
+	// Check for this : 
+	// template<typename Archive>
+	// void SaveToAssetFile(Archive& metaDataArchive)
+	template<typename T, typename Archive>
+	concept HasSaveMetaOnly = requires(T* asset, Archive a)
+	{
+		asset->SaveToAssetFile(a);
+	};
+
+	// Check for this :
+	// template<typename Archive>
+	// void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
+	template<typename T, typename Archive>
+	concept HasSaveMetaAndAsset = requires(T * asset, Archive a, std::ostream file)
+	{
+		asset->SaveToAssetFile(a, file);
+	};
+
+
+
 	class AssetManager
 	{
 	public:
@@ -96,7 +123,8 @@ namespace RexEngine
 			// Load the asset from the file
 			Asset<T> a;
 			std::ifstream metaDataFile(path->second);
-			std::ifstream assetFile(path->second.string().substr(0, path->second.string().length() - 6)); // Remove the .asset part
+			bool bin = AssetTypes::GetAssetType<T>().binary;
+			std::ifstream assetFile(path->second.string().substr(0, path->second.string().length() - 6), bin ? std::ios::binary : std::ios::in); // Remove the .asset part, std::ios::in used as a dummy
 
 			if (!metaDataFile.is_open() || !assetFile.is_open())
 				return Asset<T>(); // Failed
@@ -123,8 +151,8 @@ namespace RexEngine
 		inline static bool SaveAsset(const Guid& guid)
 		{
 			// Get the asset
-			auto asset = s_assets.find(guid);
-			if (asset == s_assets.end()) // Not loaded
+			auto assetAny = s_assets.find(guid);
+			if (assetAny == s_assets.end()) // Not loaded
 				return false;
 
 			// Get the path
@@ -138,9 +166,31 @@ namespace RexEngine
 			if (!metaDataFile.is_open())
 				return false; // Failed to open the file
 
+			auto asset = std::any_cast<Asset<T>>(assetAny->second);
+
+			// template<typename Archive>
+			// void SaveToAssetFile(Archive& metaDataArchive)
+			if constexpr (HasSaveMetaOnly<T, JsonSerializer>)
 			{
 				JsonSerializer metaDataArchive(metaDataFile);
-				std::any_cast<Asset<T>>(asset->second).m_asset->SaveToAssetFile(metaDataArchive);
+				asset.m_asset->SaveToAssetFile(metaDataArchive);
+			}
+			else if constexpr (HasSaveMetaAndAsset<T, JsonSerializer>)
+			{
+				// Open the asset file
+				bool bin = AssetTypes::GetAssetType<T>().binary;
+				std::ofstream assetFile(path->second.replace_extension(""), bin ? std::ios::trunc | std::ios::binary : std::ios::trunc); // remove the .asset
+					
+				if (assetFile.is_open())
+				{
+					JsonSerializer metaDataArchive(metaDataFile);
+					asset.m_asset->SaveToAssetFile(metaDataArchive, assetFile);
+				}
+				else
+				{
+					metaDataFile << "{}"; // the metaDataFile has to be empty, add an empty json node
+					return false;
+				}
 			}
 
 			if (metaDataFile.cur == 1)

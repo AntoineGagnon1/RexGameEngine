@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../rendering/Shader.h"
+#include "../rendering/Material.h"
 #include "../rendering/Mesh.h"
 #include "../rendering/Cubemap.h"
 #include "../math/Vectors.h"
@@ -29,7 +29,7 @@ namespace RexEngine
 
 	struct MeshRendererComponent
 	{
-		Asset<Shader> shader;
+		Asset<Material> material;
 		Asset<Mesh> mesh;
 		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
 		char priority = 0;
@@ -37,7 +37,7 @@ namespace RexEngine
 		template<typename Archive>
 		void serialize(Archive& archive) 
 		{
-			archive(KEEP_NAME(shader), KEEP_NAME(mesh), KEEP_NAME(cullingMode), KEEP_NAME(priority));
+			archive(KEEP_NAME(material), KEEP_NAME(mesh), KEEP_NAME(cullingMode), KEEP_NAME(priority));
 		}
 	};
 
@@ -92,12 +92,12 @@ namespace RexEngine
 
 	struct SkyboxComponent
 	{
-		Asset<Shader> shader;
+		Asset<Material> material;
 
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(KEEP_NAME(shader));
+			archive(KEEP_NAME(material));
 		}
 	};
 }

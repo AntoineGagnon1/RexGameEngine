@@ -430,6 +430,12 @@ namespace RexEditor::UI
 		ImGui::TableNextColumn();
 	}
 
+	void Table::PreviousElement()
+	{
+		auto index = ImGui::TableGetColumnIndex();
+		ImGui::TableSetColumnIndex(index - 1);
+	}
+
 
 	Text::Text(const std::string& text)
 	{

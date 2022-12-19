@@ -3,6 +3,7 @@
 #include <string>
 #include <span>
 #include <unordered_map>
+#include <typeindex>
 
 #include "../math/Matrix.h"
 #include "../events/EngineEvents.h"
@@ -31,8 +32,13 @@ namespace RexEngine
 		static void DeleteLinkedShader(ShaderID id);
 		static void BindShader(ShaderID id);
 
-		// <name, location>, todo : return type
-		static std::unordered_map<std::string, int> GetShaderUniforms(ShaderID id);
+		// <name, <location, type>>
+		enum class UniformType { Float, Vec2, Vec3, Vec4,
+								 Int, Vec2I, Vec3I, Vec4I,
+								 Double, UInt, Bool,
+								 Mat3, Mat4,
+								 Sampler2D, SamplerCube };
+		static std::unordered_map<std::string, std::tuple<int, UniformType>> GetShaderUniforms(ShaderID id);
 		static void SetUniformMatrix4(int location, const Matrix4& matrix);
 		static void SetUniformVector3(int location, const Vector3& vec);
 		static void SetUniformFloat(int location, float value);
@@ -104,6 +110,9 @@ namespace RexEngine
 
 		static int GetActiveTexture();
 		static void SetActiveTexture(int index);
+
+		// Returns the number of valid indices for SetActiveTexture()
+		static int GetTextureSlotCount();
 
 		static void GenerateMipmaps(TextureTarget target);
 

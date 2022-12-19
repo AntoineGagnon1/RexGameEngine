@@ -30,12 +30,6 @@ namespace RexEngine
 			return std::shared_ptr<Mesh>(nullptr);
 		}
 
-		template<typename Archive>
-		inline void SaveToAssetFile(Archive& metaDataArchive)
-		{
-			// No metadata for now
-		}
-
 	private:
 
 		std::vector<uint8_t> m_vertexData;

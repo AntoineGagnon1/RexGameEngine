@@ -215,21 +215,7 @@ namespace RexEditor::UI
         AssetInput(const std::string& label, AssetType& value)
             : Input<AssetType>(value)
         {
-            // Get the filter for this asset
-            auto type = RexEngine::AssetTypes::GetAssetType<T>();
-            if (type.Empty())
-            {
-                RE_LOG_ERROR("Unregistered asset type : {} !", typeid(T).name());
-                return;
-            }
-
-            std::vector<std::string> filter = {type.name};
-            for (auto& ex : type.extensions)
-            {
-                filter.push_back("*" + ex);
-            }
-
-            auto newPath = Internal::AssetInputUI(label, filter, value.GetAssetGuid(), Hoverable::m_hovered);
+            auto newPath = Internal::AssetInputUI(label, SystemDialogs::GetAssetTypeFilter<T>(), value.GetAssetGuid(), Hoverable::m_hovered);
 
             if (!newPath.empty())
             {
@@ -387,6 +373,7 @@ namespace RexEditor::UI
         void SetCellPadding(RexEngine::Vector2Int padding);
         // Move to the next element
         void NextElement();
+        void PreviousElement(); // Move back once
 
         bool IsVisible() const { return m_visible; }
 

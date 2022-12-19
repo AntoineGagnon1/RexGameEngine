@@ -29,6 +29,7 @@
 #include "src/rendering/Shapes.h"
 #include "src/rendering/PBR.h"
 #include "src/rendering/MSAATexture.h"
+#include "src/rendering/Material.h"
 
 // Window
 #include "src/window/Window.h"

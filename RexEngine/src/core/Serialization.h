@@ -14,6 +14,7 @@
 #include <cereal/types/set.hpp>
 #include <cereal/types/unordered_set.hpp>
 #include <cereal/types/memory.hpp>
+#include <cereal/types/variant.hpp>
 
 namespace RexEngine
 {

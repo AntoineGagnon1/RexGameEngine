@@ -13,15 +13,18 @@ namespace RexEditor
 	{
 	public:
 		SceneViewPanel() : Panel("Scene View"),
-			m_viewTexture(RexEngine::RenderApi::TextureTarget::Texture2D, RexEngine::RenderApi::PixelFormat::RGB, {0,0}, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte),
+			m_viewTexture(RexEngine::RenderApi::PixelFormat::RGB, {0,0}),
 			m_viewDepth(RexEngine::RenderApi::PixelType::Depth, { 0,0 }),
-			m_roll(0.0f), m_pitch(0.0f), m_captured(false),
-			m_gridShader(RexEngine::Shader::FromFile("assets/shaders/Grid.shader"))
+			m_roll(0.0f), m_pitch(0.0f), m_captured(false)
 		{
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
 
 			m_cameraTransform.position.y = 2.0f; // Dont start in the grid
+
+			auto gridShader = RexEngine::Asset<Shader>();
+			gridShader = RexEngine::Shader::FromFile("assets/shaders/Grid.shader");
+			m_gridMaterial = std::make_shared<Material>(gridShader);
 
 			m_inputs.insert({"Capture", std::move(std::make_unique<MouseButtonInput>(MouseButton::Right)) });
 			m_inputs.insert({"MoveForward", std::move(std::make_unique<KeyboardInput>(KeyCode::W, KeyCode::S)) });
@@ -94,13 +97,13 @@ namespace RexEditor
 			grid.Transform().rotation = Quaternion::FromEuler({90, 0, 0});
 			grid.Transform().scale = Vector3{ gridSize, gridSize, 1}; // scale is on x and y because the plane mesh is vertical
 			grid.Transform().position = pos; 
-			m_gridShader->SetUniformFloat("falloffDistance", gridSize);
-			m_gridShader->SetUniformInt("gridSize", gridScale);
+			m_gridMaterial->GetUniform<float>("falloffDistance") = gridSize;
+			m_gridMaterial->GetUniform<int>("gridSize") = gridScale;
 
 			MeshRendererComponent gridComponent;
 			gridComponent.cullingMode = RenderApi::CullingMode::Both;
 			gridComponent.mesh = RexEngine::Shapes::GetQuadMesh();
-			gridComponent.shader = m_gridShader;
+			gridComponent.material = m_gridMaterial;
 			grid.AddComponent<MeshRendererComponent>(gridComponent);
 
 			m_viewBuffer.Bind();
@@ -136,7 +139,7 @@ namespace RexEditor
 		RexEngine::Texture m_viewTexture;
 		RexEngine::RenderBuffer m_viewDepth;
 
-		std::shared_ptr<RexEngine::Shader> m_gridShader;
+		std::shared_ptr<RexEngine::Material> m_gridMaterial;
 
 		std::map<std::string, std::unique_ptr<RexEngine::Input>> m_inputs;
 	};

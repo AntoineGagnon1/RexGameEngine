@@ -27,10 +27,10 @@ namespace RexEngine
 
 			RenderApi::DeleteShader(vertex); // Not needed anymore
 			RenderApi::DeleteShader(fragment);
-		}
 
-		// Cache the uniforms
-		m_uniforms = RenderApi::GetShaderUniforms(m_id);
+			// Cache the uniforms
+			m_uniforms = RenderApi::GetShaderUniforms(m_id);
+		}
 	}
 
 	Shader::Shader(const std::string& data)
@@ -73,28 +73,28 @@ namespace RexEngine
 	{
 		RE_ASSERT(HasUniform(name), "No Matrix4 Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformMatrix4(m_uniforms[name], matrix);
+		RenderApi::SetUniformMatrix4(std::get<0>(m_uniforms[name]), matrix);
 	}
 
 	void Shader::SetUniformVector3(const std::string& name, const Vector3& vec)
 	{
 		RE_ASSERT(HasUniform(name), "No Vector3 Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformVector3(m_uniforms[name], vec);
+		RenderApi::SetUniformVector3(std::get<0>(m_uniforms[name]), vec);
 	}
 
 	void Shader::SetUniformFloat(const std::string& name, float value)
 	{
 		RE_ASSERT(HasUniform(name), "No Float Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformFloat(m_uniforms[name], value);
+		RenderApi::SetUniformFloat(std::get<0>(m_uniforms[name]), value);
 	}
 
 	void Shader::SetUniformInt(const std::string& name, int value)
 	{
 		RE_ASSERT(HasUniform(name), "No Int Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformInt(m_uniforms[name], value);
+		RenderApi::SetUniformInt(std::get<0>(m_uniforms[name]), value);
 	}
 
 	void Shader::RegisterParserUsing(const std::string& name, const std::string& replaceWith)

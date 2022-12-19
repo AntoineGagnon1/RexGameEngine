@@ -3,7 +3,8 @@
 #include "RenderApi.h"
 
 #include "core/Libs.h"
-
+#include "Texture.h"
+#include "Cubemap.h"
 
 namespace RexEngine::Internal {
 	unsigned int BufferTypeToGLType(RenderApi::BufferType type)
@@ -147,6 +148,31 @@ namespace RexEngine::Internal {
 		return 0;
 	}
 
+	RenderApi::UniformType GLTypeToTypeIndex(GLenum glType)
+	{
+		using UT = RenderApi::UniformType;
+		switch (glType)
+		{ // More types at : https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetActiveUniform.xhtml
+		case GL_FLOAT:		return UT::Float;
+		case GL_FLOAT_VEC2: return UT::Vec2;
+		case GL_FLOAT_VEC3: return UT::Vec3;
+		case GL_FLOAT_VEC4: return UT::Vec4;
+		case GL_DOUBLE:		return UT::Double;
+		case GL_INT:		return UT::Int;
+		case GL_INT_VEC2:	return UT::Vec2I;
+		case GL_INT_VEC3:	return UT::Vec3I;
+		case GL_INT_VEC4:	return UT::Vec4I;
+		case GL_UNSIGNED_INT: return UT::UInt;
+		case GL_BOOL:		return UT::Bool;
+		case GL_FLOAT_MAT3:	return UT::Mat3;
+		case GL_FLOAT_MAT4:	return UT::Mat4;
+		case GL_SAMPLER_2D:	return UT::Sampler2D;
+		case GL_SAMPLER_CUBE: return UT::SamplerCube;
+		default: 
+			return (UT)-1;
+		}
+	}
+
 	void GlCheckErrors()
 	{
 		GLenum err;
@@ -241,9 +267,9 @@ namespace RexEngine
 		GL_CALL(glUseProgram(id));
 	}
 
-	std::unordered_map<std::string, int> RenderApi::GetShaderUniforms(ShaderID id)
+	std::unordered_map<std::string, std::tuple<int, RenderApi::UniformType>> RenderApi::GetShaderUniforms(ShaderID id)
 	{
-		std::unordered_map<std::string, int>  uniforms;
+		std::unordered_map<std::string, std::tuple<int, RenderApi::UniformType>>  uniforms;
 
 		GLint count;
 		GLint size; // size of the variable
@@ -258,7 +284,7 @@ namespace RexEngine
 		{
 			GL_CALL(glGetActiveUniform(id, i, bufSize, NULL, &size, &type, name));
 			int index = GL_CALL(glGetUniformLocation(id, name));
-			uniforms.insert({ name, index });
+			uniforms.insert({ name, {index, Internal::GLTypeToTypeIndex(type)}});
 		}
 
 		return uniforms;
@@ -468,6 +494,13 @@ namespace RexEngine
 	void RenderApi::SetActiveTexture(int index)
 	{
 		GL_CALL(glActiveTexture(GL_TEXTURE0 + index));
+	}
+
+	int RenderApi::GetTextureSlotCount()
+	{
+		GLint count;
+		GL_CALL(glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &count));
+		return count;
 	}
 
 	void RenderApi::GenerateMipmaps(TextureTarget target)

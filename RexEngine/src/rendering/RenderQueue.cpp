@@ -1,6 +1,7 @@
 #include <REPch.h>
 #include "RenderQueue.h"
 
+
 namespace
 {
 	// Returns true if the values are not equal
@@ -32,7 +33,7 @@ namespace RexEngine
 
 		bool returnValue;
 
-		if (CompareSmaller<std::shared_ptr<Shader>>(left.shader, right.shader, returnValue))
+		if (CompareSmaller<std::shared_ptr<Material>>(left.material, right.material, returnValue))
 			return returnValue;
 
 		if (CompareSmaller<std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
@@ -57,16 +58,16 @@ namespace RexEngine
 		std::sort(m_renderCommands.begin(), m_renderCommands.end());
 
 		// Used to detect state changes
-		RenderCommand tempCommand{std::shared_ptr<Shader>(), std::shared_ptr<Mesh>(), Matrix4::Identity, RenderApi::CullingMode::Front, 0};
+		RenderCommand tempCommand{std::shared_ptr<Material>(), std::shared_ptr<Mesh>(), Matrix4::Identity, RenderApi::CullingMode::Front, 0};
 		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
 		
 		// Execute the commands
 		for (auto&& command : m_renderCommands)
 		{
-			if (command.shader != tempCommand.shader)
+			if (command.material != tempCommand.material)
 			{ // The shader changed
-				tempCommand.shader = command.shader;
-				command.shader->Bind();
+				tempCommand.material = command.material;
+				command.material->Bind();
 			}
 
 			if (command.mesh != tempCommand.mesh)

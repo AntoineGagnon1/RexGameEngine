@@ -5,8 +5,12 @@
             "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\Test.scene.asset"
         },
         {
-            "key": "1185225170560307805 1671243881363201",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\Test2.scene.asset"
+            "key": "1080601474280444721 1671398675205531",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\Skybox.shader.asset"
+        },
+        {
+            "key": "540662691392715425 1671427163783068",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\SkyboxMat.mat.asset"
         }
     ]
 }

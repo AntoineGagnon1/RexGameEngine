@@ -10,12 +10,15 @@ namespace RexEditor
 	class AssetInspector
 	{
 	public:
+		// We use assetPath instead of a guid because the asset might not be loaded yet and the FileExplorer doesnt know the type
 		inline static void InspectAsset(float deltaTime, RexEngine::AssetType type, const std::filesystem::path& assetPath)
 		{
 			using namespace RexEngine;
 
 			if (type.type == typeid(Shader))
 				InspectShader(assetPath);
+			else if (type.type == typeid(Material))
+				InspectMaterial(assetPath);
 			else
 				UI::Text("Invalid Asset !");
 		}
@@ -35,7 +38,7 @@ namespace RexEditor
 					RE_LOG_ERROR("Could not load the asset at {}!", assetPath.string());
 			}
 
-			return AssetManager::GetAsset<Shader>(guid);
+			return AssetManager::GetAsset<T>(guid);
 		}
 
 		inline static void InspectShader(const std::filesystem::path& assetPath)
@@ -65,6 +68,14 @@ namespace RexEditor
 
 				UI::Text t(content);
 			}
+		}
+
+		inline static void InspectMaterial(const std::filesystem::path& assetPath)
+		{
+			using namespace RexEngine;
+			auto mat = GetAsset<Material>(assetPath);
+
+			UI::Text("Hello");
 		}
 
 	};

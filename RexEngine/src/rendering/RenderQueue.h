@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "RenderApi.h"
-#include "Shader.h"
 #include "Mesh.h"
+#include "Material.h"
 
 namespace RexEngine
 {
@@ -12,13 +12,13 @@ namespace RexEngine
 	{
 		Matrix4 modelMatrix;
 
-		std::shared_ptr<Shader> shader;
+		std::shared_ptr<Material> material;
 		std::shared_ptr<Mesh> mesh;
 		unsigned char priority;
 		RenderApi::CullingMode cullingMode; // Not sorted
 
-		RenderCommand(std::shared_ptr<Shader> shader, std::shared_ptr<Mesh> mesh, Matrix4 modelMatrix, RenderApi::CullingMode cullingMode, unsigned char priority = 0)
-			: shader(shader), mesh(mesh), priority(priority), modelMatrix(modelMatrix), cullingMode(cullingMode)
+		RenderCommand(std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh, Matrix4 modelMatrix, RenderApi::CullingMode cullingMode, unsigned char priority = 0)
+			: material(material), mesh(mesh), priority(priority), modelMatrix(modelMatrix), cullingMode(cullingMode)
 		{ }
 
 		friend bool operator<(const RenderCommand& left, const RenderCommand& right);

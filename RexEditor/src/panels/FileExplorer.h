@@ -99,6 +99,10 @@ namespace RexEditor
 									entry.path().filename().string());
 							}
 						}
+						else
+						{
+							table.PreviousElement(); // Revert this element, because it is empty
+						}
 					}
 				}
 			}
@@ -111,6 +115,44 @@ namespace RexEditor
 				UI::Anchor a(UI::AnchorPos::BottomRight);
 				UI::FloatSlider("Scale :", 1.0f, 2.0f, 64, m_scale);
 			}
+
+			if (UI::ContextMenu context("FileExplorerContext"); context.IsOpen())
+			{
+				ContextMenu().DrawMenu();
+			}
+		}
+
+		inline static UI::MenuSystem<>& ContextMenu()
+		{
+			static auto menu = [] {
+				UI::MenuSystem<> m;
+				// Default elements
+				m.AddMenuItem("Create/Material", [] { 
+					auto path = SystemDialogs::SaveFile("New Material", SystemDialogs::GetAssetTypeFilter<Material>());
+					path.replace_extension(RexEngine::AssetTypes::GetAssetType<Material>().extensions[0]);
+					std::ofstream file(path);
+					
+					if (file.is_open())
+					{
+						// TODO : change the shader to the PBR shader
+						auto mat = Material(Asset<Shader>());
+						std::ostringstream temp;
+						JsonSerializer tempArchive(temp);
+
+						// Save an empty material
+						mat.SaveToAssetFile<JsonSerializer>(tempArchive, file);
+
+						// Add it to the asset manager
+						Guid guid = Guid::Generate();
+						RexEngine::AssetManager::AddAsset<Material>(guid, path);
+						RexEngine::AssetManager::SaveAsset<Material>(guid);
+					}
+				});
+
+				return m;
+			}();
+
+			return menu;
 		}
 
 	private:

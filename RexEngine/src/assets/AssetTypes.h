@@ -14,6 +14,8 @@ namespace RexEngine
 		std::vector<std::string> extensions; // ex : .shader
 		std::type_index type = typeid(void); // ex : typeid(Shader)
 
+		bool binary = false; // Is this type binary (read/write using std::ios::binary)
+
 		// Is this asset type empty (invalid) ?
 		bool Empty() const
 		{

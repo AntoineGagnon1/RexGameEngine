@@ -340,7 +340,8 @@ void main()
 
     std::shared_ptr<Cubemap> RexEngine::PBR::FromHDRI(const std::string& path, Vector2Int size)
     {
-		auto hdrMap = Texture::FromHDRIFile(path, RenderApi::TextureTarget::Texture2D, RenderApi::PixelFormat::RGB16F);
+		std::ifstream file(path);
+		auto hdrMap = Texture::FromHDRStream2D(file, RenderApi::PixelFormat::RGB16F, true);
 		auto cubemap = std::make_shared<Cubemap>();
 		auto cubemapId = cubemap->GetId();
 
@@ -524,10 +525,7 @@ void main()
 
 	std::shared_ptr<Texture> PBR::CreateBRDFLut(Vector2Int size)
 	{
-		auto texture = std::make_shared<Texture>(RenderApi::TextureTarget::Texture2D,
-												 RenderApi::PixelFormat::RGB16F, size, nullptr,
-												 RenderApi::PixelFormat::RG, 
-												 RenderApi::PixelType::Float);
+		auto texture = std::make_shared<Texture>(RenderApi::PixelFormat::RGB16F, size);
 
 		// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();

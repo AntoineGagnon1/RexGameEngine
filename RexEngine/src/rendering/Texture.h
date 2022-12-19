@@ -7,17 +7,35 @@
 
 namespace RexEngine
 {
+	// .png, .hdr assets TODO : more file types
 	class Texture
 	{
+	private:
+		// Texture2D
+		Texture(RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType, bool flipY, bool hdr);
+	
 	public:
-		Texture(RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat, Vector2Int size, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);
+		// Creates an empty texture
+		Texture(RenderApi::PixelFormat gpuFormat, Vector2Int size) : Texture(gpuFormat, size, nullptr, RenderApi::PixelFormat::RGB, RenderApi::PixelType::UByte, false, false) {}
 		~Texture();
 
 		Texture(const Texture&) = delete;
 
-		// TODO : convert to asset loader
-		static std::shared_ptr<Texture> FromFile(const std::string& path, RenderApi::TextureTarget target = RenderApi::TextureTarget::Texture2D, RenderApi::PixelFormat gpuFormat = RenderApi::PixelFormat::RGBA);
-		static std::shared_ptr<Texture> FromHDRIFile(const std::string& path, RenderApi::TextureTarget target, RenderApi::PixelFormat gpuFormat);
+		// A simple 2d texture, used to load icons
+		inline static std::shared_ptr<Texture> FromFile(const std::filesystem::path& path)
+		{
+			std::ifstream file(path, std::ios::binary);
+
+			if(file.is_open())
+				return FromStream2D(file, RenderApi::PixelFormat::RGBA, false);
+			else
+				RE_LOG_ERROR("Error reading texture at : !", path.string());
+			return std::shared_ptr<Texture>(nullptr);
+		}
+
+		// Texture2D from a stream
+		static std::shared_ptr<Texture> FromStream2D(std::istream& stream, RenderApi::PixelFormat gpuFormat, bool flipY);
+		static std::shared_ptr<Texture> FromHDRStream2D(std::istream& stream, RenderApi::PixelFormat gpuFormat, bool flipY);
 
 		void SetData(Vector2Int newSize, const void* data, RenderApi::PixelFormat dataFormat, RenderApi::PixelType dataType);
 
@@ -33,10 +51,41 @@ namespace RexEngine
 		void Bind() const;
 		void UnBind() const;
 
+		template<typename Archive>
+		static std::shared_ptr<Texture> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
+		{
+			Vector2Int size;
+			int target, gpuFormat;
+			bool flipY, hdr;
+
+			metaDataArchive(CUSTOM_NAME(hdr, "Hdr"),
+				CUSTOM_NAME(size, "Size"),
+				CUSTOM_NAME(target, "Target"),
+				CUSTOM_NAME(gpuFormat, "GpuFormat"),
+				CUSTOM_NAME(flipY, "FlipY"));
+
+			if (hdr)
+				return FromHDRStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
+			else
+				return FromStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
+		}
+
+		template<typename Archive>
+		void SaveToAssetFile(Archive& metaDataArchive) const
+		{
+			metaDataArchive(CUSTOM_NAME(m_hdr, "Hdr"),
+				CUSTOM_NAME(m_size, "Size"),
+				CUSTOM_NAME((int)m_target, "Target"),
+				CUSTOM_NAME((int)m_gpuFormat, "GpuFormat"),
+				CUSTOM_NAME(m_flipYOnLoad, "FlipY"));
+		}
+
 	private:
 		Vector2Int m_size;
 		RenderApi::TextureID m_id;
 		RenderApi::TextureTarget m_target; // Cache the target for SetOption()
 		RenderApi::PixelFormat m_gpuFormat; // Cached for SetData()
+		bool m_flipYOnLoad;
+		bool m_hdr;
 	};
 }

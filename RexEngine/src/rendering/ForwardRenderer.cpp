@@ -39,8 +39,8 @@ namespace RexEngine
 		{
 			const Matrix4 modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
 			
-			if(c.shader && c.mesh)
-				RenderQueue::AddCommand(RenderCommand(c.shader, c.mesh, modelMatrix, c.cullingMode, c.priority));
+			if(c.material && c.mesh) // Has a material and a mesh
+				RenderQueue::AddCommand(RenderCommand(c.material, c.mesh, modelMatrix, c.cullingMode, c.priority));
 		}
 
 		// Execute the render queue to actually render the objects on the screen
@@ -63,7 +63,8 @@ namespace RexEngine
 			newSceneData.worldToView = Matrix4(Matrix3(newSceneData.worldToView)); // Remove the translation (the skybox is always around the player)
 			RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
 			
-			RenderQueue::AddCommand(RenderCommand(c.shader, skyboxMesh, Matrix4::Identity, RenderApi::CullingMode::Both, 0));
+			if(c.material)
+				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity, RenderApi::CullingMode::Both, 0));
 		}
 		// Render the skybox
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);

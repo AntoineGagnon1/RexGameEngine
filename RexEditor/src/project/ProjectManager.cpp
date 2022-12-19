@@ -126,7 +126,7 @@ namespace RexEditor
 				{
 					std::stringstream stream; // Should not save any meta data anyway
 					JsonSerializer temp(stream);
-					scene->SaveToAssetFile<JsonSerializer>(temp);
+					scene->SaveToAssetFile<JsonSerializer>(temp, file);
 				} // Close the archive
 
 				file.close();

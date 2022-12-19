@@ -1,15 +1,16 @@
 {
-    "Count": 3,
+    "Count": 4,
     "Entity": 4293918721,
     "Entity": 635437056,
-    "Entity": 334495743,
+    "Entity": 3780116482,
+    "Entity": 3447717887,
     "Count": 1,
     "Owner": 635437056,
     "struct RexEngine::Guid": "8228403930289807288 1671163441620106",
     "Count": 1,
     "Owner": 635437056,
     "struct RexEngine::TagComponent": {
-        "name": "New Entity"
+        "name": "Skybox"
     },
     "Count": 1,
     "Owner": 635437056,

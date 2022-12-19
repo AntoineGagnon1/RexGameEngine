@@ -127,8 +127,8 @@ namespace RexEditor
 		inline static void DrawComponent<RexEngine::MeshRendererComponent>(RexEngine::Entity entity)
 		{
 			auto& meshRenderer = entity.GetComponent<MeshRendererComponent>();
-			UI::AssetInput<Shader> shader("Shader", meshRenderer.shader);
-			UI::AssetInput<Mesh>     mesh("Mesh  ", meshRenderer.mesh);
+			UI::AssetInput<Material> shader("Material", meshRenderer.material);
+			UI::AssetInput<Mesh>       mesh("Mesh    ", meshRenderer.mesh);
 			UI::ComboBoxEnum<RenderApi::CullingMode> cullingMode("Render faces", { "Front", "Back", "Both" }, meshRenderer.cullingMode);
 			UI::ByteInput priority("Priority", meshRenderer.priority);
 		}
@@ -146,7 +146,7 @@ namespace RexEditor
 		inline static void DrawComponent<RexEngine::SkyboxComponent>(RexEngine::Entity entity)
 		{
 			auto& skybox = entity.GetComponent<SkyboxComponent>();
-			UI::AssetInput<Shader> shader("Shader", skybox.shader);
+			UI::AssetInput<Material> shader("Material", skybox.material);
 		}
 	};
 }
