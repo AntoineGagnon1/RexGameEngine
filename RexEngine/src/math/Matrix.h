@@ -50,6 +50,15 @@ namespace RexEngine
 			return glm::transpose(*this);
 		}
 
+		VecType& operator[](size_t i)
+		{
+			return (VecType&)GlmType::operator[](i);
+		}
+
+		VecType operator[](size_t i) const
+		{
+			return (VecType)GlmType::operator[](i);
+		}
 
 		inline static MatType MakeTransform(const Vector3& translate, const Quaternion& rotation, const Vector3& scale) requires IsEqual<Size, 4>
 		{
@@ -73,7 +82,7 @@ namespace RexEngine
 			cereal::size_type s = Size;
 			archive(cereal::make_size_tag(s));
 			for (int i = 0; i < Size; i++)
-				archive((Vector<T, Size>&)(*this).operator[](i));
+				archive(operator[](i));
 		}
 	};
 

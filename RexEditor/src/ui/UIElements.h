@@ -173,12 +173,15 @@ namespace RexEditor::UI
     {
     public:
 
-        Input(T& value) : m_value(value) {}
+        Input(T& value) : m_value(value), m_changed(false) {}
 
         T Value() const { return m_value; }
 
+        bool HasChanged() const { return m_changed; }
+
     protected:
         T& m_value;
+        bool m_changed; // Needs to be set by the child class
     };
     
     // Only hovered when over the input part
@@ -193,6 +196,18 @@ namespace RexEditor::UI
     {
     public:
         Vector3Input(const std::string& label, Vector3& value);
+    };
+
+    class Vector4Input : public Input<RexEngine::Vector4>
+    {
+    public:
+        Vector4Input(const std::string& label, Vector4& value);
+    };
+
+    class Matrix4Input : public Input<RexEngine::Matrix4>
+    {
+    public:
+        Matrix4Input(const std::string& label, Matrix4& value);
     };
 
  
@@ -232,6 +247,7 @@ namespace RexEditor::UI
 
                 // Replace the asset
                 value = AssetManager::GetAsset<T>(newGuid);
+                Input<AssetType>::m_changed = true;
             }
         }
     };

@@ -284,7 +284,8 @@ namespace RexEngine
 		{
 			GL_CALL(glGetActiveUniform(id, i, bufSize, NULL, &size, &type, name));
 			int index = GL_CALL(glGetUniformLocation(id, name));
-			uniforms.insert({ name, {index, Internal::GLTypeToTypeIndex(type)}});
+			if(index != -1) // Will return -1 for uniforms in a uniform block, skip those
+				uniforms.insert({ name, {index, Internal::GLTypeToTypeIndex(type)}});
 		}
 
 		return uniforms;

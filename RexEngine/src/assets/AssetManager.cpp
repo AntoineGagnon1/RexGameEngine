@@ -3,24 +3,30 @@
 
 namespace RexEngine
 {
-	Guid AssetManager::GetAssetGuidFromPath(const std::filesystem::path& path)
+	Guid AssetManager::GetAssetGuidFromPath(std::filesystem::path path)
 	{
+		AddMetaExtension(path);
 		for (auto& pair : s_registry)
 		{
 			std::error_code code;
-			if (std::filesystem::equivalent(pair.second, path.string() + Asset<int>::FileExtension, code))
+			if (std::filesystem::equivalent(pair.second, path, code))
 				return pair.first;
 		}
 
 		return Guid::Empty;
 	}
 
-	std::filesystem::path AssetManager::GetAssetPathFromGuid(const Guid& guid)
+	std::filesystem::path AssetManager::GetAssetMetaPathFromGuid(const Guid& guid)
 	{
 		if (s_registry.contains(guid))
 			return s_registry[guid];
 		else
 			return "";
+	}
+
+	std::filesystem::path AssetManager::GetAssetPathFromGuid(const Guid& guid)
+	{
+		return GetAssetMetaPathFromGuid(guid).replace_extension(""); // remove the .asset
 	}
 
 	bool AssetManager::SetRegistry(const std::filesystem::path& path)

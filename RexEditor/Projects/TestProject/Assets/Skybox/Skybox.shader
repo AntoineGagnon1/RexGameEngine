@@ -21,8 +21,9 @@ out vec4 FragColor;
 in vec3 TexCoords;
 
 uniform samplerCube skybox;
+uniform mat4 color;
 
 void main()
 {
-    FragColor = texture(skybox, TexCoords);
+    FragColor = vec4(texture(skybox, TexCoords).r, color[0].x, color[0].y, 1.0f);
 }

@@ -1,19 +1,19 @@
 {
     "Count": 4,
     "Entity": 4293918721,
-    "Entity": 635437056,
-    "Entity": 3780116482,
-    "Entity": 3447717887,
+    "Entity": 1686110208,
+    "Entity": 3090153474,
+    "Entity": 1405091839,
     "Count": 1,
-    "Owner": 635437056,
-    "struct RexEngine::Guid": "8228403930289807288 1671163441620106",
+    "Owner": 1686110208,
+    "struct RexEngine::Guid": "16613986971478871029 1671497467460143",
     "Count": 1,
-    "Owner": 635437056,
+    "Owner": 1686110208,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
     },
     "Count": 1,
-    "Owner": 635437056,
+    "Owner": 1686110208,
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
@@ -37,5 +37,11 @@
     },
     "Count": 0,
     "Count": 0,
-    "Count": 0
+    "Count": 1,
+    "Owner": 1686110208,
+    "struct RexEngine::SkyboxComponent": {
+        "material": {
+            "Guid": "8967917397200686198 1671497496502555"
+        }
+    }
 }

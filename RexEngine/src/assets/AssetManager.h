@@ -139,11 +139,15 @@ namespace RexEngine
 		}
 
 		// Will return an empty guid if no asset with the specified path was found
-		// path is the path of this asset (NO .asset extension)
-		static Guid GetAssetGuidFromPath(const std::filesystem::path& path);
+		// path can inlude the .asset or not
+		static Guid GetAssetGuidFromPath(std::filesystem::path path);
 
 		// Returns the .asset file
 		// Will return an empty path if no asset with the specified guid was found
+		static std::filesystem::path GetAssetMetaPathFromGuid(const Guid& guid);
+
+		// Returns the asset file (not .asset)
+	 	// Will return an empty path if no asset with the specified guid was found
 		static std::filesystem::path GetAssetPathFromGuid(const Guid& guid);
 
 		// Save the asset to the .asset file, returns false if the file could not be opened or if the asset is not loaded
@@ -179,7 +183,9 @@ namespace RexEngine
 			{
 				// Open the asset file
 				bool bin = AssetTypes::GetAssetType<T>().binary;
-				std::ofstream assetFile(path->second.replace_extension(""), bin ? std::ios::trunc | std::ios::binary : std::ios::trunc); // remove the .asset
+				std::filesystem::path assetPath = path->second;
+				assetPath.replace_extension(""); // Important : do the replace on a copy, other it will change in the registy
+				std::ofstream assetFile(assetPath, bin ? std::ios::trunc | std::ios::binary : std::ios::trunc); // remove the .asset
 					
 				if (assetFile.is_open())
 				{
@@ -202,17 +208,16 @@ namespace RexEngine
 		}
 
 		// Add the asset to the registry, returns false if the file could not be opened/created
-		// assetPath should be the path to the asset file, NOT to the metadata file
+		// assetPath can have the .asset extension or not
 		// This will remove any existing assets with this guid
 		template<typename T>
-		inline static bool AddAsset(const Guid& guid, const std::filesystem::path& assetPath)
+		inline static bool AddAsset(const Guid& guid, std::filesystem::path assetPath)
 		{
-			// Create or empty the .asset file
-			auto fullPath = assetPath.string() + Asset<int>::FileExtension;
-			std::ofstream assetFile(fullPath, std::ios::trunc);
+			AddMetaExtension(assetPath);
+			std::ofstream assetFile(assetPath, std::ios::trunc);
 			assetFile << "{}"; // Empty json object (JsonSerializer)
 
-			s_registry[guid] = fullPath;
+			s_registry[guid] = assetPath;
 
 			// Write the registry
 			std::ofstream file(s_registryPath, std::ios::trunc);
@@ -231,6 +236,13 @@ namespace RexEngine
 		static bool CreateRegistry(const std::filesystem::path& path);
 
 	private:
+
+		// add the .asset after the path
+		inline static void AddMetaExtension(std::filesystem::path& path)
+		{
+			if (!path.has_extension() || path.extension() != Asset<int>::FileExtension)
+				path += Asset<int>::FileExtension;
+		}
 
 		// Clear and delete all the assets
 		// this should be called on EngineEvent::OnEngineStop

@@ -1,16 +1,16 @@
 {
     "Paths": [
         {
-            "key": "17596687310401547268 1671163438954368",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\Test.scene.asset"
+            "key": "15585390246328574581 1671497147121982",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\TestScene.scene.asset"
         },
         {
-            "key": "1080601474280444721 1671398675205531",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\Skybox.shader.asset"
-        },
-        {
-            "key": "540662691392715425 1671427163783068",
+            "key": "8967917397200686198 1671497496502555",
             "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\SkyboxMat.mat.asset"
+        },
+        {
+            "key": "78538668046067847 1671497500598884",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\Skybox.shader.asset"
         }
     ]
 }

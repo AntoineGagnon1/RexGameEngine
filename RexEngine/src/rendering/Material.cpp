@@ -8,40 +8,8 @@
 namespace RexEngine
 {
 	Material::Material(Asset<Shader> shader)
-		: m_shader(shader) 
 	{
-		// Get all the uniforms
-		if (shader && shader->IsValid())
-		{
-			auto names = shader->GetUniforms();
-			
-			for (auto& name : names)
-			{
-				auto type = shader->GetUniformType(name);
-
-				using UT = RenderApi::UniformType;
-				switch (type)
-				{
-				case UT::Float: m_uniforms[name] = (float)0.0f; break;
-				case UT::Vec2:  m_uniforms[name] = Vector2(); break;
-				case UT::Vec3:	m_uniforms[name] = Vector3(); break;
-				case UT::Vec4:  m_uniforms[name] = Vector4(); break;
-				case UT::Int:	m_uniforms[name] = (int)0; break;
-				case UT::Vec2I: m_uniforms[name] = Vector2Int(); break;
-				case UT::Vec3I: m_uniforms[name] = Vector3Int(); break;
-				case UT::Vec4I: m_uniforms[name] = Vector4Int(); break;
-				case UT::Double:m_uniforms[name] = (double)0.0; break;
-				case UT::UInt:  m_uniforms[name] = (unsigned int)0; break;
-				case UT::Bool:  m_uniforms[name] = (bool)false; break;
-				case UT::Mat3:  m_uniforms[name] = Matrix3(); break;
-				case UT::Mat4:  m_uniforms[name] = Matrix4(); break;
-				case UT::Sampler2D:   m_uniforms[name] = Asset<Texture>(); break;
-				case UT::SamplerCube: m_uniforms[name] = Asset<Cubemap>(); break;
-				default:
-					RE_ASSERT(false, "UniformType not supported");
-				}
-			}
-		}
+		SetShader(shader);
 	}
 
 	void Material::Bind()
@@ -57,6 +25,9 @@ namespace RexEngine
 		// Set the uniforms
 		for (auto& [name, value] : m_uniforms)
 		{
+			if (!m_shader->HasUniform(name) || m_shader->GetUniformType(name) != (RenderApi::UniformType)value.index())
+				continue; // Some uniforms might be invalid if the shader changed, discard them
+
 			using UT = RenderApi::UniformType;
 			switch (value.index())
 			{
@@ -98,6 +69,45 @@ namespace RexEngine
 			case (size_t)UT::Mat3: 
 			default:
 				RE_ASSERT(false, "UniformType not supported");
+			}
+		}
+	}
+
+	void Material::SetShader(Asset<Shader> shader)
+	{
+		m_shader = shader;
+		m_uniforms.clear();
+
+		// Get all the uniforms
+		if (shader && shader->IsValid())
+		{
+			auto names = shader->GetUniforms();
+
+			for (auto& name : names)
+			{
+				auto type = shader->GetUniformType(name);
+
+				using UT = RenderApi::UniformType;
+				switch (type)
+				{
+				case UT::Float: m_uniforms[name] = (float)0.0f; break;
+				case UT::Vec2:  m_uniforms[name] = Vector2(); break;
+				case UT::Vec3:	m_uniforms[name] = Vector3(); break;
+				case UT::Vec4:  m_uniforms[name] = Vector4(); break;
+				case UT::Int:	m_uniforms[name] = (int)0; break;
+				case UT::Vec2I: m_uniforms[name] = Vector2Int(); break;
+				case UT::Vec3I: m_uniforms[name] = Vector3Int(); break;
+				case UT::Vec4I: m_uniforms[name] = Vector4Int(); break;
+				case UT::Double:m_uniforms[name] = (double)0.0; break;
+				case UT::UInt:  m_uniforms[name] = (unsigned int)0; break;
+				case UT::Bool:  m_uniforms[name] = (bool)false; break;
+				case UT::Mat3:  m_uniforms[name] = Matrix3(); break;
+				case UT::Mat4:  m_uniforms[name] = Matrix4(); break;
+				case UT::Sampler2D:   m_uniforms[name] = Asset<Texture>(); break;
+				case UT::SamplerCube: m_uniforms[name] = Asset<Cubemap>(); break;
+				default:
+					RE_ASSERT(false, "UniformType not supported");
+				}
 			}
 		}
 	}

@@ -75,7 +75,53 @@ namespace RexEditor
 			using namespace RexEngine;
 			auto mat = GetAsset<Material>(assetPath);
 
-			UI::Text("Hello");
+			bool needsSave = false;
+
+			// Shader
+			auto shader = mat->GetShader();
+			UI::AssetInput<Shader> shaderIn("Shader", shader);
+
+			{
+				UI::Anchor a(UI::AnchorPos::Center);
+				if (UI::Button b("Reload Shader"); b.IsClicked() || shaderIn.HasChanged()) // Has change or reload
+				{
+					mat->SetShader(shader);
+					needsSave = true;
+				}
+			}
+
+			// Uniforms
+			auto names = mat->GetUniforms();
+			for (auto& name : names)
+			{
+				auto& uniform = mat->GetUniform(name);
+
+				if (std::holds_alternative<float>(uniform))
+				{
+					UI::FloatInput in(name, std::get<float>(uniform));
+					needsSave |= in.HasChanged();
+				}
+				else if (std::holds_alternative<Vector3>(uniform))
+				{
+					UI::Vector3Input in(name, std::get<Vector3>(uniform));
+					needsSave |= in.HasChanged();
+				}
+				else if (std::holds_alternative<Matrix4>(uniform))
+				{
+					UI::Matrix4Input in(name, std::get<Matrix4>(uniform));
+					needsSave |= in.HasChanged();
+				}
+				else if (std::holds_alternative<Asset<Texture>>(uniform))
+				{
+					// TODO : preview square
+					UI::AssetInput<Texture> in(name, std::get<Asset<Texture>>(uniform));
+					needsSave |= in.HasChanged();
+				}
+			}
+
+			// Save the changes
+			if (needsSave)
+				AssetManager::SaveAsset<Material>(mat.GetAssetGuid());
 		}
 
 	};

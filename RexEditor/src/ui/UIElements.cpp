@@ -29,6 +29,11 @@ namespace RexEditor::UI::Internal
 	// Convert RexEngine::MouseButton to ImGui::MouseButton
 	constexpr int ImGuiButtons[] = { ImGuiMouseButton_Right, ImGuiMouseButton_Left, ImGuiMouseButton_Middle, 3, 4 };
 
+	std::string GetVisibleLabel(const std::string& label)
+	{
+		return label.substr(0, label.find("##"));
+	}
+
 	// Setup for a simple full width input field
 	// usage : 
 	// SetupInput(label);
@@ -40,10 +45,11 @@ namespace RexEditor::UI::Internal
 
 		// Label (to the left of the box)
 		Anchor::SetCursorPos(size);
-		if (label.substr(0, 2) != "##")
+		auto visibleLabel = GetVisibleLabel(label);
+		if (visibleLabel.size() > 0)
 		{
 			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(label.c_str());
+			ImGui::TextUnformatted(visibleLabel.c_str());
 			ImGui::SameLine();
 		}
 		// Text box
@@ -223,7 +229,7 @@ namespace RexEditor::UI
 			m_value.resize(maxSize); // Make sure the string is big enough
 
 		Internal::SetupInput(label);
-		ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity(), readOnly ? ImGuiInputTextFlags_ReadOnly : 0);
+		m_changed = ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity(), readOnly ? ImGuiInputTextFlags_ReadOnly : 0);
 		CacheHovered();
 		// Set the new size for the string, based on the content of the buffer
 		m_value.resize(strlen(m_value.c_str()));
@@ -234,8 +240,29 @@ namespace RexEditor::UI
 		: Input(value)
 	{
 		Internal::SetupInput(label);
-		ImGui::InputFloat3(("##" + label).c_str(), &m_value.x);
+		m_changed = ImGui::InputFloat3(("##" + label).c_str(), &m_value.x);
 		CacheHovered();
+	}
+
+	Vector4Input::Vector4Input(const std::string& label, Vector4& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		m_changed = ImGui::InputFloat4(("##" + label).c_str(), &m_value.x);
+		CacheHovered();
+	}
+
+	Matrix4Input::Matrix4Input(const std::string& label, Matrix4& value)
+		: Input(value)
+	{
+		std::string space(Internal::GetVisibleLabel(label).size(), ' '); // Hack to align the Inputs
+		Vector4Input v0(label, value[0]);
+		Vector4Input v1(space + "##1" + label, value[1]);
+		Vector4Input v2(space + "##2" + label, value[2]);
+		Vector4Input v3(space + "##3" + label, value[3]);
+
+		m_hovered = v0.IsHovered() || v1.IsHovered() || v2.IsHovered() || v3.IsHovered();
+		m_changed = v0.HasChanged() || v1.HasChanged() || v2.HasChanged() || v3.HasChanged();
 	}
 
 	std::filesystem::path Internal::AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
@@ -248,8 +275,8 @@ namespace RexEditor::UI
 		// The name is the filename (stem)
 		std::string name = "";
 		auto path = AssetManager::GetAssetPathFromGuid(currentGuid);
-		if (path.has_stem() && path.stem().has_stem())
-			name = path.stem().stem().string(); // Remove both the .asset and file extension
+		if (path.has_stem())
+			name = path.stem().string(); // Remove the file extension
 
 		Internal::SetupInput(label);
 		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
@@ -275,7 +302,7 @@ namespace RexEditor::UI
 		: Input(value)
 	{
 		Internal::SetupInput(label);
-		ImGui::InputScalar(("##" + label).c_str(), ImGuiDataType_S8, &m_value);
+		m_changed = ImGui::InputScalar(("##" + label).c_str(), ImGuiDataType_S8, &m_value);
 		CacheHovered();
 	}
 
@@ -283,7 +310,7 @@ namespace RexEditor::UI
 		: Input(value)
 	{
 		Internal::SetupInput(label);
-		ImGui::InputFloat(("##" + label).c_str(), &m_value);
+		m_changed = ImGui::InputFloat(("##" + label).c_str(), &m_value);
 		CacheHovered();
 	}
 

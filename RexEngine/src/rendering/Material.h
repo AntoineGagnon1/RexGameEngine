@@ -14,6 +14,13 @@ namespace RexEngine
 	class Material
 	{
 	public:
+		using UniformType = std::variant<float, Vector2, Vector3, Vector4,
+										 int, Vector2Int, Vector3Int, Vector4Int,
+										 double, unsigned int, bool,
+										 Matrix3, Matrix4,
+										 Asset<Texture>, Asset<Cubemap>>;
+
+	public:
 
 		Material(Asset<Shader> shader);
 		
@@ -24,6 +31,21 @@ namespace RexEngine
 			return std::get<T>(m_uniforms[name]);
 		}
 
+		UniformType& GetUniform(const std::string& name)
+		{
+			return m_uniforms[name];
+		}
+
+		// Get the name of all the uniforms
+		std::vector<std::string> GetUniforms() const
+		{
+			auto keys = std::views::keys(m_uniforms);
+			return std::vector<std::string>{ keys.begin(), keys.end() };
+		}
+
+		void SetShader(Asset<Shader> shader);
+
+		Asset<Shader> GetShader() const { return m_shader; }
 
 		// Bind the shader and set the uniforms
 		void Bind();
@@ -40,7 +62,7 @@ namespace RexEngine
 			Guid guid;
 			archive(CUSTOM_NAME(guid, "Shader"));
 
-			std::shared_ptr<Material> ptr = AssetManager::GetAsset<Material>(guid);
+			auto ptr = std::make_shared<Material>(AssetManager::GetAsset<Shader>(guid));
 			if(ptr)
 				archive(CUSTOM_NAME(ptr->m_uniforms, "Uniforms"));
 
@@ -60,10 +82,6 @@ namespace RexEngine
 		Asset<Shader> m_shader;
 
 		// IMPORTANT : the indices of the variant match RenderApi::UniformType
-		std::unordered_map < std::string, std::variant<float, Vector2, Vector3, Vector4,
-			int, Vector2Int, Vector3Int, Vector4Int,
-			double, unsigned int, bool,
-			Matrix3, Matrix4,
-			Asset<Texture>, Asset<Cubemap> >> m_uniforms;
+		std::unordered_map < std::string, UniformType> m_uniforms;
 	};
 }
