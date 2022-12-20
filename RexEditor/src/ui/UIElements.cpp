@@ -306,11 +306,27 @@ namespace RexEditor::UI
 		CacheHovered();
 	}
 
+	IntInput::IntInput(const std::string& label, int& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		m_changed = ImGui::InputInt(("##" + label).c_str(), &m_value);
+		CacheHovered();
+	}
+
 	FloatInput::FloatInput(const std::string& label, float& value)
 		: Input(value)
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputFloat(("##" + label).c_str(), &m_value);
+		CacheHovered();
+	}
+
+	CheckBox::CheckBox(const std::string& label, bool& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		m_changed = ImGui::Checkbox(("##" + label).c_str(), &m_value);
 		CacheHovered();
 	}
 

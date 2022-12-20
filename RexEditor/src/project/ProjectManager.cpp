@@ -116,20 +116,10 @@ namespace RexEditor
 			auto path = SystemDialogs::SaveFile("Select a location for the scene", { "RexEngine Scene (.scene)", "*.scene" });
 			path = path.replace_extension(".scene");
 
-			std::ofstream file(path);
-
-			if (!path.empty() && file.is_open())
+			if (!path.empty())
 			{
 				auto scene = Scene::CreateScene();
-				AssetManager::AddAsset<Scene>(scene->GetGuid(), path);
-				
-				{
-					std::stringstream stream; // Should not save any meta data anyway
-					JsonSerializer temp(stream);
-					scene->SaveToAssetFile<JsonSerializer>(temp, file);
-				} // Close the archive
-
-				file.close();
+				AssetManager::AddAsset<Scene>(scene->GetGuid(), path, Asset(scene->GetGuid(), scene));
 
 				// Load the new scene
 				OpenScene(path);

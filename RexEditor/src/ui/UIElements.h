@@ -259,10 +259,24 @@ namespace RexEditor::UI
         ByteInput(const std::string& label, char& value);
     };
 
+    // a bool input
+    class IntInput : public Input<int>
+    {
+    public:
+        IntInput(const std::string& label, int& value);
+    };
+
     class FloatInput : public Input<float>
     {
     public:
         FloatInput(const std::string& label, float& value);
+    };
+
+    // a bool input
+    class CheckBox : public Input<bool>
+    {
+    public:
+        CheckBox(const std::string& label, bool& value);
     };
 
     //

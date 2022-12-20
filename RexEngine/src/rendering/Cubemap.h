@@ -4,24 +4,29 @@
 #include <string>
 
 #include "RenderApi.h"
+#include "Texture.h"
+#include "../assets/AssetManager.h"
 
 namespace RexEngine
 {
+	// A cubemap asset
+	// cubemap can be created using a texture and a projection mode
 	class Cubemap
 	{
 	public:
 
+		enum class ProjectionMode { HDRI }; // TODO : add Faces
+
+		// An empty cubemap
 		Cubemap();
+		Cubemap(Asset<Texture> source, int size, ProjectionMode mode);
 		~Cubemap();
 		
 		Cubemap(const Cubemap&) = delete;
 
-		static std::shared_ptr<Cubemap> FromFiles(const std::string& right, const std::string& left,
-			const std::string& top, const std::string& bottom,
-			const std::string& front, const std::string& back, RenderApi::PixelFormat format);
-
-		//static std::shared_ptr<Cubemap> FromTextures()
-
+		Asset<Texture> GetSource() const { return m_source; }
+		int GetSize() const { return m_size; }
+		auto GetMode() const { return m_mode; }
 		RenderApi::TextureID GetId() const { return m_id; }
 
 		void Bind() const { RenderApi::BindTexture(m_id, RenderApi::TextureTarget::Cubemap); }
@@ -32,18 +37,32 @@ namespace RexEngine
 		void GenerateMipmaps();
 
 		template<typename Archive>
-		static std::shared_ptr<Cubemap> LoadFromAssetFile(Guid assetGuid, const Archive& metaDataArchive, std::istream& assetFile)
+		static std::shared_ptr<Cubemap> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
 		{
-			return nullptr;
+			JsonDeserializer archive(assetFile);
+			Asset<Texture> source;
+			int mode, size;
+			archive(CUSTOM_NAME(source, "Source"),
+				CUSTOM_NAME(mode, "Mode"),
+				CUSTOM_NAME(size, "Size"));
+
+			return std::make_shared<Cubemap>(source, size, (ProjectionMode)mode);
 		}
 
 		template<typename Archive>
-		void SaveToAssetFile(Archive& metaDataArchive) const
+		void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
 		{
+			JsonSerializer archive(assetFile);
+			archive(CUSTOM_NAME(m_source, "Source"),
+				CUSTOM_NAME((int)m_mode, "Mode"),
+				CUSTOM_NAME(m_size, "Size"));
 		}
 
 	private:
 		RenderApi::TextureID m_id;
 
+		Asset<Texture> m_source;
+		ProjectionMode m_mode;
+		int m_size;
 	};
 }

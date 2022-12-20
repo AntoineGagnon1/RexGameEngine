@@ -55,9 +55,9 @@ namespace RexEngine
 			return (VecType&)GlmType::operator[](i);
 		}
 
-		VecType operator[](size_t i) const
+		const VecType& operator[](size_t i) const
 		{
-			return (VecType)GlmType::operator[](i);
+			return (const VecType&)GlmType::operator[](i);
 		}
 
 		inline static MatType MakeTransform(const Vector3& translate, const Quaternion& rotation, const Vector3& scale) requires IsEqual<Size, 4>

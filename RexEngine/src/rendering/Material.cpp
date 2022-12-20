@@ -46,14 +46,14 @@ namespace RexEngine
 			case (size_t)UT::Sampler2D:  
 				if (auto asset = std::get<Asset<Texture>>(value); asset)
 				{
-					int slot = TextureManager::GetTextureSlot(asset, RenderApi::TextureTarget::Texture2D);
+					int slot = TextureManager::GetTextureSlot(asset->GetId(), RenderApi::TextureTarget::Texture2D);
 					m_shader->SetUniformInt(name, slot);
 				}
 				break;
 			case (size_t)UT::SamplerCube:
 				if (auto asset = std::get<Asset<Cubemap>>(value); asset)
 				{
-					int slot = TextureManager::GetTextureSlot(asset, RenderApi::TextureTarget::Cubemap);
+					int slot = TextureManager::GetTextureSlot(asset->GetId(), RenderApi::TextureTarget::Cubemap);
 					m_shader->SetUniformInt(name, slot);
 				}
 				break;

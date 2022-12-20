@@ -18,6 +18,7 @@ int main()
 	});
 
 	EditorEvents::OnEditorStart().Dispatch();
+
 	EngineEvents::OnEngineStart().Dispatch();
 
 	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
@@ -26,6 +27,7 @@ int main()
 
 	// Temp to save some time while testing
 	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
+
 
 	Timer editorFrameTime;
 	editorFrameTime.Start();

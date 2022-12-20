@@ -19,6 +19,10 @@ namespace RexEditor
 				InspectShader(assetPath);
 			else if (type.type == typeid(Material))
 				InspectMaterial(assetPath);
+			else if (type.type == typeid(Texture))
+				InspectTexture(assetPath);
+			else if (type.type == typeid(Cubemap))
+				InspectCubemap(assetPath);
 			else
 				UI::Text("Invalid Asset !");
 		}
@@ -41,10 +45,25 @@ namespace RexEditor
 			return AssetManager::GetAsset<T>(guid);
 		}
 
+		inline static void AssetHeader(const std::filesystem::path& assetPath)
+		{
+			{
+				UI::Anchor a(UI::AnchorPos::Center);
+				UI::PushFontScale(UI::FontScale::Large);
+				UI::Text title(assetPath.filename().string());
+				UI::Separator();
+				UI::PopFontScale();
+			}
+
+			UI::EmptyLine(); // Not in the centered anchor
+		}
+
 		inline static void InspectShader(const std::filesystem::path& assetPath)
 		{
 			using namespace RexEngine;
 			auto shader = GetAsset<Shader>(assetPath);
+
+			AssetHeader(assetPath);
 
 			// Valid or not
 			{
@@ -75,6 +94,8 @@ namespace RexEditor
 			using namespace RexEngine;
 			auto mat = GetAsset<Material>(assetPath);
 
+			AssetHeader(assetPath);
+
 			bool needsSave = false;
 
 			// Shader
@@ -82,13 +103,16 @@ namespace RexEditor
 			UI::AssetInput<Shader> shaderIn("Shader", shader);
 
 			{
-				UI::Anchor a(UI::AnchorPos::Center);
+				UI::Anchor a(UI::AnchorPos::Right);
 				if (UI::Button b("Reload Shader"); b.IsClicked() || shaderIn.HasChanged()) // Has change or reload
 				{
 					mat->SetShader(shader);
 					needsSave = true;
 				}
 			}
+
+			UI::Separator();
+			UI::EmptyLine();
 
 			// Uniforms
 			auto names = mat->GetUniforms();
@@ -117,6 +141,12 @@ namespace RexEditor
 					UI::AssetInput<Texture> in(name, std::get<Asset<Texture>>(uniform));
 					needsSave |= in.HasChanged();
 				}
+				else if (std::holds_alternative<Asset<Cubemap>>(uniform))
+				{
+					// TODO : preview
+					UI::AssetInput<Cubemap> in(name, std::get<Asset<Cubemap>>(uniform));
+					needsSave |= in.HasChanged();
+				}
 			}
 
 			// Save the changes
@@ -124,5 +154,104 @@ namespace RexEditor
 				AssetManager::SaveAsset<Material>(mat.GetAssetGuid());
 		}
 
+
+		inline static void InspectTexture(const std::filesystem::path& assetPath)
+		{
+			using namespace RexEngine;
+			auto texture = GetAsset<Texture>(assetPath);
+
+			static RenderApi::TextureTarget tempTarget = RenderApi::TextureTarget::Texture2D;
+			static RenderApi::PixelFormat tempFormat = RenderApi::PixelFormat::RGB;
+			static bool tempHdr = false;
+			static bool tempFlipY = false;
+			static Guid lastGuid = Guid::Empty;
+
+			if(texture.GetAssetGuid() != lastGuid)
+			{ // Just started inspecting this texture
+				tempTarget = texture->GetTarget();
+				tempFormat = texture->GetFormat();
+				tempHdr = texture->GetHdr();
+				tempFlipY = texture->GetFlipY();
+				lastGuid = texture.GetAssetGuid();
+			}
+
+			AssetHeader(assetPath);
+
+			UI::Text size(std::format("Size : ({},{})", texture->Width(), texture->Height()));
+		
+			UI::ComboBoxEnum<RenderApi::TextureTarget> target("Texture type", { "Texture2D" }, tempTarget);
+
+			// Only some options are allowed based on the value of hdr
+			if (tempHdr)
+			{
+				int selected = 0;
+				tempFormat = RenderApi::PixelFormat::RGB16F;
+				UI::ComboBox format("Pixel format", { "RGB16F" }, selected);
+			}
+			else
+			{
+				static constexpr RenderApi::PixelFormat SelectionToEnum[4] = {
+					RenderApi::PixelFormat::Depth,
+					RenderApi::PixelFormat::RG,
+					RenderApi::PixelFormat::RGB,
+					RenderApi::PixelFormat::RGBA
+				};
+
+				static constexpr int EnumToSelection[5] = {
+					2, 3, 0,
+					2, // Convert RGB16F to RGB
+					1
+				};
+
+				int selected = EnumToSelection[(int)tempFormat];
+				UI::ComboBox format("Pixel format", { "Depth", "RG", "RGB", "RGBA" }, selected);
+				tempFormat = (RenderApi::PixelFormat)SelectionToEnum[selected];
+			}
+			
+			UI::CheckBox flipY("Flip Y", tempFlipY);
+			UI::CheckBox   hdr("Hdr   ", tempHdr); 
+
+			if (UI::Button apply("Apply Changes"); apply.IsClicked())
+			{
+				texture->ChangeSettings(tempTarget, tempFormat, tempFlipY, tempHdr);
+				AssetManager::SaveAsset<Texture>(texture.GetAssetGuid());
+				AssetManager::ReloadAsset<Texture>(texture.GetAssetGuid());
+			}
+		}
+
+		inline static void InspectCubemap(const std::filesystem::path& assetPath)
+		{
+			using namespace RexEngine;
+			auto cubemap = GetAsset<Cubemap>(assetPath);
+
+			AssetHeader(assetPath);
+
+			static Asset<Texture> tempSource;
+			static int tempSize = 128;
+			static Cubemap::ProjectionMode tempMode = Cubemap::ProjectionMode::HDRI;
+			static Guid lastGuid = Guid::Empty;
+
+			if (cubemap.GetAssetGuid() != lastGuid)
+			{ // Just started inspecting this cubemap
+				tempSource = cubemap->GetSource();
+				tempSize = cubemap->GetSize();
+				tempMode = cubemap->GetMode();
+				lastGuid = cubemap.GetAssetGuid();
+			}
+
+			AssetHeader(assetPath);
+
+			UI::AssetInput<Texture> source("Source Texture", tempSource);
+			UI::IntInput("Size", tempSize);
+			UI::ComboBoxEnum<Cubemap::ProjectionMode> target("Projection Type", { "HDRI" }, tempMode);
+
+			if (UI::Button apply("Apply Changes"); apply.IsClicked())
+			{
+				auto newCubemap = std::make_shared<Cubemap>(tempSource, tempSize, tempMode);
+				// Overwrite the asset
+				AssetManager::AddAsset<Cubemap>(cubemap.GetAssetGuid(), assetPath, Asset<Cubemap>(cubemap.GetAssetGuid(), newCubemap));
+				AssetManager::ReloadAsset<Cubemap>(cubemap.GetAssetGuid());
+			}
+		}
 	};
 }

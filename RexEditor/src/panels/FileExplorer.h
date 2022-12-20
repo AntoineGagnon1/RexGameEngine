@@ -130,22 +130,29 @@ namespace RexEditor
 				m.AddMenuItem("Create/Material", [] { 
 					auto path = SystemDialogs::SaveFile("New Material", SystemDialogs::GetAssetTypeFilter<Material>());
 					path.replace_extension(RexEngine::AssetTypes::GetAssetType<Material>().extensions[0]);
-					std::ofstream file(path);
 					
-					if (file.is_open())
+					if (!path.empty())
 					{
 						// TODO : change the shader to the PBR shader
-						auto mat = Material(Asset<Shader>());
-						std::ostringstream temp;
-						JsonSerializer tempArchive(temp);
-
-						// Save an empty material
-						mat.SaveToAssetFile<JsonSerializer>(tempArchive, file);
+						auto mat = std::make_shared<Material>(Asset<Shader>());
 
 						// Add it to the asset manager
 						Guid guid = Guid::Generate();
-						RexEngine::AssetManager::AddAsset<Material>(guid, path);
-						RexEngine::AssetManager::SaveAsset<Material>(guid);
+						RexEngine::AssetManager::AddAsset<Material>(guid, path, Asset(guid, mat));
+					}
+				});
+
+				m.AddMenuItem("Create/Cubemap", [] {
+					auto path = SystemDialogs::SaveFile("New Cubemap", SystemDialogs::GetAssetTypeFilter<Cubemap>());
+					path.replace_extension(RexEngine::AssetTypes::GetAssetType<Cubemap>().extensions[0]);
+
+					if (!path.empty())
+					{
+						auto cubemap = std::make_shared<Cubemap>(Asset<Texture>(), 128, Cubemap::ProjectionMode::HDRI);
+
+						// Add it to the asset manager
+						Guid guid = Guid::Generate();
+						RexEngine::AssetManager::AddAsset<Cubemap>(guid, path, Asset(guid, cubemap));
 					}
 				});
 

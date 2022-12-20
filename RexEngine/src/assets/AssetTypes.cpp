@@ -16,8 +16,8 @@ namespace RexEngine
 			{ "Mesh", {".obj"}, typeid(Mesh), false},
 			{ "Scene", {".scene"}, typeid(Mesh), false},
 			{ "Material", {".mat"}, typeid(Material), false},
-			{ "Texture", {".png"}, typeid(Texture), true},
-			{ "Cubemap", {".hdr"}, typeid(Cubemap), true}
+			{ "Texture", {".png", ".hdr"}, typeid(Texture), true},
+			{ "Cubemap", {".cubemap"}, typeid(Cubemap), true}
 		};
 
 		return types;

@@ -3,6 +3,8 @@
 
 #include <stb/stb_image.h>
 
+#include "PBR.h"
+
 namespace RexEngine
 {
 	namespace Internal
@@ -67,6 +69,16 @@ namespace RexEngine
 		RenderApi::DeleteTexture(m_id);
 	}
 
+	std::shared_ptr<Texture> Texture::FromFile(const std::filesystem::path& path)
+	{
+		std::ifstream file(path, std::ios::binary);
+
+		if (file.is_open())
+			return FromStream2D(file, RenderApi::PixelFormat::RGBA, false);
+		else
+			RE_LOG_ERROR("Error reading texture at : !", path.string());
+		return std::shared_ptr<Texture>(nullptr);
+	}
 
 	std::shared_ptr<Texture> Texture::FromStream2D(std::istream& stream, RenderApi::PixelFormat gpuFormat, bool flipY)
 	{
@@ -124,5 +136,19 @@ namespace RexEngine
 	void Texture::UnBind() const
 	{
 		RenderApi::BindTexture(RenderApi::InvalidTextureID, m_target);
+	}
+
+	void Texture::GenerateMipmaps() const
+	{
+		Bind();
+		RenderApi::GenerateMipmaps(m_target);
+	}
+
+	void Texture::ChangeSettings(RenderApi::TextureTarget newTarget, RenderApi::PixelFormat newGpuFormat, bool newFlipYOnLoad, bool newHdr)
+	{
+		m_target = newTarget;
+		m_gpuFormat = newGpuFormat;
+		m_flipYOnLoad = newFlipYOnLoad;
+		m_hdr = newHdr;
 	}
 }

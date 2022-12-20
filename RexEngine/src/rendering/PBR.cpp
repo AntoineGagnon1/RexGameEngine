@@ -338,70 +338,7 @@ void main()
 		};
 	}
 
-    std::shared_ptr<Cubemap> RexEngine::PBR::FromHDRI(const std::string& path, Vector2Int size)
-    {
-		std::ifstream file(path);
-		auto hdrMap = Texture::FromHDRStream2D(file, RenderApi::PixelFormat::RGB16F, true);
-		auto cubemap = std::make_shared<Cubemap>();
-		auto cubemapId = cubemap->GetId();
-
-		if (hdrMap)
-		{
-			// Init the cubemap with empty textures
-			for (int i = 0; i < 6; i++)
-			{
-				RenderApi::SetCubemapFace(cubemapId, (RenderApi::CubemapFace)i, RenderApi::PixelFormat::RGB16F, size,
-					NULL, RenderApi::PixelFormat::RGB, RenderApi::PixelType::Float);
-			}
-
-			Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
-
-			// Make the framebuffer
-			RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
-			FrameBuffer frameBuffer;
-			RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
-			frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
-
-			// Load the shader
-			static NoDestroy<Shader> projectionShader(Internal::vertexShaderString + Internal::projectionShaderString);
-
-			// Set the texture for the shader
-			projectionShader->SetUniformInt("equirectangularMap", 0);
-			RenderApi::SetActiveTexture(0);
-			hdrMap->Bind();
-
-			// Set the viewport to the size of the cubemap
-			Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
-			RenderApi::SetViewportSize(size);
-
-			frameBuffer.Bind();
-
-			auto cubeMesh = Shapes::GetCubeMesh();
-			cubeMesh->Bind(); // Bind the cube
-
-			for (unsigned int i = 0; i < 6; ++i)
-			{
-				projectionShader->SetUniformMatrix4("transformMatrix", projectionMatrix * Internal::ViewMatrices[i]);
-
-				frameBuffer.BindCubemapFace(*cubemap, (RenderApi::CubemapFace)i, RenderApi::FrameBufferTextureType::Color);
-
-				RenderApi::ClearColorBit();
-				RenderApi::ClearDepthBit();
-
-				RenderApi::DrawElements(cubeMesh->GetIndexCount()); // Render to the cubemap
-			}
-
-			RenderApi::BindFrameBuffer(oldFrameBuffer);
-			RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
-		}
-
-		cubemap->GenerateMipmaps();
-
-		return cubemap;
-    }
-
-
-	std::shared_ptr<Cubemap> PBR::CreateIrradianceMap(const Cubemap& from, Vector2Int size, float sampleDelta)
+	std::shared_ptr<Cubemap> PBR::CreateIrradianceMap(const Cubemap& cubemapFrom, int size, float sampleDelta)
 	{
 		auto cubemap = std::make_shared<Cubemap>();
 		auto cubemapId = cubemap->GetId();
@@ -413,7 +350,7 @@ void main()
 				NULL, RenderApi::PixelFormat::RGB, RenderApi::PixelType::Float);
 		}
 
-		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
+		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, 1.0f, 0.1f, 10.0f);
 
 		// Create the frame buffer
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
@@ -427,7 +364,7 @@ void main()
 		irradianceShader->SetUniformFloat("sampleDelta", sampleDelta);
 		irradianceShader->SetUniformInt("environmentMap", 0);
 		RenderApi::SetActiveTexture(0);
-		from.Bind();
+		cubemapFrom.Bind();
 
 		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
 		RenderApi::SetViewportSize(size);
@@ -454,7 +391,7 @@ void main()
 		return cubemap;
 	}
 
-	std::shared_ptr<Cubemap> PBR::CreatePreFilterMap(const Cubemap& from, Vector2Int size)
+	std::shared_ptr<Cubemap> PBR::CreatePreFilterMap(const Cubemap& cubemapFrom, int size)
 	{
 		auto cubemap = std::make_shared<Cubemap>();
 		auto cubemapId = cubemap->GetId();
@@ -469,7 +406,7 @@ void main()
 		cubemap->SetOption(RenderApi::TextureOption::MinFilter, RenderApi::TextureOptionValue::LinearMipmap);
 		cubemap->GenerateMipmaps();
 
-		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, (float)size.x / (float)size.y, 0.1f, 10.0f);
+		Matrix4 projectionMatrix = Matrix4::MakePerspective(90.0f, 1.0f, 0.1f, 10.0f);
 
 		// Create the frame buffer
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
@@ -482,7 +419,7 @@ void main()
 
 		prefilterShader->SetUniformInt("environmentMap", 0);
 		RenderApi::SetActiveTexture(0);
-		from.Bind();
+		cubemapFrom.Bind();
 
 		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
 
@@ -495,12 +432,11 @@ void main()
 		for (unsigned int mip = 0; mip < maxMipLevels; mip++)
 		{
 			// Resize framebuffer according to mip level
-			unsigned int mipWidth = (unsigned int)(size.x * std::pow(0.5, mip));
-			unsigned int mipHeight = (unsigned int)(size.y * std::pow(0.5, mip));
+			unsigned int mipSize = (unsigned int)(size * std::pow(0.5, mip));
 
 			//renderBuffer.Bind();
 			//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
-			RenderApi::SetViewportSize(Vector2Int(mipWidth, mipHeight));
+			RenderApi::SetViewportSize(Vector2Int(mipSize, mipSize));
 
 			float roughness = (float)mip / (float)(maxMipLevels - 1);
 			prefilterShader->SetUniformFloat("roughness", roughness);

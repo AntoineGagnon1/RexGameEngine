@@ -28,6 +28,11 @@ namespace RexEngine
 	// template<typename Archive>
 	// void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
 	// 
+	// If the type requires MetaData :
+	// this is used to create a valid MetaData file for types like textures 
+	// template<typename Archive>
+	// static void CreateMetaData(Archive& metaDataArchive)
+	// 
 	// the path to the original asset is 
 	// the metadata path - the .asset
 	template<typename T>
@@ -39,6 +44,10 @@ namespace RexEngine
 	public:
 		Asset()
 			: m_guid(Guid::Empty), m_asset(nullptr)
+		{}
+
+		Asset(const Guid& guid, std::shared_ptr<T> asset) 
+			: m_guid(guid), m_asset(asset)
 		{}
 
 
@@ -100,6 +109,15 @@ namespace RexEngine
 		asset->SaveToAssetFile(a, file);
 	};
 
+	// Check for this :
+	// template<typename Archive>
+	// static void CreateMetaData(Archive& metaDataArchive)
+	template<typename T, typename Archive>
+	concept HasCreateMeta = requires(Archive a)
+	{
+		T::CreateMetaData(a);
+	};
+
 
 
 	class AssetManager
@@ -138,6 +156,13 @@ namespace RexEngine
 			return a;
 		}
 
+		template<typename T>
+		inline static Asset<T> ReloadAsset(const Guid& guid)
+		{
+			s_assets.erase(guid); // Unload
+			return GetAsset<T>(guid);
+		}
+
 		// Will return an empty guid if no asset with the specified path was found
 		// path can inlude the .asset or not
 		static Guid GetAssetGuidFromPath(std::filesystem::path path);
@@ -164,60 +189,58 @@ namespace RexEngine
 			if (path == s_registry.end())
 				return false; // No path found
 
-			// Load the asset from the file
-			std::ofstream metaDataFile(path->second, std::ios::trunc);
-
-			if (!metaDataFile.is_open())
-				return false; // Failed to open the file
-
+			// Get the asset
 			auto asset = std::any_cast<Asset<T>>(assetAny->second);
 
-			// template<typename Archive>
-			// void SaveToAssetFile(Archive& metaDataArchive)
-			if constexpr (HasSaveMetaOnly<T, JsonSerializer>)
-			{
-				JsonSerializer metaDataArchive(metaDataFile);
-				asset.m_asset->SaveToAssetFile(metaDataArchive);
-			}
-			else if constexpr (HasSaveMetaAndAsset<T, JsonSerializer>)
-			{
-				// Open the asset file
-				bool bin = AssetTypes::GetAssetType<T>().binary;
-				std::filesystem::path assetPath = path->second;
-				assetPath.replace_extension(""); // Important : do the replace on a copy, other it will change in the registy
-				std::ofstream assetFile(assetPath, bin ? std::ios::trunc | std::ios::binary : std::ios::trunc); // remove the .asset
-					
-				if (assetFile.is_open())
-				{
-					JsonSerializer metaDataArchive(metaDataFile);
-					asset.m_asset->SaveToAssetFile(metaDataArchive, assetFile);
-				}
-				else
-				{
-					metaDataFile << "{}"; // the metaDataFile has to be empty, add an empty json node
-					return false;
-				}
-			}
-
-			if (metaDataFile.cur == 1)
-			{ // If the file is still empty, add a json node
-				metaDataFile << "{}";
-			}
-
-			return true;
+			return TrySaveAsset<T>(path->second, asset);
 		}
 
 		// Add the asset to the registry, returns false if the file could not be opened/created
 		// assetPath can have the .asset extension or not
-		// This will remove any existing assets with this guid
+		// This will remove any existing assets with this guid or this path
+		// if newAsset is empty the asset and .asset files wont be changed (leave empty for existing assets)
 		template<typename T>
-		inline static bool AddAsset(const Guid& guid, std::filesystem::path assetPath)
+		inline static bool AddAsset(const Guid& guid, std::filesystem::path assetPath, Asset<T> newAsset = Asset<T>())
 		{
 			AddMetaExtension(assetPath);
-			std::ofstream assetFile(assetPath, std::ios::trunc);
-			assetFile << "{}"; // Empty json object (JsonSerializer)
+			
+			for (auto& [guid, path] : s_registry)
+			{
+				std::error_code code;
+				if (std::filesystem::equivalent(path, assetPath, code))
+				{ // Delete this entry
+					s_registry.erase(guid);
+					break;
+				}
+			}
 
+			// Update the registry
 			s_registry[guid] = assetPath;
+
+			// Save the asset if needed
+			if (newAsset)
+			{
+				if (!TrySaveAsset<T>(assetPath, newAsset))
+					return false;
+			}
+
+			if (!std::filesystem::exists(assetPath)) // no .asset file either the creation failed or newAsset is empty
+			{
+				std::ofstream file(assetPath);
+				if (!file.is_open())
+					return false;
+				
+				// Try to use the metaData creation function
+				if constexpr (HasCreateMeta<T, JsonSerializer>)
+				{
+					JsonSerializer archive(file);
+					T::CreateMetaData(archive);
+				}
+				else
+				{
+					file << "{}"; // Empty node
+				}
+			}
 
 			// Write the registry
 			std::ofstream file(s_registryPath, std::ios::trunc);
@@ -242,6 +265,48 @@ namespace RexEngine
 		{
 			if (!path.has_extension() || path.extension() != Asset<int>::FileExtension)
 				path += Asset<int>::FileExtension;
+		}
+
+		template<typename T>
+		inline static bool TrySaveAsset(const std::filesystem::path& metadataPath, Asset<T> asset)
+		{
+			std::ofstream metaDataFile(metadataPath, std::ios::trunc);
+			if (!metaDataFile.is_open())
+				return false;
+
+			// template<typename Archive>
+			// void SaveToAssetFile(Archive& metaDataArchive)
+			if constexpr (HasSaveMetaOnly<T, JsonSerializer>)
+			{
+				JsonSerializer metaDataArchive(metaDataFile);
+				asset.m_asset->SaveToAssetFile(metaDataArchive);
+			}
+			else if constexpr (HasSaveMetaAndAsset<T, JsonSerializer>)
+			{
+				// Open the asset file
+				bool bin = AssetTypes::GetAssetType<T>().binary;
+				std::filesystem::path assetPath = metadataPath;
+				assetPath.replace_extension(""); // Important : do the replace on a copy, other it will change in the registy
+				std::ofstream assetFile(assetPath, bin ? std::ios::trunc | std::ios::binary : std::ios::trunc); // remove the .asset
+
+				if (assetFile.is_open())
+				{
+					JsonSerializer metaDataArchive(metaDataFile);
+					asset.m_asset->SaveToAssetFile(metaDataArchive, assetFile);
+				}
+				else
+				{
+					metaDataFile << "{}"; // the metaDataFile has to be empty, add an empty json node
+					return false;
+				}
+			}
+
+			if (metaDataFile.tellp() == 0)
+			{ // If the file is still empty, add a json node
+				metaDataFile << "{}";
+			}
+
+			return true;
 		}
 
 		// Clear and delete all the assets
