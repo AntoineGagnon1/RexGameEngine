@@ -99,7 +99,7 @@ namespace RexEngine
 			frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 
 			// Load the shader
-			static NoDestroy<Shader> projectionShader(Internal::vertexShaderString + Internal::projectionShaderString);
+			static NoDestroy<Shader> projectionShader(Internal::vertexShaderString + Internal::projectionShaderString, RenderApi::CullingMode::Back);
 
 			// Set the texture for the shader
 			projectionShader->Bind();
@@ -113,7 +113,6 @@ namespace RexEngine
 
 			frameBuffer.Bind();
 			RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
-			RenderApi::SetCullingMode(RenderApi::CullingMode::Back);
 			auto cubeMesh = Shapes::GetCubeMesh();
 			cubeMesh->Bind(); // Bind the cube
 

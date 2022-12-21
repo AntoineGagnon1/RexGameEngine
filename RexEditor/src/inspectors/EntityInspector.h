@@ -129,8 +129,6 @@ namespace RexEditor
 			auto& meshRenderer = entity.GetComponent<MeshRendererComponent>();
 			UI::AssetInput<Material> shader("Material", meshRenderer.material);
 			UI::AssetInput<Mesh>       mesh("Mesh    ", meshRenderer.mesh);
-			UI::ComboBoxEnum<RenderApi::CullingMode> cullingMode("Render faces", { "Front", "Back", "Both" }, meshRenderer.cullingMode);
-			UI::ByteInput priority("Priority", meshRenderer.priority);
 		}
 
 		template<>

@@ -14,11 +14,9 @@ namespace RexEngine
 
 		std::shared_ptr<Material> material;
 		std::shared_ptr<Mesh> mesh;
-		unsigned char priority;
-		RenderApi::CullingMode cullingMode; // Not sorted
 
-		RenderCommand(std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh, Matrix4 modelMatrix, RenderApi::CullingMode cullingMode, unsigned char priority = 0)
-			: material(material), mesh(mesh), priority(priority), modelMatrix(modelMatrix), cullingMode(cullingMode)
+		RenderCommand(std::shared_ptr<Material> material, std::shared_ptr<Mesh> mesh, Matrix4 modelMatrix)
+			: material(material), mesh(mesh), modelMatrix(modelMatrix)
 		{ }
 
 		friend bool operator<(const RenderCommand& left, const RenderCommand& right);

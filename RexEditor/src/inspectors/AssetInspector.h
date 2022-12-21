@@ -73,8 +73,20 @@ namespace RexEditor
 				UI::PopFontColor();
 			}
 
+			UI::Separator();
 			UI::EmptyLine();
 
+			// Culling mode and priority
+			UI::ComboBoxEnum<RenderApi::CullingMode> cullingMode("Render faces", { "Front", "Back", "Both" }, shader->CullingMode());
+			UI::ByteInput priority("Priority", shader->Priority());
+
+			// Changed
+			if (cullingMode.HasChanged() || priority.HasChanged())
+				AssetManager::SaveAsset<Shader>(shader.GetAssetGuid());
+
+			UI::Separator();
+			
+			// Source
 			if (UI::TreeNode n("Source", UI::TreeNodeFlags::DefaultOpen | UI::TreeNodeFlags::Framed); n.IsOpen())
 			{
 				std::ifstream file(assetPath);
@@ -238,8 +250,6 @@ namespace RexEditor
 				tempMode = cubemap->GetMode();
 				lastGuid = cubemap.GetAssetGuid();
 			}
-
-			AssetHeader(assetPath);
 
 			UI::AssetInput<Texture> source("Source Texture", tempSource);
 			UI::IntInput("Size", tempSize);

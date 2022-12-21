@@ -33,13 +33,13 @@ namespace RexEngine
 
 		bool returnValue;
 
+		if (CompareSmaller<char>(left.material->GetShader()->Priority(), right.material->GetShader()->Priority(), returnValue))
+			return returnValue;
+
 		if (CompareSmaller<std::shared_ptr<Material>>(left.material, right.material, returnValue))
 			return returnValue;
 
 		if (CompareSmaller<std::shared_ptr<Mesh>>(left.mesh, right.mesh, returnValue))
-			return returnValue;
-
-		if (CompareSmaller<decltype(left.priority)>(left.priority, right.priority, returnValue))
 			return returnValue;
 
 		return false; // Equal
@@ -58,7 +58,7 @@ namespace RexEngine
 		std::sort(m_renderCommands.begin(), m_renderCommands.end());
 
 		// Used to detect state changes
-		RenderCommand tempCommand{std::shared_ptr<Material>(), std::shared_ptr<Mesh>(), Matrix4::Identity, RenderApi::CullingMode::Front, 0};
+		RenderCommand tempCommand{std::shared_ptr<Material>(), std::shared_ptr<Mesh>(), Matrix4::Identity};
 		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
 		
 		// Execute the commands
@@ -74,12 +74,6 @@ namespace RexEngine
 			{ // The vertex data changed
 				tempCommand.mesh = command.mesh;
 				command.mesh->Bind();
-			}
-
-			if (command.cullingMode != tempCommand.cullingMode)
-			{
-				tempCommand.cullingMode = command.cullingMode;
-				RenderApi::SetCullingMode(command.cullingMode);
 			}
 
 			// Update the model data

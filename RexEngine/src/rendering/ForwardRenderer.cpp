@@ -40,7 +40,7 @@ namespace RexEngine
 			const Matrix4 modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
 			
 			if(c.material && c.mesh) // Has a material and a mesh
-				RenderQueue::AddCommand(RenderCommand(c.material, c.mesh, modelMatrix, c.cullingMode, c.priority));
+				RenderQueue::AddCommand(RenderCommand(c.material, c.mesh, modelMatrix));
 		}
 
 		// Execute the render queue to actually render the objects on the screen
@@ -64,7 +64,7 @@ namespace RexEngine
 			RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
 			
 			if(c.material)
-				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity, RenderApi::CullingMode::Both, 0));
+				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity));
 		}
 		// Render the skybox
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);

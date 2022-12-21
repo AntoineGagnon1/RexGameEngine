@@ -411,7 +411,7 @@ namespace RexEditor::UI
 
 		// Label to the left
 		Internal::SetupInput(label);
-		ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), options.size());
+		m_changed = ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), options.size());
 		CacheHovered();
 	}
 

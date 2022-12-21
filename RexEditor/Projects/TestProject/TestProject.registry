@@ -9,12 +9,12 @@
             "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\env.hdr.asset"
         },
         {
-            "key": "78538668046067847 1671497500598884",
-            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\Skybox.shader.asset"
-        },
-        {
             "key": "6674589965418048144 1671563406591414",
             "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\SkyboxMat.mat.asset"
+        },
+        {
+            "key": "13630532176213406146 1671589250557772",
+            "value": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Skybox\\Skybox.shader.asset"
         },
         {
             "key": "859065431674346265 1671571959580731",

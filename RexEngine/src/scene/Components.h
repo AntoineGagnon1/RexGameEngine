@@ -31,13 +31,11 @@ namespace RexEngine
 	{
 		Asset<Material> material;
 		Asset<Mesh> mesh;
-		RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front; // When false both sides are rendered
-		char priority = 0;
 
 		template<typename Archive>
 		void serialize(Archive& archive) 
 		{
-			archive(KEEP_NAME(material), KEEP_NAME(mesh), KEEP_NAME(cullingMode), KEEP_NAME(priority));
+			archive(KEEP_NAME(material), KEEP_NAME(mesh));
 		}
 	};
 

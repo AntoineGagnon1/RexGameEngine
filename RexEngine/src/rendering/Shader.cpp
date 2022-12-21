@@ -12,8 +12,8 @@ namespace {
 
 namespace RexEngine
 {
-	Shader::Shader(std::istream& data)
-		: m_id(RenderApi::InvalidShaderID)
+	Shader::Shader(std::istream& data, RenderApi::CullingMode cullingMode, char priority)
+		: m_id(RenderApi::InvalidShaderID), m_cullingMode(cullingMode), m_priority(priority)
 	{
 		// Parse the data to extract the shaders
 		auto [vertexSource, fragmentSource] = ParseShaders(data);
@@ -33,8 +33,8 @@ namespace RexEngine
 		}
 	}
 
-	Shader::Shader(const std::string& data)
-		: Shader((std::istream&)std::istringstream(data))
+	Shader::Shader(const std::string& data, RenderApi::CullingMode cullingMode, char priority)
+		: Shader((std::istream&)std::istringstream(data), cullingMode, priority)
 	{
 
 	}
@@ -44,7 +44,7 @@ namespace RexEngine
 		RenderApi::DeleteLinkedShader(m_id);
 	}
 
-	std::shared_ptr<Shader> Shader::FromFile(const std::string& path)
+	std::shared_ptr<Shader> Shader::FromFile(const std::string& path, RenderApi::CullingMode cullingMode, char priority)
 	{
 		std::ifstream f(path);
 		std::string str;
@@ -52,7 +52,7 @@ namespace RexEngine
 		{
 			std::stringstream ss;
 			ss << f.rdbuf();
-			return std::make_shared<Shader>(ss);
+			return std::make_shared<Shader>(ss, cullingMode, priority);
 		}
 
 		RE_LOG_ERROR("Could not open the shader at : {}", path);
@@ -61,11 +61,13 @@ namespace RexEngine
 
 	void Shader::Bind() const
 	{
+		RenderApi::SetCullingMode(m_cullingMode);
 		RenderApi::BindShader(m_id);
 	}
 
 	void Shader::UnBind()
 	{
+		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
 		RenderApi::BindShader(RenderApi::InvalidShaderID);
 	}
 

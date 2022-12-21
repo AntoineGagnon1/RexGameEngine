@@ -23,18 +23,26 @@ namespace RexEngine
 		inline static constexpr int UVLocation = 2;
 
 	public:
-		Shader(std::istream& data);
-		Shader(const std::string& data);
+		Shader(std::istream& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
+		Shader(const std::string& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
 		~Shader();
 
 		Shader(const Shader&) = delete;
 
 
-		static std::shared_ptr<Shader> FromFile(const std::string& path);
+		static std::shared_ptr<Shader> FromFile(const std::string& path, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
 		auto GetID() const { return m_id; }
 		bool IsValid() const { return m_id != RenderApi::InvalidShaderID; };
 
+		auto& CullingMode() { return m_cullingMode; }
+		auto& Priority() { return m_priority; }
+
+		auto CullingMode() const { return m_cullingMode; }
+		auto Priority() const { return m_priority; }
+
+		// Will also set the culling mode
 		void Bind() const;
+		// Will also set the culling mode to Front
 		static void UnBind();
 
 		bool HasUniform(const std::string& name) { return m_uniforms.contains(name); }
@@ -65,7 +73,25 @@ namespace RexEngine
 		template<typename Archive>
 		inline static std::shared_ptr<Shader> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
 		{
-			return std::make_shared<Shader>(assetFile);
+			int cullingMode;
+			char priority;
+			metaDataArchive(CUSTOM_NAME(cullingMode, "CullingMode"),
+				CUSTOM_NAME(priority, "Priority"));
+			return std::make_shared<Shader>(assetFile, (RenderApi::CullingMode)cullingMode, priority);
+		}
+
+		template<typename Archive>
+		void SaveToAssetFile(Archive& metaDataArchive)
+		{
+			metaDataArchive(CUSTOM_NAME((int)m_cullingMode, "CullingMode"),
+				CUSTOM_NAME(m_priority, "Priority"));
+		}
+
+		template<typename Archive>
+		inline static void CreateMetaData(Archive& metaDataArchive)
+		{
+			metaDataArchive(CUSTOM_NAME((int)RenderApi::CullingMode::Front, "CullingMode"),
+				CUSTOM_NAME((char)0, "Priority"));
 		}
 
 	private:
@@ -74,6 +100,9 @@ namespace RexEngine
 
 	private:
 		RenderApi::ShaderID m_id;
+
+		RenderApi::CullingMode m_cullingMode;
+		char m_priority;
 
 		std::unordered_map<std::string, std::tuple<int, RenderApi::UniformType>> m_uniforms;
 		

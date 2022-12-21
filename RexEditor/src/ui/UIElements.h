@@ -341,6 +341,7 @@ namespace RexEditor::UI
             ComboBox combo(label, options, value);
             Hoverable::CacheHovered();
             selected = static_cast<T>(combo.Value());
+            Input<T>::m_changed = combo.HasChanged();
         }
     };
 
