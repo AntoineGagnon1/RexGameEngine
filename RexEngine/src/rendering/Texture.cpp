@@ -28,14 +28,8 @@ namespace RexEngine
 			[](void* user, char* data, int size) { // read
 				std::istream& stream = *(std::istream*)user;
 
-				for (int i = 0; i < size; i++)
-				{
-					stream.read(&data[i], 1); // TODO : read 128 bytes at once
-					if (!stream.good())
-						return i;
-				}
-
-				return size;
+				stream.read(&data[0], size);
+				return (int)stream.gcount(); // long long to int is fine, max 128 bytes
 			},
 
 			[](void* user, int n) { // skip
