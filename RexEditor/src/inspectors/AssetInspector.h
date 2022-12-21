@@ -23,6 +23,8 @@ namespace RexEditor
 				InspectTexture(assetPath);
 			else if (type.type == typeid(Cubemap))
 				InspectCubemap(assetPath);
+			else if (type.type == typeid(Mesh))
+				InspectMesh(assetPath);
 			else
 				UI::Text("Invalid Asset !");
 		}
@@ -262,6 +264,17 @@ namespace RexEditor
 				AssetManager::AddAsset<Cubemap>(cubemap.GetAssetGuid(), assetPath, Asset<Cubemap>(cubemap.GetAssetGuid(), newCubemap));
 				AssetManager::ReloadAsset<Cubemap>(cubemap.GetAssetGuid());
 			}
+		}
+
+		inline static void InspectMesh(const std::filesystem::path& assetPath)
+		{
+			using namespace RexEngine;
+			auto mesh = GetAsset<Mesh>(assetPath);
+
+			AssetHeader(assetPath);
+
+			UI::Text vertices (std::format("Vertex Count :   {}", mesh->GetVertexCount()));
+			UI::Text triangles(std::format("Triangle Count : {}", mesh->GetIndexCount() / 3));
 		}
 	};
 }

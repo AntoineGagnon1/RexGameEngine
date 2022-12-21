@@ -2,6 +2,7 @@
 #include "Mesh.h"
 
 #include "Shader.h"
+#include "utils/TupleHash.h"
 
 namespace RexEngine
 {
@@ -62,6 +63,74 @@ namespace RexEngine
 		RenderApi::DeleteVertexAttributes(m_vertexAttributes);
 		RenderApi::DeleteBuffer(m_vertexBuffer);
 		RenderApi::DeleteBuffer(m_indexBuffer);
+	}
+
+	std::shared_ptr<Mesh> Mesh::FromObj(std::istream& data)
+	{
+		std::vector<Vector3> vertices;
+		std::vector<Vector3> normals = {Vector3(0,0,0)}; // Add a null normal, if the mesh has none this will prevent an out of bounds access
+		//                    <vertex, normal>
+		std::vector<std::tuple<int,int>> faces;
+
+		// Go line by line
+		std::string line;
+		while (std::getline(data, line))
+		{
+			if (line.empty())
+				continue;
+			
+			auto args = StringHelper::Split(line, ' ');
+
+			if (args[0] == "v")
+			{ // vertex
+				vertices.push_back(Vector3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])));
+			}
+			else if (args[0] == "vn")
+			{ // normal
+				normals.push_back(Vector3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])).Normalized());
+			}
+			else if (args[0] == "f")
+			{ // face
+				for (int i = 0; i < 3; i++)
+				{ // Get each component : vertexIndex/textureIndex/normalIndex
+					auto components = StringHelper::Split(args[i + 1], '/');
+					if (components.size() == 1) // vertex only
+						faces.push_back({std::stoi(components[0]) - 1, 0});
+					else if (components.size() == 2) // vertex and uv
+						faces.push_back({ std::stoi(components[0]) - 1, 0 });
+					else if (components.size() == 3) // vertex, uv and normal
+						faces.push_back({ std::stoi(components[0]) - 1, std::stoi(components[2]) }); // not -1 because of the default normal
+				}
+			}
+		}
+
+		// Loop all the faces and make the vertex buffer
+
+		// This will store the index of each unique vertex
+		//							<<vertex, normal>, meshIndex>
+		std::unordered_map<std::tuple<int, int>, int> vertexIndex;
+		std::vector<unsigned int> meshIndices;
+		std::vector<Vector3> meshVertices;
+		std::vector<Vector3> meshNormals;
+		
+		for (int i = 0; i < faces.size(); i++)
+		{
+			auto&[vIndex, nIndex] = faces[i];
+			auto index = vertexIndex.find(faces[i]);
+			if (index != vertexIndex.end())
+				meshIndices.push_back((unsigned int)index->second);
+			else
+			{
+				meshIndices.push_back((unsigned int)vertexIndex.size());
+				vertexIndex.insert({ faces[i], meshVertices.size() });
+
+				meshVertices.push_back(vertices[vIndex]);
+				if(normals.size() > 1)
+					meshNormals.push_back(normals[nIndex]);
+			}
+		}
+		
+		return std::make_shared<Mesh>(meshVertices, meshIndices, meshNormals);
 	}
 
 	void Mesh::Bind() const

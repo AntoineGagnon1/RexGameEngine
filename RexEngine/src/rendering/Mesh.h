@@ -18,16 +18,27 @@ namespace RexEngine
 		
 		Mesh(const Mesh&) = delete;
 
+		// Make a mesh from some obj data
+		// Supported face types : Triangles
+		// Supported data : Vertex position, normals and indices
+		static std::shared_ptr<Mesh> FromObj(std::istream& data);
+
 		void Bind() const;
 		inline static void UnBind() { RenderApi::BindVertexAttributes(0); }
 
 		auto GetID() const { return m_vertexAttributes; }
 		size_t GetIndexCount() const { return m_indices.size(); }
+		size_t GetVertexCount() const 
+		{ 
+			return m_vertexData.size() / sizeof(Vector3) 
+				+ (m_hasNormals ? sizeof(Vector3) : 0
+				+ (m_hasUVs ? sizeof(Vector2) : 0));
+		}
 
 		template<typename Archive>
 		inline static std::shared_ptr<Mesh> LoadFromAssetFile(Guid _, const Archive& metaDataArchive, std::istream& assetFile)
 		{
-			return std::shared_ptr<Mesh>(nullptr);
+			return FromObj(assetFile);
 		}
 
 	private:

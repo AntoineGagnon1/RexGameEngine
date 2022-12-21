@@ -1,18 +1,25 @@
 {
-    "Count": 4,
-    "Entity": 4293918721,
+    "Count": 5,
+    "Entity": 4293918722,
     "Entity": 1686110208,
-    "Entity": 564133890,
-    "Entity": 3172990975,
-    "Count": 1,
+    "Entity": 2713714689,
+    "Entity": 1269825539,
+    "Entity": 243269631,
+    "Count": 2,
     "Owner": 1686110208,
     "struct RexEngine::Guid": "16613986971478871029 1671497467460143",
-    "Count": 1,
+    "Owner": 2713714689,
+    "struct RexEngine::Guid": "16471756912463458555 1671656525338490",
+    "Count": 2,
     "Owner": 1686110208,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
     },
-    "Count": 1,
+    "Owner": 2713714689,
+    "struct RexEngine::TagComponent": {
+        "name": "New Entity"
+    },
+    "Count": 2,
     "Owner": 1686110208,
     "struct RexEngine::TransformComponent": {
         "position": [
@@ -35,7 +42,38 @@
             "Guid": "0 0"
         }
     },
-    "Count": 0,
+    "Owner": 2713714689,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Count": 1,
+    "Owner": 2713714689,
+    "struct RexEngine::MeshRendererComponent": {
+        "material": {
+            "Guid": "16747008193059287355 1671656572225212"
+        },
+        "mesh": {
+            "Guid": "17963282290874821979 1671656262269280"
+        }
+    },
     "Count": 0,
     "Count": 1,
     "Owner": 1686110208,

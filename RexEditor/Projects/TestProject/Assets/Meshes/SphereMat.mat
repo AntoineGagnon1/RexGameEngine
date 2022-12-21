@@ -1,0 +1,64 @@
+{
+    "Shader": "9763880619511014361 1671656577910145",
+    "Uniforms": [
+        {
+            "key": "metallic",
+            "value": {
+                "index": 0,
+                "data": 0.0
+            }
+        },
+        {
+            "key": "brdfLUT",
+            "value": {
+                "index": 13,
+                "data": {
+                    "Guid": "0 0"
+                }
+            }
+        },
+        {
+            "key": "albedo",
+            "value": {
+                "index": 2,
+                "data": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "key": "ao",
+            "value": {
+                "index": 0,
+                "data": 0.0
+            }
+        },
+        {
+            "key": "irradianceMap",
+            "value": {
+                "index": 14,
+                "data": {
+                    "Guid": "0 0"
+                }
+            }
+        },
+        {
+            "key": "prefilterMap",
+            "value": {
+                "index": 14,
+                "data": {
+                    "Guid": "0 0"
+                }
+            }
+        },
+        {
+            "key": "roughness",
+            "value": {
+                "index": 0,
+                "data": 0.0
+            }
+        }
+    ]
+}
