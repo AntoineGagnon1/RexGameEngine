@@ -27,11 +27,37 @@ namespace RexEngine
 
 		// Update the scene data for the uniform blocks
  		SceneDataUniforms newSceneData{viewMatrix, projectionMatrix, cameraPos};
-		RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
 		
 		// Update the lighting data
 		LightingUniforms newLighting{ Vector3(10,10, -10), 0.0f, Vector3(10.0f,10.0f,10.0f)}; // Manually set a white light at 10,10,-10
 		RenderApi::SubBufferData(GetLightingUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(LightingUniforms), &newLighting);
+
+
+		// Skybox TODO : render this after the opaque objects, but before the transparent ones
+		// Get the skybox component
+		auto&& skyboxes = scene->GetComponents<SkyboxComponent>();
+		if (skyboxes.size() > 1)
+			RE_LOG_WARN("Multiple skyboxes active !");
+
+		if (skyboxes.size() >= 1)
+		{
+			auto skyboxMesh = Shapes::GetCubeMesh();
+			auto& c = skyboxes[0].second;
+
+			// New uniforms for this shader
+			newSceneData.worldToView = Matrix4(Matrix3(newSceneData.worldToView)); // Remove the translation (the skybox is always around the player)
+			RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
+
+			if (c.material)
+				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity));
+		}
+		// Render the skybox
+		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
+		RenderQueue::ExecuteCommands();
+
+		// Revert to the complete matrix
+		newSceneData.worldToView = viewMatrix;
+		RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
 
 
 		// Draw objects (put them in the RenderQueue)
@@ -46,29 +72,6 @@ namespace RexEngine
 		// Execute the render queue to actually render the objects on the screen
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::Less);
 		RenderQueue::ExecuteCommands();
-		
-		// Skybox
-		
-		// Get the skybox component
-		auto&& skyboxes = scene->GetComponents<SkyboxComponent>();
-		if (skyboxes.size() > 1)
-			RE_LOG_WARN("Multiple skyboxes active !");
-
-		if (skyboxes.size() >= 1)
-		{
-			auto skyboxMesh = Shapes::GetCubeMesh();
-			auto& c = skyboxes[0].second;
-
-			// New uniforms for this shader
-			newSceneData.worldToView = Matrix4(Matrix3(newSceneData.worldToView)); // Remove the translation (the skybox is always around the player)
-			RenderApi::SubBufferData(GetSceneDataUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(SceneDataUniforms), &newSceneData);
-			
-			if(c.material)
-				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity));
-		}
-		// Render the skybox
-		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
- 		RenderQueue::ExecuteCommands();
 	}
 
 

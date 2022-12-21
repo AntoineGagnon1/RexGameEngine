@@ -23,7 +23,7 @@ namespace RexEditor
 			m_cameraTransform.position.y = 2.0f; // Dont start in the grid
 
 			auto gridShader = RexEngine::Asset<Shader>();
-			gridShader = RexEngine::Shader::FromFile("assets/shaders/Grid.shader", RenderApi::CullingMode::Both);
+			gridShader = RexEngine::Shader::FromFile("assets/shaders/Grid.shader", RenderApi::CullingMode::Both, 127);
 			m_gridMaterial = std::make_shared<Material>(gridShader);
 
 			m_inputs.insert({"Capture", std::move(std::make_unique<MouseButtonInput>(MouseButton::Right)) });

@@ -44,10 +44,14 @@ void main()
     // Fade if far away
     float distance = length(WorldPos - PlayerPos) / falloffDistance;
     alpha *= 1.0f - pow(distance, 0.5f);
-    //if (length(WorldPos - PlayerPos) > falloffDistance)
-    //    alpha = 0.0f;
 
     // Apply gamma correction
     color = pow(color, 1.0 / 1.5);
-    FragColor = vec4(vec3(color), alpha);
+
+    if(abs(WorldPos.y) < 0.1f) // X axis (red)
+        FragColor = vec4(vec3(color, 0.0f, 0.0f), alpha);
+    else if (abs(WorldPos.x) < 0.1f) // Z axis (blue)
+        FragColor = vec4(vec3(0.0f, 0.0f, color), alpha);
+    else
+        FragColor = vec4(vec3(color), alpha);
 }
