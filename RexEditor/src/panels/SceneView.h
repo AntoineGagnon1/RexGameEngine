@@ -89,9 +89,9 @@ namespace RexEditor
 
 			auto grid = Scene::CurrentScene()->CreateEntity();
 			Vector3 pos = camera.Transform().position;
-			float gridSize = (pos.y * 2) + 10;
+			float gridSize = (abs(pos.y) * 2) + 10;
 			// Make the scale of the grid the closest power of 2 of pos.y / 10
-			int gridScale = 0x1 << (int)std::ceil(std::max(log2(pos.y / 10.0f), 0.0f));
+			int gridScale = 0x1 << (int)std::ceil(std::max(log2(abs(pos.y) / 10.0f), 0.0f));
 			pos.y = 0; // The plane is always at y = 0 (worldspace)
 
 			grid.Transform().rotation = Quaternion::FromEuler({90, 0, 0});
