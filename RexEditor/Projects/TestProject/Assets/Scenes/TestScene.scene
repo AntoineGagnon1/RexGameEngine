@@ -3,8 +3,8 @@
     "Entity": 4293918722,
     "Entity": 1686110208,
     "Entity": 2713714689,
-    "Entity": 1269825539,
-    "Entity": 243269631,
+    "Entity": 3707764739,
+    "Entity": 2681208831,
     "Count": 2,
     "Owner": 1686110208,
     "struct RexEngine::Guid": "16613986971478871029 1671497467460143",
@@ -46,7 +46,7 @@
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
-            0.0,
+            1.0,
             0.0
         ],
         "scale": [
@@ -68,7 +68,7 @@
     "Owner": 2713714689,
     "struct RexEngine::MeshRendererComponent": {
         "material": {
-            "Guid": "16747008193059287355 1671656572225212"
+            "Guid": "2770776012472656554 1671662975384711"
         },
         "mesh": {
             "Guid": "17963282290874821979 1671656262269280"

@@ -25,6 +25,23 @@ namespace RexEngine
 			}
 		}
 
+		// Returns the id of the slot that was reserved or -1 if not slots are left
+		// this slot will be removed from the slot pool
+		inline static int ReserveSlot()
+		{
+			// Start reserving from the last slot
+			for (int i = s_slots.size() - 1; i >= 0; i--)
+			{
+				if (!s_slots[i].reserved) // Find a non-reserved slot
+				{
+					s_slots[i].reserved = true;
+					return i;
+				}
+			}
+
+			return -1;
+		}
+
 		// All the slots returned by GetTextureSlot() in the same "Shader" (between 2 StartShader() calls)
 		// will stay valid, any slot used in another "Shader" can change
 		// This will bind the texture to the slot automatically, target is only used to bind
@@ -44,7 +61,7 @@ namespace RexEngine
 			// TODO : a smarter way to find the slot based on usage
 			for (int i = 0; i < s_slots.size(); i++)
 			{
-				if (s_slots[i].usedThisShader == false)
+				if (s_slots[i].usedThisShader == false && s_slots[i].reserved == false)
 				{
 					// Remove the old
 					s_textureSlot.erase(s_slots[i].texture);
@@ -89,6 +106,7 @@ namespace RexEngine
 		{
 			RenderApi::TextureID texture;
 			bool usedThisShader = false; // is this texture used by the current shader (if true dont replace it)
+			bool reserved = false; // Is this slot reserved (ex : PBR)
 		};
 
 		inline static std::vector<Slot> s_slots;

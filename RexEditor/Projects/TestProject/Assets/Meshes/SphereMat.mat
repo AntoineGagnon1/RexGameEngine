@@ -2,14 +2,7 @@
     "Shader": "9763880619511014361 1671656577910145",
     "Uniforms": [
         {
-            "key": "metallic",
-            "value": {
-                "index": 0,
-                "data": 0.0
-            }
-        },
-        {
-            "key": "brdfLUT",
+            "key": "PBRBrdfLUT",
             "value": {
                 "index": 13,
                 "data": {
@@ -18,34 +11,7 @@
             }
         },
         {
-            "key": "albedo",
-            "value": {
-                "index": 2,
-                "data": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "key": "ao",
-            "value": {
-                "index": 0,
-                "data": 0.0
-            }
-        },
-        {
-            "key": "irradianceMap",
-            "value": {
-                "index": 14,
-                "data": {
-                    "Guid": "0 0"
-                }
-            }
-        },
-        {
-            "key": "prefilterMap",
+            "key": "PBRIrradianceMap",
             "value": {
                 "index": 14,
                 "data": {
@@ -58,6 +24,40 @@
             "value": {
                 "index": 0,
                 "data": 0.0
+            }
+        },
+        {
+            "key": "PBRPrefilterMap",
+            "value": {
+                "index": 14,
+                "data": {
+                    "Guid": "0 0"
+                }
+            }
+        },
+        {
+            "key": "albedo",
+            "value": {
+                "index": 2,
+                "data": [
+                    1.0,
+                    0.0,
+                    0.0
+                ]
+            }
+        },
+        {
+            "key": "metallic",
+            "value": {
+                "index": 0,
+                "data": 1.0
+            }
+        },
+        {
+            "key": "ao",
+            "value": {
+                "index": 0,
+                "data": 0.5
             }
         }
     ]

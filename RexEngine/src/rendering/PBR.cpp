@@ -6,6 +6,11 @@
 #include "RenderBuffer.h"
 #include "Shader.h"
 #include "Shapes.h"
+#include "TextureManager.h"
+#include "scene/Scene.h"
+#include "scene/Components.h"
+
+#include "window/Window.h"
 
 namespace RexEngine
 {
@@ -216,7 +221,7 @@ void main()
 }
 
 #pragma fragment
-out vec2 FragColor;
+out vec4 FragColor;
 in vec2 TexCoords;
 
 const float PI = 3.14159265359;
@@ -324,7 +329,7 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
 void main() 
 {
     vec2 integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y);
-    FragColor = integratedBRDF;
+    FragColor = vec4(integratedBRDF, 0, 1);
 })";
 
 		const Matrix4 ViewMatrices[] =
@@ -359,7 +364,7 @@ void main()
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 
 		// Create the irradiance shader
-		static NoDestroy<Shader> irradianceShader(Internal::vertexShaderString + Internal::irradianceShaderString);
+		static NoDestroy<Shader> irradianceShader(Internal::vertexShaderString + Internal::irradianceShaderString, RenderApi::CullingMode::Back);
 
 		irradianceShader->SetUniformFloat("sampleDelta", sampleDelta);
 		irradianceShader->SetUniformInt("environmentMap", 0);
@@ -370,7 +375,7 @@ void main()
 		RenderApi::SetViewportSize(size);
 
 		frameBuffer.Bind();
-
+		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
 		auto cubeMesh = Shapes::GetCubeMesh();
 		cubeMesh->Bind(); // Bind the cube
 		for (unsigned int i = 0; i < 6; ++i)
@@ -415,7 +420,7 @@ void main()
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 
 		// Create the irradiance shader
-		static NoDestroy<Shader> prefilterShader(Internal::vertexShaderString + Internal::prefilterShaderString);
+		static NoDestroy<Shader> prefilterShader(Internal::vertexShaderString + Internal::prefilterShaderString, RenderApi::CullingMode::Back);
 
 		prefilterShader->SetUniformInt("environmentMap", 0);
 		RenderApi::SetActiveTexture(0);
@@ -424,7 +429,7 @@ void main()
 		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
 
 		frameBuffer.Bind();
-
+		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
 		auto cubeMesh = Shapes::GetCubeMesh();
 		cubeMesh->Bind(); // Bind the cube
 
@@ -461,31 +466,106 @@ void main()
 
 	std::shared_ptr<Texture> PBR::CreateBRDFLut(Vector2Int size)
 	{
-		auto texture = std::make_shared<Texture>(RenderApi::PixelFormat::RGB16F, size);
+		auto texture = std::make_shared<Texture>(RenderApi::PixelFormat::RGBA, size);
+		texture->SetOption(RenderApi::TextureOption::WrapS, RenderApi::TextureOptionValue::ClampToEdge);
+		texture->SetOption(RenderApi::TextureOption::WrapT, RenderApi::TextureOptionValue::ClampToEdge);
 
-		// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+		// Configure capture framebuffer object and render screen-space quad with BRDF shader.
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
+		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
+		
 		FrameBuffer frameBuffer;
 		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 		frameBuffer.BindTexture(*texture, RenderApi::FrameBufferTextureType::Color);
 
-		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
-		RenderApi::SetViewportSize(size);
+		static NoDestroy<Shader> shader(Internal::lutShader, RenderApi::CullingMode::Front);
 
-		static NoDestroy<Shader> shader(Internal::lutShader);
+		auto quad = Shapes::GetQuadMesh();
+		quad->Bind();
+
+		frameBuffer.Bind();
+		RenderApi::SetViewportSize(size);
+		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
 
 		shader->Bind();
 		RenderApi::ClearColorBit();
 		RenderApi::ClearDepthBit();
-
-		auto quad = Shapes::GetQuadMesh();
-		quad->Bind();
 		RenderApi::DrawElements(quad->GetIndexCount());
 
 		RenderApi::BindFrameBuffer(oldFrameBuffer);
 		RenderApi::SetViewportSize(oldViewportSize); // Revert to the cached viewport size
 
 		return texture;
+	}
+
+	void PBR::Init()
+	{
+		// Reserve the slots
+		s_irradianceMapSlot = TextureManager::ReserveSlot();
+		s_prefilterMapSlot = TextureManager::ReserveSlot();
+		s_brdfLUTSlot = TextureManager::ReserveSlot();
+
+		// Generate and bind the BRDFLut now
+		s_brdfLUT = PBR::CreateBRDFLut(Vector2Int(BrdfLutSize, BrdfLutSize));
+		RenderApi::SetActiveTexture(s_brdfLUTSlot);
+		s_brdfLUT->Bind();
+		RenderApi::SetActiveTexture(0);
+
+		// Set the shader data
+		Shader::RegisterParserUsing("PBR", std::format(R"(
+layout(binding = {}) uniform samplerCube PBRIrradianceMap;
+layout(binding = {}) uniform samplerCube PBRPrefilterMap;
+layout(binding = {}) uniform sampler2D PBRBrdfLUT;
+)", s_irradianceMapSlot, s_prefilterMapSlot, s_brdfLUTSlot));
+
+	}
+
+	void PBR::OnClose()
+	{
+		s_skyboxMat = nullptr; // Free the skybox map
+
+		// Free all the maps and textures
+		s_irradianceMap = nullptr;
+		s_prefilterMap = nullptr;
+		s_brdfLUT = nullptr;
+	}
+
+	void PBR::Update()
+	{
+		auto scene = Scene::CurrentScene();
+		if (!scene)
+			return;
+
+		auto&& skyboxes = scene->GetComponents<SkyboxComponent>();
+		if (skyboxes.size() == 0) // A skybox is present
+			return;
+		
+		auto& skybox = skyboxes[0].second;
+
+		if (!skybox.material || !skybox.material->IsValid()) // The skybox is valid
+			return;
+
+		// Check if the skybox changed
+		if (s_skyboxMat != skybox.material)
+		{
+			s_skyboxMat = skybox.material;
+			// Reload the maps
+			auto& skyboxMap = std::get<Asset<Cubemap>>(skybox.material->GetUniform("skybox"));
+			
+			if (skyboxMap) // The skybox has a cubemap
+			{
+				s_irradianceMap = PBR::CreateIrradianceMap(*(std::shared_ptr<Cubemap>)skyboxMap, IrradianceSize, IrradianceSampleDelta);
+				s_prefilterMap = PBR::CreatePreFilterMap(*(std::shared_ptr<Cubemap>)skyboxMap, PrefilterSize);
+
+				RenderApi::SetActiveTexture(s_irradianceMapSlot);
+				s_irradianceMap->Bind();
+
+				RenderApi::SetActiveTexture(s_prefilterMapSlot);
+				s_prefilterMap->Bind();
+
+				RenderApi::SetActiveTexture(0);
+			}
+		}
 	}
 }

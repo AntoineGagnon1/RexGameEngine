@@ -12,7 +12,7 @@ namespace RexEngine::Shapes
 {
 	// Quad
 	constexpr Vector3 QuadVertices[] = { {-1,  1, 0}, {-1, -1, 0}, { 1,  1, 0}, { 1, -1, 0} };
-	constexpr unsigned int QuadIndices[] = { 0,1,2, 1,2,3 };
+	constexpr unsigned int QuadIndices[] = { 1,0,2, 1,2,3 };
 	constexpr Vector2 QuadUvs[] = { {0, 1}, {0, 0}, {1, 1}, {1, 0} };
 
 	inline std::shared_ptr<Mesh> GetQuadMesh()

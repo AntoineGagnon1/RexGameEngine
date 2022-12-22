@@ -55,6 +55,8 @@ namespace RexEngine
 			Shader::UnBind();
 		}
 
+		bool IsValid() const;
+
 		template<typename Archive>
 		inline static std::shared_ptr<Material> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
 		{

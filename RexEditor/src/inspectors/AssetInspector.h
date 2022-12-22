@@ -120,7 +120,8 @@ namespace RexEditor
 				UI::Anchor a(UI::AnchorPos::Right);
 				if (UI::Button b("Reload Shader"); b.IsClicked() || shaderIn.HasChanged()) // Has change or reload
 				{
-					mat->SetShader(shader);
+					AssetManager::ReloadAsset<Shader>(shader.GetAssetGuid());
+					mat->SetShader(AssetManager::GetAsset<Shader>(shader.GetAssetGuid()));
 					needsSave = true;
 				}
 			}

@@ -29,7 +29,7 @@ namespace RexEngine
  		SceneDataUniforms newSceneData{viewMatrix, projectionMatrix, cameraPos};
 		
 		// Update the lighting data
-		LightingUniforms newLighting{ Vector3(10,10, -10), 0.0f, Vector3(10.0f,10.0f,10.0f)}; // Manually set a white light at 10,10,-10
+		LightingUniforms newLighting{ Vector3(0,0, -5), 0.0f, Vector3(10.0f,10.0f,10.0f)}; // Manually set a white light at 10,10,-10
 		RenderApi::SubBufferData(GetLightingUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(LightingUniforms), &newLighting);
 
 

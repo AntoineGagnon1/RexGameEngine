@@ -111,4 +111,9 @@ namespace RexEngine
 			}
 		}
 	}
+
+	bool Material::IsValid() const
+	{
+		return (m_shader && m_shader->IsValid());
+	}
 }

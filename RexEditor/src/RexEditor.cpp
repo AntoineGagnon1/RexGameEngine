@@ -12,7 +12,7 @@ int main()
 
 	Window win("RexEditor", 1280, 720, 8);
 	win.MakeActive();
-
+	testWin = &win;
 	win.SetResizeCallback([](Vector2Int size) {
 		RenderApi::SetViewportSize(size);
 	});
@@ -20,6 +20,8 @@ int main()
 	EditorEvents::OnEditorStart().Dispatch();
 
 	EngineEvents::OnEngineStart().Dispatch();
+
+	EngineEvents::OnEngineStarted().Dispatch();
 
 	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
 
@@ -38,6 +40,7 @@ int main()
 
 		EngineEvents::OnPreUpdate().Dispatch();
 		EngineEvents::OnUpdate().Dispatch();
+		EngineEvents::OnPostUpdate().Dispatch();
 		
 		EditorEvents::OnUI().Dispatch(std::forward<float>(deltaTime));
 

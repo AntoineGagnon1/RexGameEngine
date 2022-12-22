@@ -26,6 +26,8 @@ namespace RexEngine
 
 		FrameBuffer(const FrameBuffer&) = delete;
 
+		auto GetID() const { return m_id; }
+
 		void Bind(FramBufferTarget target = FramBufferTarget::ReadDraw) const
 		{
 			switch (target)
