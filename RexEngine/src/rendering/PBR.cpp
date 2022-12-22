@@ -466,7 +466,7 @@ void main()
 
 	std::shared_ptr<Texture> PBR::CreateBRDFLut(Vector2Int size)
 	{
-		auto texture = std::make_shared<Texture>(RenderApi::PixelFormat::RGBA, size);
+		auto texture = std::make_shared<Texture>(RenderApi::PixelFormat::RGB16F, size);
 		texture->SetOption(RenderApi::TextureOption::WrapS, RenderApi::TextureOptionValue::ClampToEdge);
 		texture->SetOption(RenderApi::TextureOption::WrapT, RenderApi::TextureOptionValue::ClampToEdge);
 
