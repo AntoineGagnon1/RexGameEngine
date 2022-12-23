@@ -7,6 +7,7 @@
 #include "SystemDialogs.h"
 #include "DragDrop.h"
 #include "UI.h"
+#include "core/EditorAssets.h"
 
 // Widget sizes : https://github.com/ocornut/imgui/issues/3714
 
@@ -270,10 +271,6 @@ namespace RexEditor::UI
 
 	std::filesystem::path Internal::AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
 	{
-		auto& style = ImGui::GetStyle();
-		auto& io = ImGui::GetIO();
-		const Vector2 size{ ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() };
-
 		// Get the name of this asset (if any)
 		// The name is the filename (stem)
 		std::string name = "";
@@ -284,6 +281,67 @@ namespace RexEditor::UI
 		Internal::SetupInput(label);
 		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
 		hovered = ImGui::IsItemHovered();
+		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + filter[0]); // The first element in filter is always type.name
+		if (payload)
+		{
+			return *payload;
+		}
+
+
+		if (ImGui::IsItemClicked()) // Clicked the text, open the file selector
+		{
+			auto path = SystemDialogs::SelectFile("Select an asset", filter);
+			if (std::filesystem::exists(path)) // Selected a valid file
+				return path;
+		}
+
+		return ""; // No change
+	}
+
+	std::filesystem::path Internal::TextureInputUI(const std::string& label, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
+	{
+		auto& style = ImGui::GetStyle();
+		ImVec2 imgSize{ // Max 196 pixels wide
+			std::min(196.0f, ImGui::GetContentRegionAvail().x 
+				- style.ItemSpacing.x 
+				- (style.FramePadding.x * 2) 
+				- ImGui::CalcTextSize(Internal::GetVisibleLabel(label).c_str()).x),
+			1.0f
+		};
+
+		imgSize.y = imgSize.x * ratio;
+
+		const Vector2 size{ ImGui::GetContentRegionAvail().x, imgSize.y };
+
+		// Fallback texture
+		if (id == RenderApi::InvalidTextureID)
+			id = EditorAssets::NoTexture().GetId();
+
+		// Label (to the left of the box)
+		Anchor::SetCursorPos(size);
+		auto visibleLabel = GetVisibleLabel(label);
+		if (visibleLabel.size() > 0)
+		{
+			float cursorY = ImGui::GetCursorPosY();
+			ImGui::SetCursorPosY(cursorY + (size.y / 2.0f) - (ImGui::GetFrameHeight() / 2.0f));
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(visibleLabel.c_str());
+			ImGui::SameLine();
+			ImGui::SetCursorPosY(cursorY);
+		}
+		
+		ImGui::ImageButton(label.c_str(), (ImTextureID)id, imgSize, { 0,1 }, { 1,0 });
+		hovered = ImGui::IsItemHovered();
+
+		if (hovered) // Tooltip
+		{
+			std::string name = "";
+			auto path = AssetManager::GetAssetPathFromGuid(currentGuid);
+			if (path.has_filename())
+				name = path.filename().string();
+			ImGui::SetTooltip(name.c_str());
+		}
+
 		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + filter[0]); // The first element in filter is always type.name
 		if (payload)
 		{

@@ -1,2 +1,3 @@
 <a href="https://www.flaticon.com/free-icons/document" title="document icons">Document icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Good Ware - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/no-photo" title="no photo icons">No photo icons created by LAFS - Flaticon</a>

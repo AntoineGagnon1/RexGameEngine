@@ -251,7 +251,7 @@ namespace RexEditor
 
 			AssetHeader(assetPath);
 
-			static Asset<Texture> tempSource;
+			static RexEngine::NoDestroy<Asset<Texture>> tempSource;
 			static int tempSize = 128;
 			static Cubemap::ProjectionMode tempMode = Cubemap::ProjectionMode::HDRI;
 			static Guid lastGuid = Guid::Empty;
@@ -264,13 +264,13 @@ namespace RexEditor
 				lastGuid = cubemap.GetAssetGuid();
 			}
 
-			UI::AssetInput<Texture> source("Source Texture", tempSource);
+			UI::AssetInput<Texture> source("Source Texture", *tempSource.GetPtr());
 			UI::IntInput("Size", tempSize);
 			UI::ComboBoxEnum<Cubemap::ProjectionMode> target("Projection Type", { "HDRI" }, tempMode);
 
 			if (UI::Button apply("Apply Changes"); apply.IsClicked())
 			{
-				auto newCubemap = std::make_shared<Cubemap>(tempSource, tempSize, tempMode);
+				auto newCubemap = std::make_shared<Cubemap>(*tempSource.GetPtr(), tempSize, tempMode);
 				// Overwrite the asset
 				AssetManager::AddAsset<Cubemap>(cubemap.GetAssetGuid(), assetPath, Asset<Cubemap>(cubemap.GetAssetGuid(), newCubemap));
 				AssetManager::ReloadAsset<Cubemap>(cubemap.GetAssetGuid());

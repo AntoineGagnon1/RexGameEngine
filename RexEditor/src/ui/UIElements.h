@@ -216,6 +216,9 @@ namespace RexEditor::UI
         // Non template functon for AssetInput
         // returns the new path, or an empty path if the asset has not changed
         std::filesystem::path AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
+
+        // ratio is y/x
+        std::filesystem::path TextureInputUI(const std::string& label, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
     }
 
     // Used to select an asset, 
@@ -247,6 +250,45 @@ namespace RexEditor::UI
 
                 // Replace the asset
                 value = AssetManager::GetAsset<T>(newGuid);
+                Input<AssetType>::m_changed = true;
+            }
+        }
+    };
+
+    template<>
+    class AssetInput<Texture> : public Input<Asset<Texture>>
+    {
+    private:
+        using AssetType = Asset<Texture>;
+    public:
+        AssetInput(const std::string& label, AssetType& value)
+            : Input<AssetType>(value)
+        {
+            RenderApi::TextureID id = RenderApi::InvalidTextureID;
+            float ratio = 1.0f;
+            if (value)
+            {
+                id = value->GetId();
+                ratio = (float)value->Size().y / (float)value->Size().x;
+            }
+
+            auto newPath = Internal::TextureInputUI(label, id, ratio, SystemDialogs::GetAssetTypeFilter<Texture>(), value.GetAssetGuid(), Hoverable::m_hovered);
+
+            if (!newPath.empty())
+            {
+                auto newGuid = AssetManager::GetAssetGuidFromPath(newPath);
+                if (newGuid == Guid::Empty)
+                {// Load the asset
+                    newGuid = Guid::Generate();
+                    if (!AssetManager::AddAsset<Texture>(newGuid, newPath))
+                    {
+                        SystemDialogs::Alert("Error", "Could not load the asset !");
+                        return;
+                    }
+                }
+
+                // Replace the asset
+                value = AssetManager::GetAsset<Texture>(newGuid);
                 Input<AssetType>::m_changed = true;
             }
         }
