@@ -1,26 +1,27 @@
 {
-    "Count": 5,
-    "Entity": 4293918722,
-    "Entity": 1686110208,
-    "Entity": 2713714689,
-    "Entity": 3707764739,
-    "Entity": 2681208831,
+    "Count": 6,
+    "Entity": 4293918724,
+    "Entity": 3722444800,
+    "Entity": 688914433,
+    "Entity": 4110417923,
+    "Entity": 3204448255,
+    "Entity": 4279238658,
     "Count": 2,
-    "Owner": 1686110208,
-    "struct RexEngine::Guid": "16613986971478871029 1671497467460143",
-    "Owner": 2713714689,
-    "struct RexEngine::Guid": "16471756912463458555 1671656525338490",
+    "Owner": 688914433,
+    "struct RexEngine::Guid": "16820778488085134933 1671822402858892",
+    "Owner": 3722444800,
+    "struct RexEngine::Guid": "11244862951370382375 1671822862107961",
     "Count": 2,
-    "Owner": 1686110208,
+    "Owner": 688914433,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
     },
-    "Owner": 2713714689,
+    "Owner": 3722444800,
     "struct RexEngine::TagComponent": {
         "name": "New Entity"
     },
     "Count": 2,
-    "Owner": 1686110208,
+    "Owner": 688914433,
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
@@ -42,7 +43,7 @@
             "Guid": "0 0"
         }
     },
-    "Owner": 2713714689,
+    "Owner": 3722444800,
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
@@ -65,21 +66,21 @@
         }
     },
     "Count": 1,
-    "Owner": 2713714689,
+    "Owner": 3722444800,
     "struct RexEngine::MeshRendererComponent": {
         "material": {
-            "Guid": "2770776012472656554 1671662975384711"
+            "Guid": "7575689222990699204 1671822904411061"
         },
         "mesh": {
-            "Guid": "17963282290874821979 1671656262269280"
+            "Guid": "11335233197115407601 1671822903305558"
         }
     },
     "Count": 0,
     "Count": 1,
-    "Owner": 1686110208,
+    "Owner": 688914433,
     "struct RexEngine::SkyboxComponent": {
         "material": {
-            "Guid": "6674589965418048144 1671563406591414"
+            "Guid": "11700521787635595622 1671822723887916"
         }
     }
 }

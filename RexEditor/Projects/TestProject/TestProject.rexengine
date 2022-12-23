@@ -1,7 +1,6 @@
 {
     "Project": {
         "Name": "TestProject",
-        "RegistryPath": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\TestProject.registry",
-        "LastScenePath": "D:\\cpp\\RexGameEngine\\RexEditor\\Projects\\TestProject\\Assets\\Scenes\\TestScene.scene"
+        "LastScenePath": "Assets\\Scenes\\TestScene.scene"
     }
 }

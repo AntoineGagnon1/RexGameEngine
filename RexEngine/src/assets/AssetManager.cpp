@@ -29,32 +29,34 @@ namespace RexEngine
 		return GetAssetMetaPathFromGuid(guid).replace_extension(""); // remove the .asset
 	}
 
-	bool AssetManager::SetRegistry(const std::filesystem::path& path)
+	void AssetManager::LoadRegistry(const std::filesystem::path& path)
 	{
 		s_registry.clear();
-		s_assets.clear();
-
-		s_registryPath = path;
-
-		// Read the registry
-		std::ifstream file(s_registryPath);
-		if (!file.is_open())
-			return false;
-
-		JsonDeserializer archive(file);
-		archive(CUSTOM_NAME(s_registry, "Paths"));
-		return true;
+		LoadRegistryRecursive(path);
 	}
 
-	bool AssetManager::CreateRegistry(const std::filesystem::path& path)
+	void AssetManager::LoadRegistryRecursive(const std::filesystem::path & path)
 	{
-		std::ofstream file(path, std::ios::trunc);
-		if (!file.is_open())
-			return false;
+		for (auto& entry : std::filesystem::directory_iterator(path))
+		{
+			if (entry.is_directory())
+			{
+				LoadRegistryRecursive(entry.path());
+			}
+			else
+			{ // File
+				if (entry.path().has_extension() && entry.path().extension() == Asset<int>::FileExtension)
+				{
+					// Read the guid
+					std::ifstream file(entry.path());
+					JsonDeserializer archive(file);
 
-		JsonSerializer archive(file);
-		std::unordered_map<Guid, std::filesystem::path> emptyRegistry;
-		archive(CUSTOM_NAME(emptyRegistry, "Paths"));
-		return true;
+					Guid guid;
+					archive(CUSTOM_NAME(guid, "AssetGuid"));
+
+					s_registry.insert({ guid, entry.path() });
+				}
+			}
+		}
 	}
 }

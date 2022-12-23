@@ -16,9 +16,8 @@ namespace RexEditor
 	public:
 
 		std::string Name;
-		std::filesystem::path RegistryPath;
-		std::filesystem::path LastScenePath; // Relative path to the last scene opened in the editor, this is the scene 
-										 // that will be opened when loading the project
+		std::filesystem::path LastScenePath; // RELATIVE path to the last scene opened in the editor, this is the scene 
+										 // that will be opened when loading the project (relative to the .rexengine file)
 
 
 		// Not serialized
@@ -27,11 +26,10 @@ namespace RexEditor
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{
-			archive(KEEP_NAME(Name), KEEP_NAME(RegistryPath), KEEP_NAME(LastScenePath));
+			archive(KEEP_NAME(Name), KEEP_NAME(LastScenePath));
 		}
 
 		inline static const std::string FileExtension = ".rexengine";
-		inline static const std::string RegistryFileExtension = ".registry";
 		static constexpr int MaxNameLength = 50; // Max project name length
 		static constexpr int MaxPathLength = 250; // Max length of a path
 	};

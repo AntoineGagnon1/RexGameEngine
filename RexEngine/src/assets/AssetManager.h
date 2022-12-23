@@ -148,6 +148,10 @@ namespace RexEngine
 				return Asset<T>(); // Failed
 
 			JsonDeserializer metaDataArchive(metaDataFile);
+			// Pop the guid
+			Guid tempguid;
+			metaDataArchive(CUSTOM_NAME(tempguid, "AssetGuid"));
+
 			a.SetAssetGuid(guid);
 			a.m_asset = T::LoadFromAssetFile(guid, metaDataArchive, assetFile);
 
@@ -230,33 +234,20 @@ namespace RexEngine
 				if (!file.is_open())
 					return false;
 				
+				JsonSerializer archive(file);
+				// Add the guid
+				archive(CUSTOM_NAME(guid, "AssetGuid"));
+
 				// Try to use the metaData creation function
 				if constexpr (HasCreateMeta<T, JsonSerializer>)
-				{
-					JsonSerializer archive(file);
 					T::CreateMetaData(archive);
-				}
-				else
-				{
-					file << "{}"; // Empty node
-				}
 			}
 
-			// Write the registry
-			std::ofstream file(s_registryPath, std::ios::trunc);
-			if (!file.is_open())
-				return false;
-
-			JsonSerializer archive(file);
-			archive(CUSTOM_NAME(s_registry, "Paths"));
 			return true;
 		}
 
-		// Change the registry in use, returns false if the file could not be opened
-		static bool SetRegistry(const std::filesystem::path& path);
-
-		// Create an empty registry at the path, returns false if the file could not be opened
-		static bool CreateRegistry(const std::filesystem::path& path);
+		// Load all the .asset files to get the guid, add each asset to the registry
+		static void LoadRegistry(const std::filesystem::path& path);
 
 	private:
 
@@ -274,11 +265,14 @@ namespace RexEngine
 			if (!metaDataFile.is_open())
 				return false;
 
+			JsonSerializer metaDataArchive(metaDataFile);
+			// Add the guid
+			metaDataArchive(CUSTOM_NAME(asset.GetAssetGuid(), "AssetGuid"));
+
 			// template<typename Archive>
 			// void SaveToAssetFile(Archive& metaDataArchive)
 			if constexpr (HasSaveMetaOnly<T, JsonSerializer>)
 			{
-				JsonSerializer metaDataArchive(metaDataFile);
 				asset.m_asset->SaveToAssetFile(metaDataArchive);
 			}
 			else if constexpr (HasSaveMetaAndAsset<T, JsonSerializer>)
@@ -291,23 +285,14 @@ namespace RexEngine
 
 				if (assetFile.is_open())
 				{
-					JsonSerializer metaDataArchive(metaDataFile);
 					asset.m_asset->SaveToAssetFile(metaDataArchive, assetFile);
 				}
-				else
-				{
-					metaDataFile << "{}"; // the metaDataFile has to be empty, add an empty json node
-					return false;
-				}
-			}
-
-			if (metaDataFile.tellp() == 0)
-			{ // If the file is still empty, add a json node
-				metaDataFile << "{}";
 			}
 
 			return true;
 		}
+
+		static void LoadRegistryRecursive(const std::filesystem::path& path);
 
 		// Clear and delete all the assets
 		// this should be called on EngineEvent::OnEngineStop
@@ -315,14 +300,12 @@ namespace RexEngine
 		{
 			s_assets.clear();
 			s_registry.clear();
-			s_registryPath = "";
 		}
 
 		RE_STATIC_CONSTRUCTOR({
 			EngineEvents::OnEngineStop().Register<&AssetManager::Clear>();
 		});
 
-		inline static std::filesystem::path s_registryPath;
 
 		// Guid of the asset, path to the .asset metadata file
 		inline static std::unordered_map<Guid, std::filesystem::path> s_registry;

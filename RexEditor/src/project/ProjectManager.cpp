@@ -24,12 +24,9 @@ namespace RexEditor
 		Project p;
 		p.Name = name;
 		p.LastScenePath = "";
-		p.RegistryPath = rootPath / (name + Project::RegistryFileExtension);
 		p.rootPath = rootPath;
 
-		SaveProject(p);
-
-		return AssetManager::CreateRegistry(p.RegistryPath);
+		return SaveProject(p);
 	}
 
 	bool ProjectManager::Load(const std::filesystem::path& path)
@@ -45,12 +42,11 @@ namespace RexEditor
 		JsonDeserializer archive(file);
 		archive(p);
 
-		if (p.Name.empty() || p.RegistryPath.empty())
+		if (p.Name.empty())
 			return false; // Malformed
 		
 		// Load the registry
-		if (!AssetManager::SetRegistry(p.RegistryPath))
-			return false;
+		AssetManager::LoadRegistry(p.rootPath);
 
 		s_currentProject = p;
 
@@ -83,7 +79,7 @@ namespace RexEditor
 			Scene::SetCurrentScene(scene);
 
 			// Save as the last open scene
-			s_currentProject.LastScenePath = path;
+			s_currentProject.LastScenePath = std::filesystem::relative(path, s_currentProject.rootPath);
 			SaveProject(s_currentProject);
 
 			// Callback
