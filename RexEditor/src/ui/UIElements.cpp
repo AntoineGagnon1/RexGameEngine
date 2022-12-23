@@ -6,6 +6,7 @@
 
 #include "SystemDialogs.h"
 #include "DragDrop.h"
+#include "UI.h"
 
 // Widget sizes : https://github.com/ocornut/imgui/issues/3714
 
@@ -111,10 +112,12 @@ namespace RexEditor::UI
 	{
 		m_visible = ImGui::Begin(title.c_str(), open, (int)settings);
 		m_hovered = ImGui::IsWindowHovered();
+		UI::PushFontScale(FontScale::Normal);
 	}
 
 	Window::~Window()
 	{
+		UI::PopFontScale();
 		ImGui::End();
 	}
 

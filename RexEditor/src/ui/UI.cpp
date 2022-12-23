@@ -56,7 +56,10 @@ namespace RexEditor::UI::Internal
 	}
 
 	// 0 = small, 1 = normal, 2 = large
-	ImFont* Fonts[3];
+	typedef std::array<ImFont*, 3> FontCollection;
+
+	std::map<float, FontCollection> Fonts;
+	std::vector<float> FontsNeeded; // Font dpi needed for the next frame
 
 	void ImGuiInit()
 	{
@@ -86,14 +89,19 @@ namespace RexEditor::UI::Internal
 		GuiThemes::EnableDark();
 
 
-		// Load the font sizes
+		// Load the default font sizes (dpiScale == 1.0f)
 		auto& io = ImGui::GetIO();
-		Fonts[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10);
-		Fonts[1] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 13);
-		Fonts[2] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 20);
+
+		auto scale = ImGui::GetWindowDpiScale();
+
+		FontCollection col;
+		col[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10);
+		col[1] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 13);
+		col[2] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 20);
+		Fonts.emplace(1.0f, col);
 
 		// Set the default to normal
-		io.FontDefault = Fonts[(int)FontScale::Normal];
+		io.FontDefault = Fonts[1.0f][(int)FontScale::Normal];
 	};
 
 	void ImGuiClose()
@@ -105,6 +113,23 @@ namespace RexEditor::UI::Internal
 
 	void NewFrame()
 	{
+		// Load the needed fonts
+		auto& io = ImGui::GetIO();
+		for (float winScale : Internal::FontsNeeded)
+		{
+			Internal::FontCollection col;
+			col[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10 * winScale);
+			col[1] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 13 * winScale);
+			col[2] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 20 * winScale);
+			Internal::Fonts.emplace(winScale, col);
+		}
+
+		if (Internal::FontsNeeded.size() > 0)
+		{
+			ImGui_ImplOpenGL3_CreateFontsTexture();
+			Internal::FontsNeeded.clear();
+		}
+
 		// Start a new frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -124,7 +149,16 @@ namespace RexEditor::UI
 {
 	void UI::PushFontScale(FontScale scale)
 	{
-		ImGui::PushFont(Internal::Fonts[(int)scale]);
+		auto winScale = ImGui::GetWindowDpiScale();
+
+		if (!Internal::Fonts.contains(winScale))
+		{
+			Internal::FontsNeeded.push_back(winScale);
+			ImGui::PushFont(Internal::Fonts[1.0f][(int)scale]); // Push a default font
+			return;
+		}
+
+		ImGui::PushFont(Internal::Fonts[winScale][(int)scale]);
 	}
 
 	void UI::PopFontScale()
