@@ -103,6 +103,7 @@ namespace RexEngine
 		
 		static void BindTexture(TextureID id, TextureTarget target);
 		static void SetTextureOption(TextureID id, TextureTarget target, TextureOption option, TextureOptionValue value);
+		static TextureOptionValue GetTextureOption(TextureID id, TextureTarget target, TextureOption option);
 		static void DeleteTexture(TextureID id);
 
 		static TextureID MakeCubemap();

@@ -121,6 +121,10 @@ namespace RexEngine
 		RenderApi::SetTextureOption(m_id, m_target, option, value);
 	}
 
+	RenderApi::TextureOptionValue Texture::GetOption(RenderApi::TextureOption option) const
+	{
+		return RenderApi::GetTextureOption(m_id, m_target, option);
+	}
 
 	void Texture::Bind() const
 	{

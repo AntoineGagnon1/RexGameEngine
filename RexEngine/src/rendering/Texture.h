@@ -44,6 +44,7 @@ namespace RexEngine
 		RenderApi::PixelFormat GetFormat() const { return m_gpuFormat; }
 
 		void SetOption(RenderApi::TextureOption option, RenderApi::TextureOptionValue value);
+		RenderApi::TextureOptionValue GetOption(RenderApi::TextureOption option) const;
 
 		// Warning the texture will be in an invalid state after this, reload the asset to make it valid again
 		void ChangeSettings(RenderApi::TextureTarget newTarget, RenderApi::PixelFormat newGpuFormat, bool newFlipYOnLoad, bool newHdr);
@@ -64,17 +65,32 @@ namespace RexEngine
 			if (target == RenderApi::TextureTarget::Texture2D)
 			{
 				Vector2Int size;
-				int gpuFormat;
+				int gpuFormat, wrapS, wrapT, minFilter, magFilter;
 				bool flipY, hdr;
 				metaDataArchive(CUSTOM_NAME(size, "Size"),
 					CUSTOM_NAME(gpuFormat, "Format"),
 					CUSTOM_NAME(hdr, "Hdr"),
-					CUSTOM_NAME(flipY, "FlipY"));
+					CUSTOM_NAME(flipY, "FlipY"),
+					CUSTOM_NAME(wrapS, "WrapS"),
+					CUSTOM_NAME(wrapT, "WrapT"),
+					CUSTOM_NAME(minFilter, "MinFilter"),
+					CUSTOM_NAME(magFilter, "MagFilter"));
+
+				std::shared_ptr<Texture> texture;
 
 				if (hdr)
-					return FromHDRStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
+					texture = FromHDRStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
 				else
-					return FromStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
+					texture = FromStream2D(assetFile, (RenderApi::PixelFormat)gpuFormat, flipY);
+
+				using Option = RenderApi::TextureOption;
+				using Value = RenderApi::TextureOptionValue;
+				texture->SetOption(Option::WrapS, (Value)wrapS);
+				texture->SetOption(Option::WrapT, (Value)wrapT);
+				texture->SetOption(Option::MinFilter, (Value)minFilter);
+				texture->SetOption(Option::MagFilter, (Value)magFilter);
+
+				return texture;
 			}
 
 			return std::shared_ptr<Texture>();
@@ -87,10 +103,15 @@ namespace RexEngine
 
 			if (m_target == RenderApi::TextureTarget::Texture2D)
 			{
+				using Option = RenderApi::TextureOption;
 				metaDataArchive(CUSTOM_NAME(m_size, "Size"),
 					CUSTOM_NAME((int)m_gpuFormat, "Format"),
 					CUSTOM_NAME(m_hdr, "Hdr"),
-					CUSTOM_NAME(m_flipYOnLoad, "FlipY"));
+					CUSTOM_NAME(m_flipYOnLoad, "FlipY"),
+					CUSTOM_NAME((int)GetOption(Option::WrapS), "WrapS"),
+					CUSTOM_NAME((int)GetOption(Option::WrapT), "WrapT"),
+					CUSTOM_NAME((int)GetOption(Option::MinFilter), "MinFilter"),
+					CUSTOM_NAME((int)GetOption(Option::MagFilter), "MagFilter"));
 			}
 		}
 
@@ -98,11 +119,16 @@ namespace RexEngine
 		inline static void CreateMetaData(Archive& metaDataArchive)
 		{
 			// Simple texture 2D data
+			using Value = RenderApi::TextureOptionValue;
 			metaDataArchive(CUSTOM_NAME((int)RenderApi::TextureTarget::Texture2D, "Target"),
 				CUSTOM_NAME(Vector2Int(0, 0), "Size"),
 				CUSTOM_NAME((int)RenderApi::PixelFormat::RGB, "Format"),
 				CUSTOM_NAME(false, "Hdr"),
-				CUSTOM_NAME(false , "FlipY"));
+				CUSTOM_NAME(false , "FlipY"),
+				CUSTOM_NAME((int)Value::Repeat, "WrapS"),
+				CUSTOM_NAME((int)Value::Repeat, "WrapT"),
+				CUSTOM_NAME((int)Value::Linear, "MinFilter"),
+				CUSTOM_NAME((int)Value::Linear, "MagFilter"));
 		}
 
 	private:

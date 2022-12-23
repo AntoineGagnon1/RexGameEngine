@@ -130,6 +130,24 @@ namespace RexEngine::Internal {
 		return 0;
 	}
 
+	RenderApi::TextureOptionValue GLToTextureOptionValue(GLint value)
+	{
+		switch (value)
+		{
+		case GL_REPEAT:
+			return RenderApi::TextureOptionValue::Repeat;
+		case GL_CLAMP_TO_EDGE:
+			return RenderApi::TextureOptionValue::ClampToEdge;
+		case GL_LINEAR:
+			return RenderApi::TextureOptionValue::Linear;
+		case GL_LINEAR_MIPMAP_LINEAR:
+			return RenderApi::TextureOptionValue::LinearMipmap;
+		}
+
+		RE_ASSERT(false, "Invalid texture option value !");
+		return RenderApi::TextureOptionValue::Repeat;
+	}
+
 	unsigned int DepthFunctionToGL(RenderApi::DepthFunction function)
 	{
 		switch (function)
@@ -457,6 +475,14 @@ namespace RexEngine
 	{
 		BindTexture(id, target);
 		GL_CALL(glTexParameteri(Internal::TextureTargetToGL(target), Internal::TextureOptionToGL(option), Internal::TextureOptionValueToGL(value)));
+	}
+
+	RenderApi::TextureOptionValue RenderApi::GetTextureOption(TextureID id, TextureTarget target, TextureOption option)
+	{
+		GLint value;
+		BindTexture(id, target);
+		GL_CALL(glGetTexParameterIiv(Internal::TextureTargetToGL(target), Internal::TextureOptionToGL(option), &value));
+		return Internal::GLToTextureOptionValue(value);
 	}
 
 	void RenderApi::DeleteTexture(TextureID id)

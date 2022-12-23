@@ -179,6 +179,8 @@ namespace RexEditor
 			static RenderApi::PixelFormat tempFormat = RenderApi::PixelFormat::RGB;
 			static bool tempHdr = false;
 			static bool tempFlipY = false;
+			static RenderApi::TextureOptionValue tempWrapS = RenderApi::TextureOptionValue::Repeat;
+			static RenderApi::TextureOptionValue tempWrapT = RenderApi::TextureOptionValue::Repeat;
 			static Guid lastGuid = Guid::Empty;
 
 			if(texture.GetAssetGuid() != lastGuid)
@@ -187,6 +189,8 @@ namespace RexEditor
 				tempFormat = texture->GetFormat();
 				tempHdr = texture->GetHdr();
 				tempFlipY = texture->GetFlipY();
+				tempWrapS = texture->GetOption(RenderApi::TextureOption::WrapS);
+				tempWrapT = texture->GetOption(RenderApi::TextureOption::WrapT);
 				lastGuid = texture.GetAssetGuid();
 			}
 
@@ -225,6 +229,12 @@ namespace RexEditor
 			
 			UI::CheckBox flipY("Flip Y", tempFlipY);
 			UI::CheckBox   hdr("Hdr   ", tempHdr); 
+
+			UI::EmptyLine();
+			// Texture options :
+			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapS("Wrap X", {"Repeat", "Clamp to edge"}, tempWrapS);
+			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapT("Wrap Y", {"Repeat", "Clamp to edge"}, tempWrapT);
+
 
 			if (UI::Button apply("Apply Changes"); apply.IsClicked())
 			{
