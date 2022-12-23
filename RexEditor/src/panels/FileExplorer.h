@@ -52,7 +52,7 @@ namespace RexEditor
 			// Calculate the number of columns
 			int itemWidth = 64 * m_scale;
 			int cols = (int)floor((float)PanelSize().x / (float)(itemWidth + 8));
-			cols = RexEngine::Scalar::Clamp(cols, 0, 64); // imgui needs a value between 0 and 64
+			cols = RexEngine::Scalar::Clamp(cols, 1, 64); // imgui needs a value between 1 and 64
 
 			// The file names should be small
 			UI::PushFontScale(UI::FontScale::Small);
