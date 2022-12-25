@@ -5,6 +5,8 @@
 #include "../ui/UIElements.h"
 #include "../ui/UI.h"
 
+#include "core/ShaderAttributes.h"
+
 namespace RexEditor
 {
 	class AssetInspector
@@ -133,12 +135,25 @@ namespace RexEditor
 			auto names = mat->GetUniforms();
 			for (auto& name : names)
 			{
+				auto attributes = mat->GetUniformAttributes(name);
+				if (attributes.contains("Hide"))
+					continue;
+
 				auto& uniform = mat->GetUniform(name);
 
 				if (std::holds_alternative<float>(uniform))
 				{
-					UI::FloatInput in(name, std::get<float>(uniform));
-					needsSave |= in.HasChanged();
+					if (attributes.contains("Slider"))
+					{
+						auto slider = std::any_cast<SliderShaderAttribute>(attributes["Slider"]);
+						UI::FloatSlider in(name, slider.Min, slider.Max, -1, std::get<float>(uniform));
+						needsSave |= in.HasChanged();
+					}
+					else
+					{ 
+						UI::FloatInput in(name, std::get<float>(uniform));
+						needsSave |= in.HasChanged();
+					}
 				}
 				else if (std::holds_alternative<Vector3>(uniform))
 				{

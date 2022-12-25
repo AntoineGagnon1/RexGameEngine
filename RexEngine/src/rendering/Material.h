@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <variant>
+#include <type_traits>
 
 #include "../core/Guid.h"
 #include "../core/Log.h"
@@ -34,6 +35,13 @@ namespace RexEngine
 		UniformType& GetUniform(const std::string& name)
 		{
 			return m_uniforms[name];
+		}
+
+		auto GetUniformAttributes(const std::string& name) 
+		{
+			if(m_shader)
+				return m_shader->GetUniformAttributes(name);
+			return  decltype(std::declval<Shader>().GetUniformAttributes(""))();
 		}
 
 		// Get the name of all the uniforms

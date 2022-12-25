@@ -335,7 +335,7 @@ namespace RexEditor::UI
 
 		if (hovered) // Tooltip
 		{
-			std::string name = "";
+			std::string name = "No Texture !";
 			auto path = AssetManager::GetAssetPathFromGuid(currentGuid);
 			if (path.has_filename())
 				name = path.filename().string();
@@ -449,6 +449,10 @@ namespace RexEditor::UI
 		: Input(value)
 	{
 		auto& style = ImGui::GetStyle();
+	
+		if (width == -1)
+			width = ImGui::GetContentRegionAvail().x - (ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x);
+
 		const Vector2 size = { width + ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x,
 						 ImGui::GetFrameHeight() };
 

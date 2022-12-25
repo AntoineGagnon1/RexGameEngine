@@ -16,7 +16,7 @@ namespace RexEngine
 		: m_id(RenderApi::InvalidShaderID), m_cullingMode(cullingMode), m_priority(priority)
 	{
 		// Parse the data to extract the shaders
-		auto [vertexSource, fragmentSource] = ParseShaders(data);
+		auto [vertexSource, fragmentSource, attributes] = ParseShaders(data);
 
 		auto vertex = RenderApi::CompileShader(vertexSource, RenderApi::ShaderType::Vertex);
 		auto fragment = RenderApi::CompileShader(fragmentSource, RenderApi::ShaderType::Fragment);
@@ -29,7 +29,16 @@ namespace RexEngine
 			RenderApi::DeleteShader(fragment);
 
 			// Cache the uniforms
-			m_uniforms = RenderApi::GetShaderUniforms(m_id);
+			auto uniforms = RenderApi::GetShaderUniforms(m_id);
+			for (auto& [name, data] : uniforms)
+			{
+				decltype(Uniform::Attributes) attribs;
+				if (attributes.contains(name))
+					attribs = attributes[name];
+
+				Uniform uniform{ std::get<0>(data), std::get<1>(data), attribs };
+				m_uniforms[name] = uniform;
+			}
 		}
 	}
 
@@ -75,28 +84,28 @@ namespace RexEngine
 	{
 		RE_ASSERT(HasUniform(name), "No Matrix4 Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformMatrix4(std::get<0>(m_uniforms[name]), matrix);
+		RenderApi::SetUniformMatrix4(m_uniforms[name].ID, matrix);
 	}
 
 	void Shader::SetUniformVector3(const std::string& name, const Vector3& vec)
 	{
 		RE_ASSERT(HasUniform(name), "No Vector3 Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformVector3(std::get<0>(m_uniforms[name]), vec);
+		RenderApi::SetUniformVector3(m_uniforms[name].ID, vec);
 	}
 
 	void Shader::SetUniformFloat(const std::string& name, float value)
 	{
 		RE_ASSERT(HasUniform(name), "No Float Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformFloat(std::get<0>(m_uniforms[name]), value);
+		RenderApi::SetUniformFloat(m_uniforms[name].ID, value);
 	}
 
 	void Shader::SetUniformInt(const std::string& name, int value)
 	{
 		RE_ASSERT(HasUniform(name), "No Int Uniform called {}", name);
 		Bind();
-		RenderApi::SetUniformInt(std::get<0>(m_uniforms[name]), value);
+		RenderApi::SetUniformInt(m_uniforms[name].ID, value);
 	}
 
 	void Shader::RegisterParserUsing(const std::string& name, const std::string& replaceWith)
@@ -105,15 +114,18 @@ namespace RexEngine
 		s_parserUsings.insert({name, replaceWith});
 	}
 
-	std::tuple<std::string, std::string> Shader::ParseShaders(std::istream& fromStream)
+	std::tuple<std::string, std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::any>>> Shader::ParseShaders(std::istream& fromStream)
 	{
 		std::ostringstream vertexStream;
 		std::ostringstream fragmentStream;
+		std::unordered_map<std::string, std::unordered_map<std::string, std::any>> attributes;
 
 		std::string version = "#version 420 core"; // default version if not specified
 
 		std::string line;
 		std::ostringstream* writingTo = &vertexStream;
+
+		// Parse #pragma directives
 		while (std::getline(fromStream, line))
 		{	
 			
@@ -140,20 +152,21 @@ namespace RexEngine
 					}
 					else
 					{
-						(*writingTo) << s_parserUsings[arguments[2]] << std::endl;
+						std::string usingLine;
+						std::istringstream usingStream(s_parserUsings[arguments[2]]);
+
+						while (std::getline(usingStream, usingLine))
+						{
+							ParseLine(usingLine, attributes);
+							(*writingTo) << usingLine << std::endl;
+						}
 					}
 				}
 
 				continue;
 			}
 
-			if (line.find("location") != std::string::npos) // vertex attribute location
-			{
-				ReplaceIfFound(line, "POSITION", std::to_string(PositionLocation));
-				ReplaceIfFound(line, "NORMAL", std::to_string(NormalLocation));
-				ReplaceIfFound(line, "TEXCOORDS", std::to_string(UVLocation));
-			}
-
+			ParseLine(line, attributes);
 			(*writingTo) << line << std::endl; // Save the line to the appropriate shader
 		}
 
@@ -161,6 +174,53 @@ namespace RexEngine
 		std::string vertex = version + '\n' + vertexStream.str();
 		std::string fragment = version + '\n' + fragmentStream.str();
 
-		return std::make_tuple(vertex, fragment);
+		return std::make_tuple(vertex, fragment, attributes);
+	}
+
+	void Shader::ParseLine(std::string& line, std::unordered_map<std::string, std::unordered_map<std::string, std::any>>& attributes)
+	{
+		if (line.find("location") != std::string::npos) // vertex attribute location
+		{
+			ReplaceIfFound(line, "POSITION", std::to_string(PositionLocation));
+			ReplaceIfFound(line, "NORMAL", std::to_string(NormalLocation));
+			ReplaceIfFound(line, "TEXCOORDS", std::to_string(UVLocation));
+		}
+
+		if (auto pos = line.find("uniform"); pos != std::string::npos) // Attributes
+		{
+			std::smatch sm;
+
+			std::string::const_iterator start = line.begin();
+			std::string::const_iterator end = line.end();
+
+			auto nameEnd = line.find(";");
+			auto nameStart = line.substr(0, nameEnd).find_last_of(" ") + 1;
+			std::string uniformName = line.substr(nameStart, nameEnd - nameStart);
+
+			while (std::regex_search(start, end, sm, s_attributeMatcher))
+			{
+				auto str = sm.str();
+				auto argsStart = str.find("(");
+				if (argsStart == std::string::npos)
+				{
+					auto name = str.substr(1, str.length() - 2);
+
+					if (s_parserAttributes.contains(name))
+						attributes[uniformName][name] = s_parserAttributes[name]("");
+				}
+				else
+				{
+					auto name = str.substr(1, argsStart - 1);
+					auto args = str.substr(argsStart + 1, str.length() - (argsStart + 3));
+
+					if (s_parserAttributes.contains(name))
+						attributes[uniformName][name] = s_parserAttributes[name](args);
+				}
+
+				start = sm[0].second;
+			}
+
+			line = line.substr(start - line.begin());
+		}
 	}
 }

@@ -514,9 +514,9 @@ void main()
 
 		// Set the shader data
 		Shader::RegisterParserUsing("PBR", std::format(R"(
-layout(binding = {}) uniform samplerCube PBRIrradianceMap;
-layout(binding = {}) uniform samplerCube PBRPrefilterMap;
-layout(binding = {}) uniform sampler2D PBRBrdfLUT;
+[Hide]layout(binding = {}) uniform samplerCube PBRIrradianceMap;
+[Hide]layout(binding = {}) uniform samplerCube PBRPrefilterMap;
+[Hide]layout(binding = {}) uniform sampler2D PBRBrdfLUT;
 )", s_irradianceMapSlot, s_prefilterMapSlot, s_brdfLUTSlot));
 
 	}

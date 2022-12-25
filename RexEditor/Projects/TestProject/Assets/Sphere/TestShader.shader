@@ -32,10 +32,10 @@ out vec4 FragColor;
 const float PI = 3.14159265359;
 
 // TODO : Include functions and uniforms in #using PBR
-uniform vec3  albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
+[Slider(0,1)] uniform vec3  albedo;
+[Slider(0, 1)]uniform float metallic;
+[Slider(0, 1)]uniform float roughness;
+[Slider(0, 1)]uniform float ao;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {

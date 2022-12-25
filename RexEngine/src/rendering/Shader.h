@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 #include <ranges>
+#include <any>
+#include <regex>
 
 #include "RenderApi.h"
 //#include "../core/Serialization.h"
@@ -13,6 +15,20 @@ namespace RexEngine
 	// 1 : Scene data (forwardRenderer)
 	// 2 : Model data (renderQueue)
 	// 3 : Lighting
+
+	template<typename T>
+	concept UniformAttribute = requires(const std::string& args)
+	{
+		T(args);
+	};
+
+	struct Uniform
+	{
+		int ID; // RenderApi id in the shader
+		RenderApi::UniformType Type;
+
+		std::unordered_map<std::string, std::any> Attributes;
+	};
 
 	class Shader
 	{
@@ -62,13 +78,28 @@ namespace RexEngine
 		RenderApi::UniformType GetUniformType(const std::string& name)
 		{
 			if (m_uniforms.contains(name))
-				return std::get<1>(m_uniforms[name]);
+				return m_uniforms[name].Type;
 			RE_LOG_ERROR("No uniform named : {}", name);
 			return (RenderApi::UniformType)-1;
 		}
 
+		auto GetUniformAttributes(const std::string& name) 
+		{
+			if (m_uniforms.contains(name))
+				return m_uniforms[name].Attributes;
+			RE_LOG_ERROR("No uniform named : {}", name);
+			return decltype(Uniform::Attributes)();
+		}
+
 		// Register a #pragma using clause for the shader parser
 		static void RegisterParserUsing(const std::string& name, const std::string& replaceWith);
+
+		// Attributes need a constructor like : T(const std::string& args)
+		template<UniformAttribute T>
+		inline static void RegisterAttribute(const std::string& name)
+		{
+			s_parserAttributes.insert({ name, [](auto args) { return T(args); } });
+		}
 
 		template<typename Archive>
 		inline static std::shared_ptr<Shader> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
@@ -96,7 +127,10 @@ namespace RexEngine
 
 	private:
 
-		static std::tuple<std::string, std::string> ParseShaders(std::istream& data);
+		static std::tuple<std::string, std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::any>>> ParseShaders(std::istream& data);
+
+		//															uniform name, attribute
+		static void ParseLine(std::string& line, std::unordered_map<std::string, std::unordered_map<std::string, std::any>>& attributes);
 
 	private:
 		RenderApi::ShaderID m_id;
@@ -104,10 +138,14 @@ namespace RexEngine
 		RenderApi::CullingMode m_cullingMode;
 		char m_priority;
 
-		std::unordered_map<std::string, std::tuple<int, RenderApi::UniformType>> m_uniforms;
+		std::unordered_map<std::string, Uniform> m_uniforms;
 		
 		// the key is the name after #pragma using (key here) and the value is the text to add to the shader
 		inline static std::unordered_map<std::string, std::string> s_parserUsings;
+
+		inline static std::unordered_map<std::string, std::function<std::any(const std::string&)>> s_parserAttributes;
+
+		inline static const std::regex s_attributeMatcher = std::regex(R"(\[.*?\])");
 	};
 
 }
