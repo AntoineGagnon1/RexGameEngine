@@ -80,13 +80,21 @@ namespace RexEditor
 						auto extension = entry.path().extension().string();
 						if (extension != AssetFileExtension) // Dont show .asset metadata files
 						{
-							UI::Icon icon(entry.path().filename().string(), 
-								EditorAssets::FileIcon(),
+							// Get the asset type
+							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
+							
+							const Texture* iconTexture = &EditorAssets::FileIcon();
+
+							if (s_getIcons.contains(type.type)) // Check for special icons
+							{
+								iconTexture = &s_getIcons[type.type](AssetManager::GetAssetGuidFromPath(entry.path()));
+							}
+
+							UI::Icon icon(entry.path().filename().string(),
+								*iconTexture,
 								{ itemWidth ,itemWidth }
 							);
 
-							// Get the asset type
-							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
 							if (!type.Empty())
 							{
 								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Clicked))
@@ -130,6 +138,7 @@ namespace RexEditor
 			}
 		}
 
+	public:
 		inline static UI::MenuSystem<>& ContextMenu()
 		{
 			static auto menu = [] {
@@ -170,6 +179,12 @@ namespace RexEditor
 			return menu;
 		}
 
+		template<typename T>
+		inline static void RegisterIcon(std::function<const Texture&(Guid)> callback)
+		{
+			s_getIcons[typeid(T)] = callback;
+		}
+
 	private:
 
 		void OnProjectLoad(Project p)
@@ -181,5 +196,8 @@ namespace RexEditor
 		std::filesystem::path m_currentFolder;
 		bool m_canInspect = true;
 		float m_scale = 1.5f;
+
+		// std::function<iconID(asset guid)>
+		inline static std::unordered_map<std::type_index, std::function<const Texture&(Guid)>> s_getIcons;
 	};
 }
