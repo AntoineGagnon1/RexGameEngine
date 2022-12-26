@@ -30,6 +30,7 @@
 #include "src/rendering/PBR.h"
 #include "src/rendering/MSAATexture.h"
 #include "src/rendering/Material.h"
+#include "src/rendering/shaders/PBRLit.h"
 
 // Window
 #include "src/window/Window.h"

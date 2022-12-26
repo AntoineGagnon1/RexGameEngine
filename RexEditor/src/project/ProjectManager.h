@@ -16,7 +16,7 @@ namespace RexEditor
 	{
 	public:
 
-		// Create a project in the directory
+		// Create and load a project in the directory
 		// this will create a new directory [name] at the path
 		// returns false if one of the files could not be created
 		static bool Create(const std::filesystem::path& path, const std::string& name);

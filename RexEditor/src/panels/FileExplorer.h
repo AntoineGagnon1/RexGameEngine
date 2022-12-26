@@ -37,7 +37,7 @@ namespace RexEditor
 
 			
 			// Back arrow, dont go back if alredy at the root
-			if (UI::Button b("<-"); b.IsClicked() && m_currentFolder != ProjectManager::CurrentProject().rootPath)
+			if (UI::Button b("<-"); b.IsClicked() && m_currentFolder != ProjectManager::CurrentProject().rootPath / "Assets")
 			{
 				m_currentFolder = m_currentFolder.parent_path();
 			}
@@ -166,7 +166,7 @@ namespace RexEditor
 
 		void OnProjectLoad(Project p)
 		{
-			m_currentFolder = ProjectManager::CurrentProject().rootPath;
+			m_currentFolder = ProjectManager::CurrentProject().rootPath / "Assets";
 		}
 
 	private:

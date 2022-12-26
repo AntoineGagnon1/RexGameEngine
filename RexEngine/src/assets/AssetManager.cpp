@@ -32,6 +32,7 @@ namespace RexEngine
 	void AssetManager::LoadRegistry(const std::filesystem::path& path)
 	{
 		s_registry.clear();
+		s_assets.clear();
 		LoadRegistryRecursive(path);
 	}
 

@@ -26,6 +26,31 @@ namespace RexEditor
 		p.LastScenePath = "";
 		p.rootPath = rootPath;
 
+		SaveProject(p);
+		Load(p.rootPath / (name + Project::FileExtension));
+
+		// Create the asset directory
+		std::filesystem::create_directory(rootPath / "Assets");
+
+		// Add the default pbr shader
+		auto shaderPath = rootPath / "Assets" / "Shaders";
+		std::filesystem::create_directory(shaderPath);
+
+		// PBR Lit
+		auto pbrLit = std::ofstream(shaderPath / "PBRLit.shader");
+		pbrLit << PBRLitSource;
+		auto pbrLitGuid = Guid::Generate();
+		AssetManager::AddAsset<Shader>(pbrLitGuid, shaderPath / "PBRLit.shader");
+		AssetManager::SaveAsset<Shader>(pbrLitGuid);
+
+		// Create a default scene
+		std::filesystem::create_directory(rootPath / "Assets/Scenes");
+		auto scene = Asset<Scene>(Guid::Generate(), Scene::CreateScene());
+		AssetManager::AddAsset<Scene>(scene.GetAssetGuid(), rootPath / "Assets/Scenes/Start.scene", scene);
+		AssetManager::SaveAsset<Scene>(scene.GetAssetGuid());
+
+		OpenScene(rootPath / "Assets/Scenes/Start.scene");
+
 		return SaveProject(p);
 	}
 
@@ -51,7 +76,8 @@ namespace RexEditor
 		s_currentProject = p;
 
 		// Try to load the scene from the path, if a path was specified
-		OpenScene(path.parent_path() / p.LastScenePath);
+		if(!p.LastScenePath.empty())
+			OpenScene(path.parent_path() / p.LastScenePath);
 
 		// On project load event
 		EditorEvents::OnLoadProject().Dispatch(std::forward<Project>(p));

@@ -1,3 +1,10 @@
+#pragma once
+
+#include <string>
+
+namespace RexEngine
+{
+	inline const std::string PBRLitSource = R"(
 #pragma vertex
 
 #pragma using SceneData // Get the scene data (viewMatrix, projectionMatrix)
@@ -145,4 +152,6 @@ void main()
     color = pow(color, vec3(1.0 / 2.2));
 
     FragColor = vec4(color, 1.0);
+}
+	)";
 }

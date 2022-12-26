@@ -1,3 +1,4 @@
+
 #pragma vertex
 
 #pragma using SceneData // Get the scene data (viewMatrix, projectionMatrix)
@@ -146,3 +147,4 @@ void main()
 
     FragColor = vec4(color, 1.0);
 }
+	
