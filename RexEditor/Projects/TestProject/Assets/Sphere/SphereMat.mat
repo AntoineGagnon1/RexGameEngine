@@ -1,19 +1,10 @@
 {
-    "Shader": "514074528939710340 1671822907119108",
+    "Shader": "5812259726580563324 1672092739822343",
     "Uniforms": [
         {
             "key": "PBRBrdfLUT",
             "value": {
                 "index": 13,
-                "data": {
-                    "Guid": "0 0"
-                }
-            }
-        },
-        {
-            "key": "PBRIrradianceMap",
-            "value": {
-                "index": 14,
                 "data": {
                     "Guid": "0 0"
                 }
@@ -27,12 +18,28 @@
             }
         },
         {
+            "key": "PBRIrradianceMap",
+            "value": {
+                "index": 14,
+                "data": {
+                    "Guid": "0 0"
+                }
+            }
+        },
+        {
             "key": "PBRPrefilterMap",
             "value": {
                 "index": 14,
                 "data": {
                     "Guid": "0 0"
                 }
+            }
+        },
+        {
+            "key": "metallic",
+            "value": {
+                "index": 0,
+                "data": 1.0
             }
         },
         {
@@ -44,13 +51,6 @@
                     0.0,
                     0.0
                 ]
-            }
-        },
-        {
-            "key": "metallic",
-            "value": {
-                "index": 0,
-                "data": 1.0
             }
         },
         {
