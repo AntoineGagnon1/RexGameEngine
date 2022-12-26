@@ -46,7 +46,7 @@ namespace RexEngine
 			}
 			else
 			{ // File
-				if (entry.path().has_extension() && entry.path().extension() == Asset<int>::FileExtension)
+				if (entry.path().has_extension() && entry.path().extension() == AssetFileExtension)
 				{
 					// Read the guid
 					std::ifstream file(entry.path());

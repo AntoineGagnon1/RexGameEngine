@@ -74,7 +74,7 @@ namespace RexEditor
 					else // File
 					{
 						auto extension = entry.path().extension().string();
-						if (extension != Asset<int>::FileExtension) // Dont show .asset metadata files
+						if (extension != AssetFileExtension) // Dont show .asset metadata files
 						{
 							UI::Icon icon(entry.path().filename().string(), 
 								EditorAssets::FileIcon(),

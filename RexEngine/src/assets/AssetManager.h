@@ -39,9 +39,6 @@ namespace RexEngine
 	class Asset
 	{
 	public:
-		inline static const std::string FileExtension = ".asset";
-
-	public:
 		Asset()
 			: m_guid(Guid::Empty), m_asset(nullptr)
 		{}
@@ -89,6 +86,9 @@ namespace RexEngine
 		Guid m_guid;
 		std::shared_ptr<T> m_asset;
 	};
+
+
+	inline const std::string AssetFileExtension = ".asset";
 
 
 	// Check for this : 
@@ -254,8 +254,8 @@ namespace RexEngine
 		// add the .asset after the path
 		inline static void AddMetaExtension(std::filesystem::path& path)
 		{
-			if (!path.has_extension() || path.extension() != Asset<int>::FileExtension)
-				path += Asset<int>::FileExtension;
+			if (!path.has_extension() || path.extension() != AssetFileExtension)
+				path += AssetFileExtension;
 		}
 
 		template<typename T>
