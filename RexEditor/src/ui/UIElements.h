@@ -27,7 +27,7 @@ namespace RexEditor::UI
         bool m_hovered; // Needs to be set, either manually or by calling CacheHovered()
     };
 
-    enum class MouseAction { Clicked, Released };
+    enum class MouseAction { Clicked, Released, Pressed };
 
     class Clickable : public Hoverable
     {
@@ -215,10 +215,10 @@ namespace RexEditor::UI
     {
         // Non template functon for AssetInput
         // returns the new path, or an empty path if the asset has not changed
-        std::filesystem::path AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
+        std::filesystem::path AssetInputUI(const std::string& label, const std::string& assetType, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
 
         // ratio is y/x
-        std::filesystem::path TextureInputUI(const std::string& label, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
+        std::filesystem::path TextureInputUI(const std::string& label, const std::string& assetType, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered);
     }
 
     // Used to select an asset, 
@@ -233,7 +233,7 @@ namespace RexEditor::UI
         AssetInput(const std::string& label, AssetType& value)
             : Input<AssetType>(value)
         {
-            auto newPath = Internal::AssetInputUI(label, SystemDialogs::GetAssetTypeFilter<T>(), value.GetAssetGuid(), Hoverable::m_hovered);
+            auto newPath = Internal::AssetInputUI(label, AssetTypes::GetAssetType<T>().name, SystemDialogs::GetAssetTypeFilter<T>(), value.GetAssetGuid(), Hoverable::m_hovered);
 
             if (!newPath.empty())
             {
@@ -272,7 +272,7 @@ namespace RexEditor::UI
                 ratio = (float)value->Size().y / (float)value->Size().x;
             }
 
-            auto newPath = Internal::TextureInputUI(label, id, ratio, SystemDialogs::GetAssetTypeFilter<Texture>(), value.GetAssetGuid(), Hoverable::m_hovered);
+            auto newPath = Internal::TextureInputUI(label, AssetTypes::GetAssetType<Texture>().name, id, ratio, SystemDialogs::GetAssetTypeFilter<Texture>(), value.GetAssetGuid(), Hoverable::m_hovered);
 
             if (!newPath.empty())
             {

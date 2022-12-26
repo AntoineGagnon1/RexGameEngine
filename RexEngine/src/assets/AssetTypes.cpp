@@ -6,6 +6,7 @@
 #include "rendering/Material.h"
 #include "rendering/Texture.h"
 #include "rendering/Cubemap.h"
+#include "scene/Scene.h"
 
 namespace RexEngine
 {
@@ -14,7 +15,7 @@ namespace RexEngine
 		std::vector<AssetType> types = {
 			{ "Shader", { ".shader" }, typeid(Shader), false},
 			{ "Mesh", {".obj"}, typeid(Mesh), false},
-			{ "Scene", {".scene"}, typeid(Mesh), false},
+			{ "Scene", {".scene"}, typeid(Scene), false},
 			{ "Material", {".mat"}, typeid(Material), false},
 			{ "Texture", {".png", ".hdr"}, typeid(Texture), true},
 			{ "Cubemap", {".cubemap"}, typeid(Cubemap), true}

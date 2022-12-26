@@ -69,7 +69,11 @@ namespace RexEditor
 						UI::Icon icon(entry.path().filename().string(), EditorAssets::FolderIcon(), {itemWidth ,itemWidth});
 						
 						if (icon.IsDoubleClicked()) // go into the folder
+						{
 							m_currentFolder = entry.path();
+							m_canInspect = false;
+							break;
+						}
 					}
 					else // File
 					{
@@ -85,8 +89,12 @@ namespace RexEditor
 							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
 							if (!type.Empty())
 							{
-								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Released)) // Tell the inspector
-								{
+								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Clicked))
+									m_canInspect = true;
+
+								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Released) 
+									&& m_canInspect) // Debounce, don't inspect if the folder just changed
+								{ // Tell the inspector
 									InspectorPanel::InspectElement(std::bind(&AssetInspector::InspectAsset,
 										std::placeholders::_1, type, entry.path()));
 								}
@@ -171,6 +179,7 @@ namespace RexEditor
 
 	private:
 		std::filesystem::path m_currentFolder;
+		bool m_canInspect = true;
 		float m_scale = 1.5f;
 	};
 }

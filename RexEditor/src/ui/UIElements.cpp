@@ -71,8 +71,10 @@ namespace RexEditor::UI
 	{
 		if(action == MouseAction::Clicked)
 			return(IsHovered() && ImGui::IsMouseClicked(Internal::ImGuiButtons[(int)mouseButton]));
-		else
+		else if (action == MouseAction::Released)
 			return(IsHovered() && ImGui::IsMouseReleased(Internal::ImGuiButtons[(int)mouseButton]));
+		else
+			return(IsHovered() && ImGui::IsMouseDown(Internal::ImGuiButtons[(int)mouseButton]));
 	}
 
 	bool Clickable::IsDoubleClicked(RexEngine::MouseButton mouseButton) const
@@ -269,7 +271,7 @@ namespace RexEditor::UI
 		m_changed = v0.HasChanged() || v1.HasChanged() || v2.HasChanged() || v3.HasChanged();
 	}
 
-	std::filesystem::path Internal::AssetInputUI(const std::string& label, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
+	std::filesystem::path Internal::AssetInputUI(const std::string& label, const std::string& assetType, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
 	{
 		// Get the name of this asset (if any)
 		// The name is the filename (stem)
@@ -281,7 +283,7 @@ namespace RexEditor::UI
 		Internal::SetupInput(label);
 		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
 		hovered = ImGui::IsItemHovered();
-		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + filter[0]); // The first element in filter is always type.name
+		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + assetType);
 		if (payload)
 		{
 			return *payload;
@@ -298,7 +300,7 @@ namespace RexEditor::UI
 		return ""; // No change
 	}
 
-	std::filesystem::path Internal::TextureInputUI(const std::string& label, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
+	std::filesystem::path Internal::TextureInputUI(const std::string& label, const std::string& assetType, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
 	{
 		auto& style = ImGui::GetStyle();
 		ImVec2 imgSize{ // Max 196 pixels wide
@@ -342,7 +344,7 @@ namespace RexEditor::UI
 			ImGui::SetTooltip(name.c_str());
 		}
 
-		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + filter[0]); // The first element in filter is always type.name
+		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + assetType);
 		if (payload)
 		{
 			return *payload;
@@ -406,7 +408,7 @@ namespace RexEditor::UI
 		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
 		else
-			return Clickable::IsClicked(mouseButton);
+			return Clickable::IsClicked(mouseButton, action);
 	}
 
 	Icon::Icon(const std::string& label, const RexEngine::Texture& icon, Vector2 iconSize)
@@ -440,7 +442,7 @@ namespace RexEditor::UI
 		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
 		else
-			return Clickable::IsClicked(mouseButton);
+			return Clickable::IsClicked(mouseButton, action);
 	}
 
 
@@ -597,7 +599,7 @@ namespace RexEditor::UI
 		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
 		else
-			Clickable::IsClicked(mouseButton);
+			Clickable::IsClicked(mouseButton, action);
 	}
 
 
