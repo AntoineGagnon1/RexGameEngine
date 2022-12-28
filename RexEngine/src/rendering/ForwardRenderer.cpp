@@ -52,7 +52,6 @@ namespace RexEngine
 				RenderQueue::AddCommand(RenderCommand(c.material, skyboxMesh, Matrix4::Identity));
 		}
 		// Render the skybox
-		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
 		RenderQueue::ExecuteCommands();
 
 		// Revert to the complete matrix
@@ -70,7 +69,6 @@ namespace RexEngine
 		}
 
 		// Execute the render queue to actually render the objects on the screen
-		RenderApi::SetDepthFunction(RenderApi::DepthFunction::Less);
 		RenderQueue::ExecuteCommands();
 	}
 

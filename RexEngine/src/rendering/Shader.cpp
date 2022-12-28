@@ -12,8 +12,8 @@ namespace {
 
 namespace RexEngine
 {
-	Shader::Shader(std::istream& data, RenderApi::CullingMode cullingMode, char priority)
-		: m_id(RenderApi::InvalidShaderID), m_cullingMode(cullingMode), m_priority(priority)
+	Shader::Shader(std::istream& data, RenderApi::CullingMode cullingMode, char priority, RenderApi::DepthFunction depth)
+		: m_id(RenderApi::InvalidShaderID), m_cullingMode(cullingMode), m_priority(priority), m_depthFunction(depth)
 	{
 		// Parse the data to extract the shaders
 		auto [vertexSource, fragmentSource, attributes] = ParseShaders(data);
@@ -42,8 +42,8 @@ namespace RexEngine
 		}
 	}
 
-	Shader::Shader(const std::string& data, RenderApi::CullingMode cullingMode, char priority)
-		: Shader((std::istream&)std::istringstream(data), cullingMode, priority)
+	Shader::Shader(const std::string& data, RenderApi::CullingMode cullingMode, char priority, RenderApi::DepthFunction depth)
+		: Shader((std::istream&)std::istringstream(data), cullingMode, priority, depth)
 	{
 
 	}
@@ -53,7 +53,7 @@ namespace RexEngine
 		RenderApi::DeleteLinkedShader(m_id);
 	}
 
-	std::shared_ptr<Shader> Shader::FromFile(const std::string& path, RenderApi::CullingMode cullingMode, char priority)
+	std::shared_ptr<Shader> Shader::FromFile(const std::string& path, RenderApi::CullingMode cullingMode, char priority, RenderApi::DepthFunction depth)
 	{
 		std::ifstream f(path);
 		std::string str;
@@ -61,7 +61,7 @@ namespace RexEngine
 		{
 			std::stringstream ss;
 			ss << f.rdbuf();
-			return std::make_shared<Shader>(ss, cullingMode, priority);
+			return std::make_shared<Shader>(ss, cullingMode, priority, depth);
 		}
 
 		RE_LOG_ERROR("Could not open the shader at : {}", path);
@@ -71,12 +71,14 @@ namespace RexEngine
 	void Shader::Bind() const
 	{
 		RenderApi::SetCullingMode(m_cullingMode);
+		RenderApi::SetDepthFunction(m_depthFunction);
 		RenderApi::BindShader(m_id);
 	}
 
 	void Shader::UnBind()
 	{
 		RenderApi::SetCullingMode(RenderApi::CullingMode::Front);
+		RenderApi::SetDepthFunction(RenderApi::DepthFunction::Less);
 		RenderApi::BindShader(RenderApi::InvalidShaderID);
 	}
 

@@ -1,5 +1,6 @@
 {
     "AssetGuid": "5812259726580563324 1672092739822343",
     "CullingMode": 0,
-    "Priority": 0
+    "Priority": 0,
+	"DepthFunction": 0
 }

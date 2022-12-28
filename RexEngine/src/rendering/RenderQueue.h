@@ -28,10 +28,6 @@ namespace RexEngine
 		struct ModelUniforms
 		{
 			Matrix4 modelToWorld;
-
-		private:
-			// Only used to register to the shader parser, see definition at the bottom of the file
-			static int RegisterParser;
 		};
 
 	public:
@@ -40,15 +36,12 @@ namespace RexEngine
 
 		static void ExecuteCommands();
 
-	private:
 		static RenderApi::BufferID GetModelUniforms();
 	private:
 		inline static std::vector<RenderCommand> m_renderCommands;
-	};
 
-	inline int RenderQueue::ModelUniforms::RegisterParser = []
-	{
-		Shader::RegisterParserUsing("ModelData", "layout (std140, binding = 2) uniform ModelData{ mat4 modelToWorld; }; ");
-		return 0;
-	}();
+		RE_STATIC_CONSTRUCTOR({
+			Shader::RegisterParserUsing("ModelData", "layout (std140, binding = 2) uniform ModelData{ mat4 modelToWorld; }; ");
+		});
+	};
 }

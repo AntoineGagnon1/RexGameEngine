@@ -83,9 +83,10 @@ namespace RexEditor
 			// Culling mode and priority
 			UI::ComboBoxEnum<RenderApi::CullingMode> cullingMode("Render faces", { "Front", "Back", "Both" }, shader->CullingMode());
 			UI::ByteInput priority("Priority", shader->Priority());
+			UI::ComboBoxEnum<RenderApi::DepthFunction> depthFunc("Depth function", { "Less", "Less Equal", "Greater", "Greater Equal" }, shader->DepthFunction());
 
 			// Changed
-			if (cullingMode.HasChanged() || priority.HasChanged())
+			if (cullingMode.HasChanged() || priority.HasChanged() || depthFunc.HasChanged())
 				AssetManager::SaveAsset<Shader>(shader.GetAssetGuid());
 
 			UI::Separator();

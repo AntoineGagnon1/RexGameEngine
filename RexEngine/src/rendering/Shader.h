@@ -39,22 +39,24 @@ namespace RexEngine
 		inline static constexpr int UVLocation = 2;
 
 	public:
-		Shader(std::istream& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
-		Shader(const std::string& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
+		Shader(std::istream& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0, RenderApi::DepthFunction depth = RenderApi::DepthFunction::Less);
+		Shader(const std::string& data, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0, RenderApi::DepthFunction depth = RenderApi::DepthFunction::Less);
 		~Shader();
 
 		Shader(const Shader&) = delete;
 
 
-		static std::shared_ptr<Shader> FromFile(const std::string& path, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0);
+		static std::shared_ptr<Shader> FromFile(const std::string& path, RenderApi::CullingMode cullingMode = RenderApi::CullingMode::Front, char priority = 0, RenderApi::DepthFunction depth = RenderApi::DepthFunction::Less);
 		auto GetID() const { return m_id; }
 		bool IsValid() const { return m_id != RenderApi::InvalidShaderID; };
 
 		auto& CullingMode() { return m_cullingMode; }
 		auto& Priority() { return m_priority; }
+		auto& DepthFunction() { return m_depthFunction; }
 
 		auto CullingMode() const { return m_cullingMode; }
 		auto Priority() const { return m_priority; }
+		auto DepthFunction() const { return m_depthFunction; }
 
 		// Will also set the culling mode
 		void Bind() const;
@@ -104,25 +106,28 @@ namespace RexEngine
 		template<typename Archive>
 		inline static std::shared_ptr<Shader> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
 		{
-			int cullingMode;
+			int cullingMode, depthFunction;
 			char priority;
 			metaDataArchive(CUSTOM_NAME(cullingMode, "CullingMode"),
-				CUSTOM_NAME(priority, "Priority"));
-			return std::make_shared<Shader>(assetFile, (RenderApi::CullingMode)cullingMode, priority);
+				CUSTOM_NAME(priority, "Priority"),
+				CUSTOM_NAME(depthFunction, "DepthFunction"));
+			return std::make_shared<Shader>(assetFile, (RenderApi::CullingMode)cullingMode, priority, (RenderApi::DepthFunction)depthFunction);
 		}
 
 		template<typename Archive>
 		void SaveToAssetFile(Archive& metaDataArchive)
 		{
 			metaDataArchive(CUSTOM_NAME((int)m_cullingMode, "CullingMode"),
-				CUSTOM_NAME(m_priority, "Priority"));
+				CUSTOM_NAME(m_priority, "Priority"),
+				CUSTOM_NAME((int)m_depthFunction, "DepthFunction"));
 		}
 
 		template<typename Archive>
 		inline static void CreateMetaData(Archive& metaDataArchive)
 		{
 			metaDataArchive(CUSTOM_NAME((int)RenderApi::CullingMode::Front, "CullingMode"),
-				CUSTOM_NAME((char)0, "Priority"));
+				CUSTOM_NAME((char)0, "Priority"),
+				CUSTOM_NAME((int)RenderApi::DepthFunction::Less, "DepthFunction"));
 		}
 
 	private:
@@ -137,6 +142,7 @@ namespace RexEngine
 
 		RenderApi::CullingMode m_cullingMode;
 		char m_priority;
+		RenderApi::DepthFunction m_depthFunction;
 
 		std::unordered_map<std::string, Uniform> m_uniforms;
 		
