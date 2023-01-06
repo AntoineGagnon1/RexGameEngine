@@ -14,7 +14,7 @@ namespace RexEngine
     public unsafe class CoreCalls
     {
         public static delegate* unmanaged[Stdcall]<bool, string, void> Assert;
-        public static delegate* unmanaged[Stdcall]<string, string, byte, void> Log; // callerInfo, msg, level
+        public static delegate* unmanaged[Stdcall]<byte, string, Int32, string, string, void> Log; // level, msg, line, func, file
 
         public static delegate* unmanaged[Stdcall]<GUID> GenGuid; // Generate a guid
         public static delegate* unmanaged[Stdcall]<GUID, StringBuilder, void> GuidToString; // Generate a guid
@@ -30,15 +30,15 @@ namespace RexEngine
 
         public static void LogInfo(string message, [CallerFilePath] string? path = null, [CallerMemberName] string? member = null, [CallerLineNumber] int line = 0)
         {
-            CoreCalls.Log($"[{Path.GetFileName(path)}:{member}:{line}]", message, 0);
+            CoreCalls.Log(0, message, line, member ?? "", Path.GetFileName(path) ?? "");
         }
         public static void LogWarning(string message, [CallerFilePath] string? path = null, [CallerMemberName] string? member = null, [CallerLineNumber] int line = 0)
         {
-            CoreCalls.Log($"[{Path.GetFileName(path)}:{member}:{line}]", message, 1);
+            CoreCalls.Log(1, message, line, member ?? "", Path.GetFileName(path) ?? "");
         }
         public static void LogError(string message, [CallerFilePath] string? path = null, [CallerMemberName] string? member = null, [CallerLineNumber] int line = 0)
         {
-            CoreCalls.Log($"[{Path.GetFileName(path)}:{member}:{line}]", message, 2);
+            CoreCalls.Log(2, message, line, member ?? "", Path.GetFileName(path) ?? "");
         }
     }
 

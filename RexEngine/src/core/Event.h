@@ -54,9 +54,9 @@ namespace RexEngine
 			m_sink.disconnect<T>(std::forward<decltype(instance)>(instance));
 		}
 
-		void Dispatch(Args&&... args)
+		void Dispatch(Args... args) const
 		{
-			m_signal.publish(std::forward<Args>(args)...);
+			m_signal.publish(args...);
 		}
 
 	private:

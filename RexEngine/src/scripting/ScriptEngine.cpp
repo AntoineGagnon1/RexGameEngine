@@ -18,18 +18,18 @@ namespace RexEngine::Internal
 	}
 
 	// level : 0 = info, 1 = warning, 2 = Error
-	void Log(const char* callerInfo, const char* msg, uint8_t level)
+	void Log(uint8_t level, const char* msg, uint32_t line, const char* func, const char* file)
 	{
 		switch (level)
 		{
 		case 0:
-			Log::Print(fg(fmt::color::gray), "CSHARP-INFO", "{} - {}", callerInfo, msg);
+			Log::LogEvent().Dispatch(Log::LogType::Info, std::string(msg), line, std::string(func), std::string(file));
 			break;
 		case 1:
-			Log::Print(fg(fmt::color::yellow), "CSHARP-WARNING", "{} - {}", callerInfo, msg);
+			Log::LogEvent().Dispatch(Log::LogType::Warning, std::string(msg), line, std::string(func), std::string(file));
 			break;
 		default:
-			Log::Print(fg(fmt::color::red) | fmt::emphasis::bold, "CSHARP-ERROR", "{} - {}", callerInfo, msg);
+			Log::LogEvent().Dispatch(Log::LogType::Error, std::string(msg), line, std::string(func), std::string(file));
 			break;
 		}
 	}

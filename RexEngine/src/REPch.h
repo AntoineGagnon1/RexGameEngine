@@ -22,8 +22,8 @@
 #include <fstream>
 
 #include "core/Log.h"
-#include "core/Assert.h"
 #include "core/Guid.h"
+#include "core/Event.h"
 
 #include "utils/Concepts.h"
 #include "utils/StringHelper.h"

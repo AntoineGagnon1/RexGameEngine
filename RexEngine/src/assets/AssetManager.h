@@ -10,7 +10,7 @@
 #include "AssetTypes.h"
 #include "../core/Guid.h"
 #include "../core/Serialization.h"
-#include "../events/EngineEvents.h"
+#include "../core/EngineEvents.h"
 
 namespace RexEngine
 {

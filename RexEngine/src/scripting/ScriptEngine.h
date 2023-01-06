@@ -6,7 +6,7 @@
 
 #include "../scene/Entity.h"
 
-#include "../events/EngineEvents.h"
+#include "../core/EngineEvents.h"
 #include "../utils/StaticConstructor.h"
 
 namespace RexEngine

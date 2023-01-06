@@ -4,8 +4,8 @@
 #include <map>
 
 #include "Action.h"
-#include "../core/Assert.h"
-#include "../events/EngineEvents.h"
+#include "../core/Log.h"
+#include "../core/EngineEvents.h"
 #include "../utils/StaticConstructor.h"
 
 namespace RexEngine

@@ -1,7 +1,7 @@
 #pragma once
 #include <chrono>
 
-#include "../events/EngineEvents.h"
+#include "../core/EngineEvents.h"
 #include "../utils/StaticConstructor.h"
 
 namespace RexEngine

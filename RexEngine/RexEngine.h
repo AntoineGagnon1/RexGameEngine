@@ -4,11 +4,12 @@
 
 // Core
 #include "src/core/Log.h"
-#include "src/core/Assert.h"
 #include "src/core/Guid.h"
 #include "src/core/Time.h"
 #include "src/core/FileStructure.h"
 #include "src/core/Serialization.h"
+#include "src/core/Event.h"
+#include "src/core/EngineEvents.h"
 
 // Math
 #include "src/math/Scalar.h"
@@ -44,10 +45,6 @@
 // Scripting
 #include "src/scripting/ScriptEngine.h"
 #include "src/scripting/ScriptHost.h"
-
-// Events
-#include "src/events/Event.h"
-#include "src/events/EngineEvents.h"
 
 // Assets
 #include "src/assets/AssetManager.h"

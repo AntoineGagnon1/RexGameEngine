@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../core/Guid.h"
-#include "../core/Assert.h"
+#include "../core/Log.h"
 #include "../core/Serialization.h"
 
 #include <entt/entt.hpp>

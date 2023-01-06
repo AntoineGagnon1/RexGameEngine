@@ -6,7 +6,7 @@
 #include <typeindex>
 
 #include "../math/Matrix.h"
-#include "../events/EngineEvents.h"
+#include "../core/EngineEvents.h"
 
 namespace RexEngine
 {
