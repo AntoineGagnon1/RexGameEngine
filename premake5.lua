@@ -80,7 +80,7 @@ externalproject "RexEditorScript"
 
 project "RexEditor"
     location "RexEditor"
-    kind "ConsoleApp"
+    kind "WindowedApp"
     language "C++"
     cppdialect "C++20"
 

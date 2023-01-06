@@ -14,7 +14,8 @@ namespace RexEngine::Log
 {
 	enum class LogType { Debug, Info, Warning, Error, Assert };
 
-	// Usage : LogEvent().Register<...>();
+	// Usage : LogEvent().Register<&OnLog>();
+	// void OnLog(RexEngine::Log::LogType type, const std::string& msg, uint_least32_t line, const std::string& func, const std::string& file)
 	inline auto& LogEvent() { static RexEngine::Event<LogType, // type 
 																  const std::string&, // msg
 																  uint_least32_t, // line

@@ -16,6 +16,7 @@ namespace RexEditor
 
 		UI::WindowSetting settings = UI::WindowSetting::NoCollapse;	
 		settings |= m_canDock == false ? UI::WindowSetting::NoDocking : UI::WindowSetting::None;
+		settings |= m_unsaved == true ? UI::WindowSetting::UnsavedDocument : UI::WindowSetting::None;
 
 		if (UI::Window w(m_title.c_str(), &m_open, settings); w.IsVisible())
 		{

@@ -8,8 +8,8 @@ namespace RexEngine
 		using byte = unsigned char;
 		float r, g, b, a;
 
-		Color() : Color(0.0f, 0.0f, 0.0f, 0.0f) {}
-		Color(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
+		constexpr Color() : Color(0.0f, 0.0f, 0.0f, 0.0f) {}
+		constexpr Color(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) {}
 
 		static Color FromRGBA32(byte r, byte g, byte b, byte a = 255)
 		{

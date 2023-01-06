@@ -5,7 +5,7 @@
 #include "panels/PanelManager.h"
 #include "project/ProjectManager.h"
 
-int main()
+int WinMain()
 {
 	using namespace RexEngine;
 	using namespace RexEditor;
@@ -29,7 +29,6 @@ int main()
 
 	// Temp to save some time while testing
 	ProjectManager::Load("../../../RexEditor/Projects/TestProject/TestProject.rexengine");
-
 
 	Timer editorFrameTime;
 	editorFrameTime.Start();

@@ -27,6 +27,9 @@ namespace RexEditor
 		const std::string& Title() const { return m_title; }
 		bool IsVisible() const { return m_open; }
 
+		bool IsUnsaved() const { return m_unsaved; }
+		void SetUnsaved(bool unsaved) { m_unsaved = unsaved; }
+
 	protected:
 		virtual void OnGui(float deltaTime) = 0;
 		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) {};
@@ -46,6 +49,7 @@ namespace RexEditor
 		bool m_focused;
 		bool m_hovered;
 		bool m_canDock;
+		bool m_unsaved; // little dot next to the name
 
 		UI::Window* m_window;
 	};

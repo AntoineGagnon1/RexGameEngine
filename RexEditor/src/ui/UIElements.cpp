@@ -532,9 +532,20 @@ namespace RexEditor::UI
 	}
 
 
-	Table::Table(const std::string& name, int nbCols)
+	TableFlags operator | (TableFlags lhs, TableFlags rhs)
 	{
-		m_visible = ImGui::BeginTable(name.c_str(), nbCols);
+		using T = std::underlying_type_t <TableFlags>;
+		return static_cast<TableFlags>(static_cast<T>(lhs) | static_cast<T>(rhs));
+	}
+	TableFlags& operator |= (TableFlags& lhs, TableFlags rhs)
+	{
+		lhs = lhs | rhs;
+		return lhs;
+	}
+
+	Table::Table(const std::string& name, int nbCols, TableFlags flags)
+	{
+		m_visible = ImGui::BeginTable(name.c_str(), nbCols, (int)flags);
 	}
 
 	Table::~Table()
@@ -565,7 +576,7 @@ namespace RexEditor::UI
 	Text::Text(const std::string& text)
 	{
 		Anchor::SetCursorPos(Internal::VecConvert(ImGui::CalcTextSize(text.c_str())));
-		ImGui::Text(text.c_str());
+		ImGui::TextWrapped(text.c_str());
 		CacheHovered();
 	}
 
