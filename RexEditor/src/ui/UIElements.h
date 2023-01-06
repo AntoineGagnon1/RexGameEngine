@@ -471,6 +471,14 @@ namespace RexEditor::UI
         FramedText(const std::string& text, bool border = false, RexEngine::Vector2 padding = {0.0f, 0.0f});
     };
 
+    //
+    // Image
+    //
+    class Image : public Clickable
+    {
+    public:
+        Image(const Texture& texture, Vector2 size = {-1,-1});
+    };
 
     //
     // Menu

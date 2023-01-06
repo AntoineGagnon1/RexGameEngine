@@ -1,13 +1,17 @@
 #include "REDPch.h"
+#include "AssetIcons.h"
+
 #include "panels/FileExplorer.h"
 
 namespace RexEditor::AssetIcons
 {
+	//				  <mat,   mesh>
 	std::map<std::pair<Guid, Guid>, std::shared_ptr<Texture>> s_previews;
 
-	const Texture& GetPreview(Asset<Material> mat, Asset<Mesh> mesh)
+
+	const Texture& AssetIcons::GetPreview(Asset<Material> mat, Asset<Mesh> mesh)
 	{
-		constexpr Vector2Int PreviewSize = {128,128};
+		constexpr Vector2Int PreviewSize = { 128,128 };
 
 		auto key = std::make_pair(mat.GetAssetGuid(), mesh.GetAssetGuid());
 		auto result = s_previews.find(key);
@@ -32,7 +36,7 @@ namespace RexEditor::AssetIcons
 		static NoDestroy<RenderBuffer> depth(RenderApi::PixelType::Depth, PreviewSize);
 
 		frameBuffer->BindTexture(*texture, RenderApi::FrameBufferTextureType::Color);
-		frameBuffer->BindRenderBuffer(*depth, RenderApi::FrameBufferTextureType::Depth);
+		frameBuffer->BindRenderBuffer(depth, RenderApi::FrameBufferTextureType::Depth);
 
 		frameBuffer->Bind();
 		RenderApi::SetViewportSize(PreviewSize);
@@ -46,6 +50,23 @@ namespace RexEditor::AssetIcons
 		FrameBuffer::UnBind();
 
 		return *texture;
+	}
+
+	Asset<Material> AssetIcons::PreviewMaterial()
+	{
+		static NoDestroy<Asset<Shader>> shader(Guid::Generate(), std::make_shared<Shader>(PBRLitSource));
+		static NoDestroy<Asset<Material>> material(Guid::Generate(), []() {
+			auto mat = std::make_shared<Material>(shader);
+
+			mat->GetUniform<Vector3>("albedo") = Vector3(0.5f, 0.5f, 0.5f);
+			mat->GetUniform<float>("metallic") = 0.0f;
+			mat->GetUniform<float>("roughness") = 1.0f;
+			mat->GetUniform<float>("ao") = 0.2f;
+
+			return mat;
+		}());
+
+		return material;
 	}
 
 
@@ -67,7 +88,13 @@ namespace RexEditor::AssetIcons
 		FileExplorerPanel::RegisterIcon<Material>([](Guid guid) -> const Texture& {
 			auto material = AssetManager::GetAsset<Material>(guid);
 			static NoDestroy<Asset<Mesh>> sphereMesh(Guid::Generate(), Shapes::GetSphereMesh());
-			return GetPreview(material, *sphereMesh.GetPtr());
+			return GetPreview(material, sphereMesh);
+		});
+
+		// Mesh
+		FileExplorerPanel::RegisterIcon<Mesh>([](Guid guid) -> const Texture& {
+			auto mesh = AssetManager::GetAsset<Mesh>(guid);
+			return GetPreview(PreviewMaterial(), mesh);
 		});
 
 		EditorEvents::OnEditorStop().Register<&AssetIcons::OnClose>();

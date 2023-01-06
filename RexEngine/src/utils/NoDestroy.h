@@ -39,6 +39,9 @@ namespace RexEngine
             return *(reinterpret_cast<pointerConst>(m_data));
         }
 
+        operator T& () { return operator*(); }
+        operator const T& () const { return operator*(); }
+
     private:
         alignas(T) int8_t m_data[sizeof(T)];
     };

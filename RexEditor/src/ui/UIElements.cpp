@@ -576,6 +576,19 @@ namespace RexEditor::UI
 	}
 
 
+	Image::Image(const Texture& texture, Vector2 size)
+	{
+		if (size.x == -1.0f)
+			size.x = ImGui::GetContentRegionAvail().x;
+		if (size.y == -1.0f)
+			size.y = ImGui::GetContentRegionAvail().y;
+
+		Anchor::SetCursorPos(size);
+		ImGui::Image((ImTextureID)texture.GetId(), Internal::VecConvert(size));
+		CacheHovered();
+	}
+
+
 	Menu::Menu(const std::string& label, bool enabled)
 	{
 		m_open = ImGui::BeginMenu(label.c_str(), enabled);
