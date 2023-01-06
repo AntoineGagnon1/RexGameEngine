@@ -212,8 +212,9 @@ namespace RexEditor
 
 			AssetHeader(assetPath);
 
-			UI::Text size(std::format("Size : ({},{})", texture->Width(), texture->Height()));
-		
+			auto tempSize = texture->Size();
+			UI::ReadOnly<UI::Vector2IntInput> size("Size", tempSize);
+
 			UI::ComboBoxEnum<RenderApi::TextureTarget> target("Texture type", { "Texture2D" }, tempTarget);
 
 			// Only some options are allowed based on the value of hdr

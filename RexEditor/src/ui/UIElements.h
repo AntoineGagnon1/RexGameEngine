@@ -192,6 +192,18 @@ namespace RexEditor::UI
         TextInput(const std::string& label, size_t maxSize, std::string& value, bool readOnly = false);
     };
 
+    class Vector2IntInput : public Input<RexEngine::Vector2Int>
+    {
+    public:
+        Vector2IntInput(const std::string& label, Vector2Int& value);
+    };
+
+    class Vector2Input : public Input<RexEngine::Vector2>
+    {
+    public:
+        Vector2Input(const std::string& label, Vector2& value);
+    };
+
     class Vector3Input : public Input<RexEngine::Vector3>
     {
     public:
@@ -545,5 +557,39 @@ namespace RexEditor::UI
     private:
         bool m_open;
 
+    };
+
+
+    //
+    // Read-Only
+    //
+
+    namespace Internal
+    {
+        void BeginDisabled();
+        void EndDisabled();
+    }
+
+    // Usage : ReadOnly<FloatInput> readonly(...);
+    template<typename T>
+    class ReadOnly
+    {
+    public:
+        template<typename ...Args>
+        ReadOnly(Args&&... args)
+        {
+            Internal::BeginDisabled();
+            m_input = std::make_unique<T>(std::forward<Args>(args)...);
+            Internal::EndDisabled();
+        }
+
+        operator T& () { return *m_input; }
+        operator const T& () const { return *m_input; }
+
+        T* operator->() { return m_input; }
+        const T* operator->() const { return m_input; }
+
+    private:
+        std::unique_ptr<T> m_input;
     };
 }

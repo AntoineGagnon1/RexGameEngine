@@ -241,6 +241,21 @@ namespace RexEditor::UI
 		m_value.resize(strlen(m_value.c_str()));
 	}
 
+	Vector2IntInput::Vector2IntInput(const std::string& label, Vector2Int& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		m_changed = ImGui::InputInt2(("##" + label).c_str(), &m_value.x);
+		CacheHovered();
+	}
+
+	Vector2Input::Vector2Input(const std::string& label, Vector2& value)
+		: Input(value)
+	{
+		Internal::SetupInput(label);
+		m_changed = ImGui::InputFloat2(("##" + label).c_str(), &m_value.x);
+		CacheHovered();
+	}
 
 	Vector3Input::Vector3Input(const std::string& label, Vector3& value)
 		: Input(value)
@@ -641,5 +656,15 @@ namespace RexEditor::UI
 	{
 		if (m_open)
 			ImGui::EndPopup();
+	}
+
+	void Internal::BeginDisabled()
+	{
+		ImGui::BeginDisabled();
+	}
+
+	void Internal::EndDisabled()
+	{
+		ImGui::EndDisabled();
 	}
 }
