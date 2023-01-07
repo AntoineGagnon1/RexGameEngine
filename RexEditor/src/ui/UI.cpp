@@ -138,8 +138,8 @@ namespace RexEditor::UI::Internal
 	}
 
 	RE_STATIC_CONSTRUCTOR({
-		EditorEvents::OnEditorStart().Register<&ImGuiInit>();
-		EditorEvents::OnEditorStop().Register<&ImGuiClose>();
+		EngineEvents::OnEngineStart().Register<&ImGuiInit>(); // Needs to be called after the panels are created
+		EngineEvents::OnEngineStop().Register<&ImGuiClose>(); // Needs to be called before the panels are deleted
 
 		EngineEvents::OnPreUpdate().Register<&NewFrame>();
 	});

@@ -22,9 +22,10 @@ namespace RexEditor
 
 		PanelManager::RegisterPanel<NewProjectPanel>(); // Dont make a menubar item because the order is in PanelManager.cpp/Init
 		PanelManager::RegisterPanel<SceneTreePanel>("Scene Tree");
+		PanelManager::RegisterPanel<ConsolePanel>("Console"); // Register the console before the file explorer, 
+															  // this is because the selected tab feature does not seem to work in ImGui
 		PanelManager::RegisterPanel<FileExplorerPanel>("File Explorer");
 		PanelManager::RegisterPanel<InspectorPanel>("Inspector");
-		PanelManager::RegisterPanel<ConsolePanel>("Console");
 
 		EditorEvents::OnEditorStarted().Register<&OnEngineStarted>();
 	});
