@@ -50,6 +50,13 @@ namespace RexEngine
 
 	void Entity::InitFromGuid()
 	{
+		if (m_entityGuid == Guid::Empty)
+		{
+			m_handle = entt::null;
+			m_registry = nullptr;
+			return;
+		}
+
 		m_handle = Scene::GetEntityHandle(m_entityGuid);
 		auto scene = AssetManager::GetAsset<Scene>(Scene::GetEntityScene(m_entityGuid));
 		if (scene)
