@@ -11,8 +11,9 @@
 #include "../core/EditorAssets.h"
 #include "../ui/DragDrop.h"
 #include "../ui/MenuSystem.h"
-#include "../inspectors/AssetInspector.h"
 #include "Inspector.h"
+#include "../utils/TypeMap.h"
+
 
 namespace RexEditor
 {
@@ -34,7 +35,6 @@ namespace RexEditor
 		{
 			if (!std::filesystem::exists(m_currentFolder))
 				return;
-
 			
 			// Back arrow, dont go back if alredy at the root
 			if (UI::Button b("<-"); b.IsClicked() && m_currentFolder != ProjectManager::CurrentProject().rootPath / "Assets")
@@ -85,9 +85,9 @@ namespace RexEditor
 							
 							const Texture* iconTexture = &EditorAssets::FileIcon();
 
-							if (s_getIcons.contains(type.type)) // Check for special icons
+							if (IconRegistry().Contains(type.type)) // Check for special icons
 							{
-								iconTexture = &s_getIcons[type.type](AssetManager::GetAssetGuidFromPath(entry.path()));
+								iconTexture = &IconRegistry().Get(type.type)(AssetManager::GetAssetGuidFromPath(entry.path()));
 							}
 
 							UI::Icon icon(entry.path().filename().string(),
@@ -103,8 +103,30 @@ namespace RexEditor
 								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Released) 
 									&& m_canInspect) // Debounce, don't inspect if the folder just changed
 								{ // Tell the inspector
-									InspectorPanel::InspectElement(std::bind(&AssetInspector::InspectAsset,
-										std::placeholders::_1, type, entry.path()));
+									if (InspectorRegistry().Contains(type.type))
+									{
+										auto guid = AssetManager::GetAssetGuidFromPath(entry.path());
+										InspectorPanel::InspectElement([t = type.type, guid, p = entry.path()](float _) {
+											{
+												UI::Anchor a(UI::AnchorPos::Center);
+												UI::PushFontScale(UI::FontScale::Large);
+												UI::Text title(p.filename().string());
+												UI::Separator();
+												UI::PopFontScale();
+											}
+
+											UI::EmptyLine(); // Not in the centered anchor
+
+
+											InspectorRegistry().Get(t)(guid);
+										});
+									}
+									else
+									{
+										InspectorPanel::InspectElement([](float _) {
+											UI::Text("No inspector found for this asset type !");
+										});
+									}
 								}
 
 								// TODO : double click : do something based on the file type
@@ -179,10 +201,18 @@ namespace RexEditor
 			return menu;
 		}
 
-		template<typename T>
-		inline static void RegisterIcon(std::function<const Texture&(Guid)> callback)
+		// std::function<iconID(asset guid)>
+		inline static TypeMap<std::function<const Texture& (Guid)>>& IconRegistry()
 		{
-			s_getIcons[typeid(T)] = callback;
+			static TypeMap<std::function<const Texture& (Guid)>> map;
+			return map;
+		}
+
+		// std::function<void(asset guid)>
+		inline static TypeMap<std::function<void(const Guid&)>>& InspectorRegistry()
+		{
+			static TypeMap<std::function<void(const Guid&)>> map;
+			return map;
 		}
 
 	private:
@@ -196,8 +226,5 @@ namespace RexEditor
 		std::filesystem::path m_currentFolder;
 		bool m_canInspect = true;
 		float m_scale = 1.5f;
-
-		// std::function<iconID(asset guid)>
-		inline static std::unordered_map<std::type_index, std::function<const Texture&(Guid)>> s_getIcons;
 	};
 }

@@ -1,73 +1,20 @@
-#pragma once
-
-#include <RexEngine.h>
+#include "REDPch.h"
 
 #include "../ui/UIElements.h"
 #include "../ui/UI.h"
 
+#include "../panels/FileExplorer.h"
+
 #include "core/ShaderAttributes.h"
 
-namespace RexEditor
+namespace RexEditor::AssetInspectors
 {
-	class AssetInspector
-	{
-	public:
-		// We use assetPath instead of a guid because the asset might not be loaded yet and the FileExplorer doesnt know the type
-		inline static void InspectAsset(float deltaTime, RexEngine::AssetType type, const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
 
-			if (type.type == typeid(Shader))
-				InspectShader(assetPath);
-			else if (type.type == typeid(Material))
-				InspectMaterial(assetPath);
-			else if (type.type == typeid(Texture))
-				InspectTexture(assetPath);
-			else if (type.type == typeid(Cubemap))
-				InspectCubemap(assetPath);
-			else if (type.type == typeid(Mesh))
-				InspectMesh(assetPath);
-			else
-				UI::Text("Invalid Asset !");
-		}
+	RE_STATIC_CONSTRUCTOR({
 
-	private:
-
-		template<typename T>
-		inline static RexEngine::Asset<T> GetAsset(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto guid = AssetManager::GetAssetGuidFromPath(assetPath);
-
-			if (guid == Guid::Empty)
-			{ // Load the asset into the registry
-				guid = Guid::Generate();
-				if (!AssetManager::AddAsset<T>(guid, assetPath))
-					RE_LOG_ERROR("Could not load the asset at {}!", assetPath.string());
-			}
-
-			return AssetManager::GetAsset<T>(guid);
-		}
-
-		inline static void AssetHeader(const std::filesystem::path& assetPath)
-		{
-			{
-				UI::Anchor a(UI::AnchorPos::Center);
-				UI::PushFontScale(UI::FontScale::Large);
-				UI::Text title(assetPath.filename().string());
-				UI::Separator();
-				UI::PopFontScale();
-			}
-
-			UI::EmptyLine(); // Not in the centered anchor
-		}
-
-		inline static void InspectShader(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto shader = GetAsset<Shader>(assetPath);
-
-			AssetHeader(assetPath);
+		// Shader
+		FileExplorerPanel::InspectorRegistry().Add<Shader>([] (const Guid& guid) {
+			auto shader = AssetManager::GetAsset<Shader>(guid);
 
 			// Valid or not
 			{
@@ -90,11 +37,11 @@ namespace RexEditor
 				AssetManager::SaveAsset<Shader>(shader.GetAssetGuid());
 
 			UI::Separator();
-			
+
 			// Source
 			if (UI::TreeNode n("Source", UI::TreeNodeFlags::DefaultOpen | UI::TreeNodeFlags::Framed); n.IsOpen())
 			{
-				std::ifstream file(assetPath);
+				std::ifstream file(AssetManager::GetAssetPathFromGuid(guid));
 				if (!file.is_open())
 					UI::Text("Could not open the source file !");
 
@@ -104,14 +51,11 @@ namespace RexEditor
 
 				UI::Text t(content);
 			}
-		}
+		});
 
-		inline static void InspectMaterial(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto mat = GetAsset<Material>(assetPath);
-
-			AssetHeader(assetPath);
+		// Material
+		FileExplorerPanel::InspectorRegistry().Add<Material>([](const Guid& guid) {
+			auto mat = AssetManager::GetAsset<Material>(guid);
 
 			bool needsSave = false;
 
@@ -151,7 +95,7 @@ namespace RexEditor
 						needsSave |= in.HasChanged();
 					}
 					else
-					{ 
+					{
 						UI::FloatInput in(name, std::get<float>(uniform));
 						needsSave |= in.HasChanged();
 					}
@@ -183,13 +127,12 @@ namespace RexEditor
 			// Save the changes
 			if (needsSave)
 				AssetManager::SaveAsset<Material>(mat.GetAssetGuid());
-		}
 
+		});
 
-		inline static void InspectTexture(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto texture = GetAsset<Texture>(assetPath);
+		// Texture
+		FileExplorerPanel::InspectorRegistry().Add<Texture>([](const Guid& guid) {
+			auto texture = AssetManager::GetAsset<Texture>(guid);
 
 			static RenderApi::TextureTarget tempTarget = RenderApi::TextureTarget::Texture2D;
 			static RenderApi::PixelFormat tempFormat = RenderApi::PixelFormat::RGB;
@@ -199,7 +142,7 @@ namespace RexEditor
 			static RenderApi::TextureOptionValue tempWrapT = RenderApi::TextureOptionValue::Repeat;
 			static Guid lastGuid = Guid::Empty;
 
-			if(texture.GetAssetGuid() != lastGuid)
+			if (texture.GetAssetGuid() != lastGuid)
 			{ // Just started inspecting this texture
 				tempTarget = texture->GetTarget();
 				tempFormat = texture->GetFormat();
@@ -209,8 +152,6 @@ namespace RexEditor
 				tempWrapT = texture->GetOption(RenderApi::TextureOption::WrapT);
 				lastGuid = texture.GetAssetGuid();
 			}
-
-			AssetHeader(assetPath);
 
 			auto tempSize = texture->Size();
 			UI::ReadOnly<UI::Vector2IntInput> size("Size", tempSize);
@@ -243,14 +184,14 @@ namespace RexEditor
 				UI::ComboBox format("Pixel format", { "Depth", "RG", "RGB", "RGBA" }, selected);
 				tempFormat = (RenderApi::PixelFormat)SelectionToEnum[selected];
 			}
-			
+
 			UI::CheckBox flipY("Flip Y", tempFlipY);
-			UI::CheckBox   hdr("Hdr   ", tempHdr); 
+			UI::CheckBox   hdr("Hdr   ", tempHdr);
 
 			UI::EmptyLine();
 			// Texture options :
-			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapS("Wrap X", {"Repeat", "Clamp to edge"}, tempWrapS);
-			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapT("Wrap Y", {"Repeat", "Clamp to edge"}, tempWrapT);
+			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapS("Wrap X", { "Repeat", "Clamp to edge" }, tempWrapS);
+			UI::ComboBoxEnum<RenderApi::TextureOptionValue> wrapT("Wrap Y", { "Repeat", "Clamp to edge" }, tempWrapT);
 
 
 			if (UI::Button apply("Apply Changes"); apply.IsClicked())
@@ -259,14 +200,11 @@ namespace RexEditor
 				AssetManager::SaveAsset<Texture>(texture.GetAssetGuid());
 				AssetManager::ReloadAsset<Texture>(texture.GetAssetGuid());
 			}
-		}
+		});
 
-		inline static void InspectCubemap(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto cubemap = GetAsset<Cubemap>(assetPath);
-
-			AssetHeader(assetPath);
+		// CubeMap
+		FileExplorerPanel::InspectorRegistry().Add<Cubemap>([](const Guid& guid) {
+			auto cubemap = AssetManager::GetAsset<Cubemap>(guid);
 
 			static RexEngine::NoDestroy<Asset<Texture>> tempSource;
 			static int tempSize = 128;
@@ -289,20 +227,21 @@ namespace RexEditor
 			{
 				auto newCubemap = std::make_shared<Cubemap>(*tempSource.GetPtr(), tempSize, tempMode);
 				// Overwrite the asset
-				AssetManager::AddAsset<Cubemap>(cubemap.GetAssetGuid(), assetPath, Asset<Cubemap>(cubemap.GetAssetGuid(), newCubemap));
+				AssetManager::AddAsset<Cubemap>(cubemap.GetAssetGuid(), AssetManager::GetAssetPathFromGuid(guid), Asset<Cubemap>(cubemap.GetAssetGuid(), newCubemap));
 				AssetManager::ReloadAsset<Cubemap>(cubemap.GetAssetGuid());
 			}
-		}
+		
+		});
 
-		inline static void InspectMesh(const std::filesystem::path& assetPath)
-		{
-			using namespace RexEngine;
-			auto mesh = GetAsset<Mesh>(assetPath);
+		// Mesh
+		FileExplorerPanel::InspectorRegistry().Add<Mesh>([](const Guid& guid) {
+			auto mesh = AssetManager::GetAsset<Mesh>(guid);
 
-			AssetHeader(assetPath);
-
-			UI::Text vertices (std::format("Vertex Count :   {}", mesh->GetVertexCount()));
+			UI::Text vertices(std::format("Vertex Count :   {}", mesh->GetVertexCount()));
 			UI::Text triangles(std::format("Triangle Count : {}", mesh->GetIndexCount() / 3));
-		}
-	};
+		});
+
+	});
+
+
 }

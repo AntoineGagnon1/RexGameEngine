@@ -78,21 +78,21 @@ namespace RexEditor::AssetIcons
 
 	RE_STATIC_CONSTRUCTOR({
 		// Texture
-		FileExplorerPanel::RegisterIcon<Texture>([](Guid guid) -> const Texture& {
+		FileExplorerPanel::IconRegistry().Add<Texture>([](Guid guid) -> const Texture& {
 			std::shared_ptr<Texture> tex = AssetManager::GetAsset<Texture>(guid);
 			return *tex;
 		});
 
 
 		// Material
-		FileExplorerPanel::RegisterIcon<Material>([](Guid guid) -> const Texture& {
+		FileExplorerPanel::IconRegistry().Add<Material>([](Guid guid) -> const Texture& {
 			auto material = AssetManager::GetAsset<Material>(guid);
 			static NoDestroy<Asset<Mesh>> sphereMesh(Guid::Generate(), Shapes::GetSphereMesh());
 			return GetPreview(material, sphereMesh);
 		});
 
 		// Mesh
-		FileExplorerPanel::RegisterIcon<Mesh>([](Guid guid) -> const Texture& {
+		FileExplorerPanel::IconRegistry().Add<Mesh>([](Guid guid) -> const Texture& {
 			auto mesh = AssetManager::GetAsset<Mesh>(guid);
 			return GetPreview(PreviewMaterial(), mesh);
 		});
