@@ -429,27 +429,33 @@ namespace RexEditor::UI
 	Icon::Icon(const std::string& label, const RexEngine::Texture& icon, Vector2 iconSize)
 	{
 		auto& style = ImGui::GetStyle();
+		auto context = ImGui::GetCurrentContext();
 		bool selected = false;
 
-		const Vector2 totalSize = iconSize + 
-			Vector2{0, ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).y + style.ItemSpacing.y};
-
+		const Vector2 totalSize = iconSize + Vector2(0, ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).y + style.ItemSpacing.y);
+		
 		Anchor::SetCursorPos(totalSize);
 		const ImVec2 cursor = ImGui::GetCursorPos();
-		ImGui::Selectable(("##selectable_" + label).c_str(), &selected, ImGuiSelectableFlags_None, Internal::VecConvert(totalSize));
 
+		// Selectable (one big selection), draw first because it needs to be under
+		ImGui::SetCursorPos({ cursor.x - style.ItemSpacing.x, cursor.y - style.ItemSpacing.y });
+		ImGui::Selectable(("##selectable_" + label).c_str(), &selected, ImGuiSelectableFlags_None, Internal::VecConvert(totalSize + Vector2{style.ItemSpacing.x * 2, style.ItemSpacing.y * 2}));
+
+		auto itemData = context->LastItemData;
+
+		//auto id = ImGui::GetActiveID();
 		m_clicked = ImGui::IsItemClicked();
 		CacheHovered(); // Hovered is on the selectable
 
+		// Icon
 		ImGui::SetCursorPos(cursor);
 		ImGui::Image((ImTextureID)icon.GetId(), Internal::VecConvert(iconSize));
 
 		// Centered text
-		ImGui::SetCursorPosY(cursor.y + iconSize.y + style.ItemSpacing.y);
-		ImGui::SetCursorPosX(cursor.x + 
-			(iconSize.x - ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).x) * 0.5f);
+		ImGui::SetCursorPosX(cursor.x + (iconSize.x - ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).x) * 0.5f);
 		ImGui::TextWrapped(label.c_str(), (float)iconSize.x);
-		ImGui::Selectable(("##selectable_" + label).c_str()); // Act as the whole selectable area for other tools (like DragDrop)
+		
+		context->LastItemData = itemData; // Act as one big selection for the next items (and drag/drop)
 	}
 
 	bool Icon::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
