@@ -49,7 +49,7 @@ namespace RexEngine
 		// Buffers
 		typedef unsigned int BufferID;
 		inline static constexpr BufferID InvalidBufferID = 0;
-		enum class BufferType { Vertex, Indice, Uniforms };
+		enum class BufferType { Vertex, Indice, Uniforms, ShaderStorage};
 		enum class BufferMode { Static, Dynamic };
 
 		static BufferID MakeBuffer();

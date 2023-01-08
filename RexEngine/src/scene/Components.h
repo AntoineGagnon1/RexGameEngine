@@ -68,6 +68,12 @@ namespace RexEngine
 			return parentMatrix * GetTransform();
 		}
 
+		Vector3 GlobalPosition() const
+		{
+			auto mat = GetGlobalTransform();
+			return mat.Position();
+		}
+
 		template<typename Archive>
 		void serialize(Archive& archive) 
 		{
@@ -96,6 +102,17 @@ namespace RexEngine
 		void serialize(Archive& archive)
 		{
 			archive(KEEP_NAME(material));
+		}
+	};
+
+	struct PointLightComponent
+	{
+		Color color;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(KEEP_NAME(color));
 		}
 	};
 }

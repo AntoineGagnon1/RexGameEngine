@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../math/Vectors.h"
 
 namespace RexEngine
 {
@@ -34,6 +35,18 @@ namespace RexEngine
 			a *= rhs;
 
 			return *this;
+		}
+
+		explicit operator Vector3() const { return Vector3(r, g, b); }
+		explicit operator Vector4() const { return Vector4(r, g, b, a); }
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			// Serialize as an array of 4 floats
+			cereal::size_type s = 4;
+			archive(cereal::make_size_tag(s));
+			archive(r, g, b, a);
 		}
 	};
 

@@ -29,8 +29,24 @@ namespace RexEngine
  		SceneDataUniforms newSceneData{viewMatrix, projectionMatrix, cameraPos};
 		
 		// Update the lighting data
-		LightingUniforms newLighting{ Vector3(0,0, -5), 0.0f, Vector3(10.0f,10.0f,10.0f)}; // Manually set a white light at 10,10,-10
-		RenderApi::SubBufferData(GetLightingUniforms(), RenderApi::BufferType::Uniforms, 0, sizeof(LightingUniforms), &newLighting);
+
+		// Point lights
+
+		std::vector<PointLight> pointlights;
+
+		for (auto&& [e, c] : scene->GetComponents<PointLightComponent>())
+			pointlights.emplace_back(e.Transform().GlobalPosition(), (Vector3)c.color);
+
+		if (pointlights.size() > PointLightsMax)
+		{ // Resize the buffer
+			PointLightsMax = (uint32_t)(PointLightsMax * 1.5f) + 1;
+			RenderApi::SetBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(PointLight) * pointlights.size() + sizeof(uint32_t) + 12); // 12 is the padding
+		}
+
+		uint32_t pointLightsCount = pointlights.size();
+		RenderApi::SubBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &pointLightsCount);
+		if(PointLightsMax > 0)
+			RenderApi::SubBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(PointLight) * pointlights.size(), pointlights.data()); // 12 is the padding
 
 
 		// Skybox TODO : render this after the opaque objects, but before the transparent ones
@@ -87,14 +103,12 @@ namespace RexEngine
 		return uniforms;
 	}
 
-	RenderApi::BufferID ForwardRenderer::GetLightingUniforms()
+	RenderApi::BufferID ForwardRenderer::GetPointLightsBuffer()
 	{
 		static RenderApi::BufferID uniforms = []() {
 			auto buf = RenderApi::MakeBuffer();
-			auto data = LightingUniforms();
-			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(LightingUniforms));
-			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 3);
-
+			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&PointLightsMax, sizeof(uint32_t));
+			RenderApi::BindBufferBase(buf, RenderApi::BufferType::ShaderStorage, 3);
 			return buf;
 		}();
 

@@ -37,8 +37,8 @@ namespace RexEditor
 	protected:
 		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
 		{
-			m_viewTexture.SetData(newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
-			m_viewDepth.SetSize(newSize);
+			m_viewTexture.SetData((Vector2Int)newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
+			m_viewDepth.SetSize((Vector2Int)newSize);
 		}
 
 		virtual void OnGui(float deltaTime) override
@@ -108,7 +108,7 @@ namespace RexEditor
 			m_viewBuffer.Bind();
 
 			auto oldViewportSize = RexEngine::RenderApi::GetViewportSize(); // Cache the size to revert at the end
-			RexEngine::RenderApi::SetViewportSize(PanelSize());
+			RexEngine::RenderApi::SetViewportSize((Vector2Int)PanelSize());
 			
 			RexEngine::RenderApi::ClearColorBit();
 			RexEngine::RenderApi::ClearDepthBit();

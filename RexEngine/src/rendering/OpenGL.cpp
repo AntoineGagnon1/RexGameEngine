@@ -17,6 +17,8 @@ namespace RexEngine::Internal {
 			return GL_ELEMENT_ARRAY_BUFFER;
 		case RenderApi::BufferType::Uniforms:
 			return GL_UNIFORM_BUFFER;
+		case RenderApi::BufferType::ShaderStorage:
+			return GL_SHADER_STORAGE_BUFFER;
 		}
 
 		return 0;

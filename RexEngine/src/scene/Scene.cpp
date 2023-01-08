@@ -116,7 +116,8 @@ namespace RexEngine
 																  TransformComponent,
                                                                   MeshRendererComponent,
                                                                   CameraComponent,
-                                                                  SkyboxComponent>(archive);
+                                                                  SkyboxComponent,
+																  PointLightComponent>(archive);
     }
 
     void Scene::DeserializeJson(std::istream& input)
@@ -129,6 +130,7 @@ namespace RexEngine
 																		 TransformComponent,
                                                                          MeshRendererComponent,
                                                                          CameraComponent,
-                                                                         SkyboxComponent>(archive);
+                                                                         SkyboxComponent,
+																		 PointLightComponent>(archive);
     }
 }

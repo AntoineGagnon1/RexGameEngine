@@ -66,7 +66,7 @@ namespace RexEditor
 					table.NextElement();
 					if (entry.is_directory())
 					{ // Folder
-						UI::Icon icon(entry.path().filename().string(), EditorAssets::FolderIcon(), {itemWidth ,itemWidth});
+						UI::Icon icon(entry.path().filename().string(), EditorAssets::FolderIcon(), {(float)itemWidth ,(float)itemWidth});
 						
 						if (icon.IsDoubleClicked()) // go into the folder
 						{
@@ -92,7 +92,7 @@ namespace RexEditor
 
 							UI::Icon icon(entry.path().filename().string(),
 								*iconTexture,
-								{ itemWidth ,itemWidth }
+								{ (float)itemWidth , (float)itemWidth }
 							);
 
 							if (!type.Empty())

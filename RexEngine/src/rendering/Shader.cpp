@@ -122,7 +122,7 @@ namespace RexEngine
 		std::ostringstream fragmentStream;
 		std::unordered_map<std::string, std::unordered_map<std::string, std::any>> attributes;
 
-		std::string version = "#version 420 core"; // default version if not specified
+		std::string version = "#version 460 core"; // default version if not specified
 
 		std::string line;
 		std::ostringstream* writingTo = &vertexStream;

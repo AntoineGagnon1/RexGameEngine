@@ -14,7 +14,7 @@ namespace RexEngine
 	// Uniform blocks
 	// 1 : Scene data (forwardRenderer)
 	// 2 : Model data (renderQueue)
-	// 3 : Lighting
+	// 3 : PointLights
 
 	template<typename T>
 	concept UniformAttribute = requires(const std::string& args)

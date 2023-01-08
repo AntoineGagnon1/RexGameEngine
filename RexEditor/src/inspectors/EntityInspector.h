@@ -50,6 +50,7 @@ namespace RexEditor
 			TryDrawComponent<SkyboxComponent>("Skybox", entity);
 			TryDrawComponent<CameraComponent>("Camera", entity);
 			TryDrawComponent<MeshRendererComponent>("Mesh Renderer", entity);
+			TryDrawComponent<PointLightComponent>("Point Light", entity);
 
 			// Add components
 			{
@@ -76,6 +77,7 @@ namespace RexEditor
 				m.AddMenuItem("Rendering/Mesh Renderer", [](RexEngine::Entity e) { TryAddComponent<MeshRendererComponent>(e); });
 				m.AddMenuItem("Rendering/Camera", [](RexEngine::Entity e) { TryAddComponent<CameraComponent>(e); });
 				m.AddMenuItem("Environment/Skybox", [](RexEngine::Entity e) { TryAddComponent<SkyboxComponent>(e); });
+				m.AddMenuItem("Lighting/Point Light", [](RexEngine::Entity e) { TryAddComponent<PointLightComponent>(e); });
 
 				return m; 
 			}();
@@ -145,6 +147,17 @@ namespace RexEditor
 		{
 			auto& skybox = entity.GetComponent<SkyboxComponent>();
 			UI::AssetInput<Material> shader("Material", skybox.material);
+		}
+
+		template<>
+		inline static void DrawComponent<RexEngine::PointLightComponent>(RexEngine::Entity entity)
+		{
+			auto& light = entity.GetComponent<PointLightComponent>();
+
+			Vector3 col = (Vector3)light.color;
+			UI::Vector3Input colInput("Color", col);
+
+			light.color = Color(col.x, col.y, col.z, 1.0f);
 		}
 	};
 }

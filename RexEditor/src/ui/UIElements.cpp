@@ -166,7 +166,7 @@ namespace RexEditor::UI
 		if (Internal::Contains(m_anchor, AnchorPos::Bottom))
 			m_currentPos.y = ImGui::GetCursorPosY() + region.y;
 		else if (Internal::Contains(m_anchor, AnchorPos::Top))
-			m_currentPos = ImGui::GetCursorPosY() + style.WindowPadding.y;
+			m_currentPos.y = ImGui::GetCursorPosY() + style.WindowPadding.y;
 		else // Middle
 			m_currentPos.y = m_startPos.y;
 	}

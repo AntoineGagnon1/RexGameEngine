@@ -1,16 +1,19 @@
 {
-    "Count": 5,
-    "Entity": 4293918722,
+    "Count": 6,
+    "Entity": 4293918723,
     "Entity": 702545920,
     "Entity": 2688548865,
-    "Entity": 3318743043,
-    "Entity": 1333788671,
-    "Count": 2,
+    "Entity": 4050649090,
+    "Entity": 4186963972,
+    "Entity": 2123366399,
+    "Count": 3,
     "Owner": 702545920,
     "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
     "Owner": 2688548865,
     "struct RexEngine::Guid": "16392070106420606896 1672093008906246",
-    "Count": 2,
+    "Owner": 4050649090,
+    "struct RexEngine::Guid": "15283814634627207210 1673213653718502",
+    "Count": 3,
     "Owner": 702545920,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
@@ -19,7 +22,11 @@
     "struct RexEngine::TagComponent": {
         "name": "New Entity"
     },
-    "Count": 2,
+    "Owner": 4050649090,
+    "struct RexEngine::TagComponent": {
+        "name": "Light"
+    },
+    "Count": 3,
     "Owner": 702545920,
     "struct RexEngine::TransformComponent": {
         "position": [
@@ -46,6 +53,28 @@
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
+            1.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Owner": 4050649090,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            2.0,
             1.0,
             0.0
         ],
@@ -81,5 +110,15 @@
         "material": {
             "Guid": "11700521787635595622 1671822723887916"
         }
+    },
+    "Count": 1,
+    "Owner": 4050649090,
+    "struct RexEngine::PointLightComponent": {
+        "color": [
+            10.0,
+            10.0,
+            10.0,
+            1.0
+        ]
     }
 }

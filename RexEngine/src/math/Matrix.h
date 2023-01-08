@@ -40,6 +40,13 @@ namespace RexEngine
 			return {translation, glm::conjugate(rotation), scale}; // The rotation returned by glm is inverted for some reason
 		}
 
+		// The position component of a 4x4 matrix
+		Vector3 Position() const requires IsEqual<Size, 4>
+		{
+			auto vec = operator[](3);
+			return Vector3(vec.x, vec.y, vec.z);
+		}
+
 		MatType Inversed() const
 		{
 			return glm::inverse(*this);

@@ -136,7 +136,7 @@ namespace RexEditor
 			flags |= node->children.empty() ? UI::TreeNodeFlags::Leaf : UI::TreeNodeFlags::None;
 			flags |= node->entity == m_selected ? UI::TreeNodeFlags::Selected : UI::TreeNodeFlags::None;
 
-			UI::TreeNode n(node->entity.Name(), flags);
+			UI::TreeNode n(node->entity.Name().empty() ? "##NoName" : node->entity.Name(), flags);
 			if (n.IsClicked() || n.IsClicked(RexEngine::MouseButton::Right)) // Also process the click if the node is closed
 			{
 				m_selected = node->entity;

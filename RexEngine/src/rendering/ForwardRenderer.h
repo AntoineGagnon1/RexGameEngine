@@ -11,6 +11,8 @@ namespace RexEngine
 	{
 	public:
 
+		static constexpr int MaxLights = 32; // Max lights for each type
+
 		// Uniform block sent to the shaders for the scene data
 		struct SceneDataUniforms
 		{
@@ -19,13 +21,15 @@ namespace RexEngine
 			Vector3 cameraPos;
 		};
 
-
-		// The lighting related uniform block
-		struct LightingUniforms
+		struct PointLight
 		{
-			Vector3 lightPos; // TODO : multiple lights
-			float padding; // Padding to match opengl
-			Vector3 lightColor;
+			Vector3 Pos;
+			float padding; // Empty padding to match opengl
+			Vector3 Color;
+
+			PointLight(Vector3 pos, Vector3 color)
+				: Pos(pos), padding(0.0f), Color(color)
+			{ }
 		};
 
 	public:
@@ -34,12 +38,27 @@ namespace RexEngine
 		static void RenderScene(Asset<Scene> scene, const CameraComponent& camera);
 
 		static RenderApi::BufferID GetSceneDataUniforms();
-		static RenderApi::BufferID GetLightingUniforms();
+		static RenderApi::BufferID GetPointLightsBuffer();
 
 	private:
+
+		// Size of the current PointLights buffer, this will change if more are needed
+		inline static uint32_t PointLightsMax = 0;
+
 		RE_STATIC_CONSTRUCTOR({
 			Shader::RegisterParserUsing("SceneData", "layout (std140, binding = 1) uniform SceneData{ mat4 worldToView; mat4 viewToScreen; vec3 cameraPos; }; ");
-			Shader::RegisterParserUsing("Lighting", "layout (std140, binding = 3) uniform Lighting{ vec3 lightPos; vec3 lightColor; }; ");
+			Shader::RegisterParserUsing("Lighting", R"(
+struct PointLight
+{
+	vec3 Pos;
+	vec3 Color;
+};
+layout (std140, binding = 3) uniform PointLightsData
+{
+    uint PointLightCount;
+	PointLight PointLights[];
+};
+)");
 		});
 	};
 }

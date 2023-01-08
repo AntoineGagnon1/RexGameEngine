@@ -1,4 +1,3 @@
-
 #pragma vertex
 
 #pragma using SceneData // Get the scene data (viewMatrix, projectionMatrix)
@@ -80,6 +79,33 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+// Returns the radiance
+float CalculatePointLight(PointLight light, vec3 worldPos, vec3 N, vec3 V, vec3 F0)
+{
+    vec3 L = normalize(light.Pos - worldPos);
+    vec3 H = normalize(V + L);
+    float distance = length(light.Pos - worldPos);
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance = light.Color * attenuation;
+
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, roughness);
+    float G = GeometrySmith(N, V, L, roughness);
+    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular = numerator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
+}
+
 void main()
 { 
     vec3 N = normalize(normal);
@@ -91,33 +117,11 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    // TODO : optimize this :
-    
-    //for (int i = 0; i < 1; ++i)
+
+    for (int i = 0; i < PointLightCount; i++)
     {
         // calculate per-light radiance
-        vec3 L = normalize(lightPos - worldPos); // lightPos[i]
-        vec3 H = normalize(V + L);
-        float distance = length(lightPos - worldPos); // lightPos[i]
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lightColor * attenuation; // lightColor[i]
-
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - metallic;
-
-        vec3 numerator = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular = numerator / denominator;
-
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += CalculatePointLight(PointLights[i], worldPos, N, V, F0);
     }
 
     // Ambient

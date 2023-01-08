@@ -351,7 +351,7 @@ void main()
 		// Init the cubemap with empty textures
 		for (int i = 0; i < 6; i++)
 		{
-			RenderApi::SetCubemapFace(cubemapId, (RenderApi::CubemapFace)i, RenderApi::PixelFormat::RGB16F, size,
+			RenderApi::SetCubemapFace(cubemapId, (RenderApi::CubemapFace)i, RenderApi::PixelFormat::RGB16F, { size, size},
 				NULL, RenderApi::PixelFormat::RGB, RenderApi::PixelType::Float);
 		}
 
@@ -360,7 +360,7 @@ void main()
 		// Create the frame buffer
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 		FrameBuffer frameBuffer;
-		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
+		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, { size , size});
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 
 		// Create the irradiance shader
@@ -372,7 +372,7 @@ void main()
 		cubemapFrom.Bind();
 
 		Vector2Int oldViewportSize = RenderApi::GetViewportSize(); // Cache the size to revert at the end
-		RenderApi::SetViewportSize(size);
+		RenderApi::SetViewportSize({ size, size });
 
 		frameBuffer.Bind();
 		RenderApi::SetDepthFunction(RenderApi::DepthFunction::LessEqual);
@@ -404,7 +404,7 @@ void main()
 		// Init the cubemap with empty textures
 		for (int i = 0; i < 6; i++)
 		{
-			RenderApi::SetCubemapFace(cubemapId, (RenderApi::CubemapFace)i, RenderApi::PixelFormat::RGB16F, size,
+			RenderApi::SetCubemapFace(cubemapId, (RenderApi::CubemapFace)i, RenderApi::PixelFormat::RGB16F, { size, size },
 				NULL, RenderApi::PixelFormat::RGB, RenderApi::PixelType::Float);
 		}
 
@@ -416,7 +416,7 @@ void main()
 		// Create the frame buffer
 		RenderApi::FrameBufferID oldFrameBuffer = RenderApi::GetBoundFrameBuffer();
 		FrameBuffer frameBuffer;
-		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, size);
+		RenderBuffer renderBuffer(RenderApi::PixelType::Depth, { size, size });
 		frameBuffer.BindRenderBuffer(renderBuffer, RenderApi::FrameBufferTextureType::Depth);
 
 		// Create the irradiance shader
