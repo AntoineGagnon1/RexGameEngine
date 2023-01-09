@@ -11,13 +11,6 @@
             }
         },
         {
-            "key": "roughness",
-            "value": {
-                "index": 0,
-                "data": 1.0
-            }
-        },
-        {
             "key": "PBRIrradianceMap",
             "value": {
                 "index": 14,
@@ -27,19 +20,19 @@
             }
         },
         {
+            "key": "roughness",
+            "value": {
+                "index": 0,
+                "data": 0.10000000149011612
+            }
+        },
+        {
             "key": "PBRPrefilterMap",
             "value": {
                 "index": 14,
                 "data": {
                     "Guid": "0 0"
                 }
-            }
-        },
-        {
-            "key": "metallic",
-            "value": {
-                "index": 0,
-                "data": 0.800000011920929
             }
         },
         {
@@ -54,10 +47,17 @@
             }
         },
         {
+            "key": "metallic",
+            "value": {
+                "index": 0,
+                "data": 0.800000011920929
+            }
+        },
+        {
             "key": "ao",
             "value": {
                 "index": 0,
-                "data": 0.5
+                "data": 0.4000000059604645
             }
         }
     ]
