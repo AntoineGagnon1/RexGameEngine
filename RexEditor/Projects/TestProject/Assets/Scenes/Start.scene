@@ -1,32 +1,39 @@
 {
-    "Count": 6,
+    "Count": 7,
     "Entity": 4293918723,
     "Entity": 702545920,
     "Entity": 2688548865,
     "Entity": 4050649090,
-    "Entity": 4186963972,
-    "Entity": 2123366399,
-    "Count": 3,
+    "Entity": 2114977797,
+    "Entity": 195035140,
+    "Entity": 4150263807,
+    "Count": 4,
     "Owner": 702545920,
     "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
     "Owner": 2688548865,
     "struct RexEngine::Guid": "16392070106420606896 1672093008906246",
     "Owner": 4050649090,
     "struct RexEngine::Guid": "15283814634627207210 1673213653718502",
-    "Count": 3,
+    "Owner": 195035140,
+    "struct RexEngine::Guid": "481194987144494770 1673231638526655",
+    "Count": 4,
     "Owner": 702545920,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
     },
     "Owner": 2688548865,
     "struct RexEngine::TagComponent": {
-        "name": "New Entity"
+        "name": "Sphere"
     },
     "Owner": 4050649090,
     "struct RexEngine::TagComponent": {
         "name": "Light"
     },
-    "Count": 3,
+    "Owner": 195035140,
+    "struct RexEngine::TagComponent": {
+        "name": "Sun"
+    },
+    "Count": 4,
     "Owner": 702545920,
     "struct RexEngine::TransformComponent": {
         "position": [
@@ -93,6 +100,28 @@
             "Guid": "0 0"
         }
     },
+    "Owner": 195035140,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            -0.12059081345796585,
+            0.379409521818161,
+            0.04995030164718628,
+            0.9159755706787109
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
     "Count": 1,
     "Owner": 2688548865,
     "struct RexEngine::MeshRendererComponent": {
@@ -120,5 +149,16 @@
             10.0,
             1.0
         ]
-    }
+    },
+    "Count": 1,
+    "Owner": 195035140,
+    "struct RexEngine::DirectionalLightComponent": {
+        "color": [
+            5.0,
+            5.0,
+            5.0,
+            1.0
+        ]
+    },
+	"Count": 0
 }

@@ -30,23 +30,43 @@ namespace RexEngine
 		
 		// Update the lighting data
 
-		// Point lights
-
-		std::vector<PointLight> pointlights;
+		// Point lights and Directional lights
+		std::vector<LightData> lights;
 
 		for (auto&& [e, c] : scene->GetComponents<PointLightComponent>())
-			pointlights.emplace_back(e.Transform().GlobalPosition(), (Vector3)c.color);
+			lights.emplace_back(e.Transform().GlobalPosition(), (Vector3)c.color, false);
 
-		if (pointlights.size() > PointLightsMax)
+		for (auto&& [e, c] : scene->GetComponents<DirectionalLightComponent>())
+			lights.emplace_back(e.Transform().GlobalForward(), (Vector3)c.color, true);
+
+		if (lights.size() > LightsMax)
 		{ // Resize the buffer
-			PointLightsMax = (uint32_t)(PointLightsMax * 1.5f) + 1;
-			RenderApi::SetBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(PointLight) * pointlights.size() + sizeof(uint32_t) + 12); // 12 is the padding
+			LightsMax = (uint32_t)(LightsMax * 1.5f) + 1;
+			RenderApi::SetBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(LightData) * lights.size() + sizeof(uint32_t) + 12); // 12 is the padding
 		}
 
-		uint32_t pointLightsCount = pointlights.size();
-		RenderApi::SubBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &pointLightsCount);
-		if(PointLightsMax > 0)
-			RenderApi::SubBufferData(GetPointLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(PointLight) * pointlights.size(), pointlights.data()); // 12 is the padding
+		uint32_t LightsCount = lights.size();
+		RenderApi::SubBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &LightsCount);
+		if(LightsMax > 0)
+			RenderApi::SubBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(LightData) * lights.size(), lights.data()); // 12 is the padding
+
+
+		// Spot lights
+		std::vector<SpotLightData> spotLights;
+
+		for (auto&& [e, c] : scene->GetComponents<SpotLightComponent>())
+			spotLights.emplace_back(e.Transform().GlobalPosition(), e.Transform().GlobalForward(), (Vector3)c.color, std::cos(glm::radians(c.cutOff)), std::cos(glm::radians(c.outerCutOff)));
+
+		if (spotLights.size() > SpotLightsMax)
+		{ // Resize the buffer
+			SpotLightsMax = (uint32_t)(SpotLightsMax * 1.5f) + 1;
+			RenderApi::SetBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(SpotLightData) * spotLights.size() + sizeof(uint32_t) + 12); // 12 is the padding
+		}
+
+		uint32_t SpotLightsCount = spotLights.size();
+		RenderApi::SubBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &SpotLightsCount);
+		if (SpotLightsMax > 0)
+			RenderApi::SubBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(SpotLightData) * spotLights.size(), spotLights.data()); // 12 is the padding
 
 
 		// Skybox TODO : render this after the opaque objects, but before the transparent ones
@@ -103,12 +123,24 @@ namespace RexEngine
 		return uniforms;
 	}
 
-	RenderApi::BufferID ForwardRenderer::GetPointLightsBuffer()
+	RenderApi::BufferID ForwardRenderer::GetLightsBuffer()
 	{
 		static RenderApi::BufferID uniforms = []() {
 			auto buf = RenderApi::MakeBuffer();
-			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&PointLightsMax, sizeof(uint32_t));
+			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&LightsMax, sizeof(uint32_t));
 			RenderApi::BindBufferBase(buf, RenderApi::BufferType::ShaderStorage, 3);
+			return buf;
+		}();
+
+		return uniforms;
+	}
+
+	RenderApi::BufferID ForwardRenderer::GetSpotLightsBuffer()
+	{
+		static RenderApi::BufferID uniforms = []() {
+			auto buf = RenderApi::MakeBuffer();
+			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&SpotLightsMax, sizeof(uint32_t));
+			RenderApi::BindBufferBase(buf, RenderApi::BufferType::ShaderStorage, 4);
 			return buf;
 		}();
 

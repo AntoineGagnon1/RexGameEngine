@@ -47,6 +47,12 @@ namespace RexEngine
 			return Vector3(vec.x, vec.y, vec.z);
 		}
 
+		Quaternion Rotation() const requires IsEqual<Size, 4>
+		{ // TODO : optimise this (get only the rotation)
+			auto&& [_, rot, __] = Decompose();
+			return rot;
+		}
+
 		MatType Inversed() const
 		{
 			return glm::inverse(*this);

@@ -51,6 +51,8 @@ namespace RexEditor
 			TryDrawComponent<CameraComponent>("Camera", entity);
 			TryDrawComponent<MeshRendererComponent>("Mesh Renderer", entity);
 			TryDrawComponent<PointLightComponent>("Point Light", entity);
+			TryDrawComponent<DirectionalLightComponent>("Directional Light", entity);
+			TryDrawComponent<SpotLightComponent>("Directional Light", entity);
 
 			// Add components
 			{
@@ -78,6 +80,8 @@ namespace RexEditor
 				m.AddMenuItem("Rendering/Camera", [](RexEngine::Entity e) { TryAddComponent<CameraComponent>(e); });
 				m.AddMenuItem("Environment/Skybox", [](RexEngine::Entity e) { TryAddComponent<SkyboxComponent>(e); });
 				m.AddMenuItem("Lighting/Point Light", [](RexEngine::Entity e) { TryAddComponent<PointLightComponent>(e); });
+				m.AddMenuItem("Lighting/Directional Light", [](RexEngine::Entity e) { TryAddComponent<DirectionalLightComponent>(e); });
+				m.AddMenuItem("Lighting/Spot Light", [](RexEngine::Entity e) { TryAddComponent<SpotLightComponent>(e); });
 
 				return m; 
 			}();
@@ -158,6 +162,31 @@ namespace RexEditor
 			UI::Vector3Input colInput("Color", col);
 
 			light.color = Color(col.x, col.y, col.z, 1.0f);
+		}
+
+		template<>
+		inline static void DrawComponent<RexEngine::DirectionalLightComponent>(RexEngine::Entity entity)
+		{
+			auto& light = entity.GetComponent<DirectionalLightComponent>();
+
+			Vector3 col = (Vector3)light.color;
+			UI::Vector3Input colInput("Color", col);
+
+			light.color = Color(col.x, col.y, col.z, 1.0f);
+		}
+
+		template<>
+		inline static void DrawComponent<RexEngine::SpotLightComponent>(RexEngine::Entity entity)
+		{
+			auto& light = entity.GetComponent<SpotLightComponent>();
+
+			Vector3 col = (Vector3)light.color;
+			UI::Vector3Input colInput("Color", col);
+
+			light.color = Color(col.x, col.y, col.z, 1.0f);
+
+			UI::FloatInput      cutOff("CutOff      ", light.cutOff);
+			UI::FloatInput outerCutOff("Outer CutOff", light.outerCutOff);
 		}
 	};
 }

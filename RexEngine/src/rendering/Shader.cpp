@@ -199,6 +199,8 @@ namespace RexEngine
 			auto nameStart = line.substr(0, nameEnd).find_last_of(" ") + 1;
 			std::string uniformName = line.substr(nameStart, nameEnd - nameStart);
 
+			bool hadValidAttribute = false;
+
 			while (std::regex_search(start, end, sm, s_attributeMatcher))
 			{
 				auto str = sm.str();
@@ -208,7 +210,10 @@ namespace RexEngine
 					auto name = str.substr(1, str.length() - 2);
 
 					if (s_parserAttributes.contains(name))
+					{
 						attributes[uniformName][name] = s_parserAttributes[name]("");
+						hadValidAttribute = true;
+					}
 				}
 				else
 				{
@@ -216,13 +221,17 @@ namespace RexEngine
 					auto args = str.substr(argsStart + 1, str.length() - (argsStart + 3));
 
 					if (s_parserAttributes.contains(name))
+					{
 						attributes[uniformName][name] = s_parserAttributes[name](args);
+						hadValidAttribute = true;
+					}
 				}
 
 				start = sm[0].second;
 			}
 
-			line = line.substr(start - line.begin());
+			if(hadValidAttribute)
+				line = line.substr(start - line.begin());
 		}
 	}
 }

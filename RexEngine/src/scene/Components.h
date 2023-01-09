@@ -54,6 +54,8 @@ namespace RexEngine
 		// Local
 		Vector3 Right() const { return rotation.RotateVector(Directions::Right); }
 
+		Vector3 GlobalForward() const { return GlobalRotation() * Directions::Forward; }
+
 		Matrix4 GetTransform() const
 		{
 			return Matrix4::MakeTransform(position, rotation, scale);
@@ -72,6 +74,12 @@ namespace RexEngine
 		{
 			auto mat = GetGlobalTransform();
 			return mat.Position();
+		}
+
+		Quaternion GlobalRotation() const
+		{
+			auto mat = GetGlobalTransform();
+			return mat.Rotation();
 		}
 
 		template<typename Archive>
@@ -113,6 +121,30 @@ namespace RexEngine
 		void serialize(Archive& archive)
 		{
 			archive(KEEP_NAME(color));
+		}
+	};
+
+	struct DirectionalLightComponent
+	{
+		Color color;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(KEEP_NAME(color));
+		}
+	};
+
+	struct SpotLightComponent
+	{
+		Color color;
+		float cutOff;
+		float outerCutOff;
+
+		template<typename Archive>
+		void serialize(Archive& archive)
+		{
+			archive(KEEP_NAME(color), KEEP_NAME(cutOff), KEEP_NAME(outerCutOff));
 		}
 	};
 }
