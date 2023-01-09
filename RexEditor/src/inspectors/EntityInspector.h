@@ -52,7 +52,7 @@ namespace RexEditor
 			TryDrawComponent<MeshRendererComponent>("Mesh Renderer", entity);
 			TryDrawComponent<PointLightComponent>("Point Light", entity);
 			TryDrawComponent<DirectionalLightComponent>("Directional Light", entity);
-			TryDrawComponent<SpotLightComponent>("Directional Light", entity);
+			TryDrawComponent<SpotLightComponent>("Spot Light", entity);
 
 			// Add components
 			{
