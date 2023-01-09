@@ -21,10 +21,10 @@ namespace RexEditor::AssetIcons
 			return *(result->second);
 		
 		// Generate the texture
-		static auto scene = Asset<Scene>(Guid::Generate(), Scene::CreateScene());
-		static auto camEntity = scene->CreateEntity();
+		static auto scene = NoDestroy<Asset<Scene>>(Guid::Generate(), Scene::CreateScene());
+		static auto camEntity = scene->operator->()->CreateEntity(); // first -> is on the NoDestroy, second -> is on the asset
 		static auto& cam = camEntity.AddComponent<CameraComponent>(70.0f, 0.01f, 10.0f);
-		static auto sphere = scene->CreateEntity();
+		static auto sphere = scene->operator->()->CreateEntity();
 		static auto& sphereRenderer = sphere.AddComponent<MeshRendererComponent>();
 		static auto& light = camEntity.AddComponent<DirectionalLightComponent>(DirectionalLightComponent{Color(5,5,5)});
 		sphere.Transform().position.z = 2;
