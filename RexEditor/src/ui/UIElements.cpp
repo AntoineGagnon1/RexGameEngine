@@ -400,6 +400,24 @@ namespace RexEditor::UI
 		CacheHovered();
 	}
 
+	ColorInput::ColorInput(const std::string& label, Color& value, bool useAlpha)
+		: Input(value)
+	{
+		ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoLabel;
+		if (!useAlpha)
+			flags |= ImGuiColorEditFlags_NoAlpha;
+		else
+		{
+			flags |= ImGuiColorEditFlags_AlphaBar;
+			flags |= ImGuiColorEditFlags_AlphaPreview;
+		}
+
+		Internal::SetupInput(label);
+		m_changed = ImGui::ColorEdit4(label.c_str(), &value.r, flags);
+
+		CacheHovered();
+	}
+
 	CheckBox::CheckBox(const std::string& label, bool& value)
 		: Input(value)
 	{

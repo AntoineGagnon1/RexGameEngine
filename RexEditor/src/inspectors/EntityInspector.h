@@ -158,10 +158,16 @@ namespace RexEditor
 		{
 			auto& light = entity.GetComponent<PointLightComponent>();
 
-			Vector3 col = (Vector3)light.color;
-			UI::Vector3Input colInput("Color", col);
+			// Split the color in a normalized color (from 0 to 1) and an intensity
+			float intensity = Scalar::Max(Scalar::Max(1.0f, light.color.r), Scalar::Max(light.color.g, light.color.b));
+			Color normalizedColor = Color(light.color.r / intensity, light.color.g / intensity, light.color.b / intensity);
 
-			light.color = Color(col.x, col.y, col.z, 1.0f);
+			UI::ColorInput colInput("Color", normalizedColor, false);
+
+			UI::FloatInput intensityInput("Intensity", intensity);
+
+			if (colInput.HasChanged() || intensityInput.HasChanged())
+				light.color = Color(normalizedColor.r * intensity, normalizedColor.g * intensity, normalizedColor.b * intensity);
 		}
 
 		template<>
@@ -169,10 +175,16 @@ namespace RexEditor
 		{
 			auto& light = entity.GetComponent<DirectionalLightComponent>();
 
-			Vector3 col = (Vector3)light.color;
-			UI::Vector3Input colInput("Color", col);
+			// Split the color in a normalized color (from 0 to 1) and an intensity
+			float intensity = Scalar::Max(Scalar::Max(1.0f, light.color.r), Scalar::Max(light.color.g, light.color.b));
+			Color normalizedColor = Color(light.color.r / intensity, light.color.g / intensity, light.color.b / intensity);
 
-			light.color = Color(col.x, col.y, col.z, 1.0f);
+			UI::ColorInput colInput("Color", normalizedColor, false);
+
+			UI::FloatInput intensityInput("Intensity", intensity);
+
+			if (colInput.HasChanged() || intensityInput.HasChanged())
+				light.color = Color(normalizedColor.r * intensity, normalizedColor.g * intensity, normalizedColor.b * intensity);
 		}
 
 		template<>
@@ -180,10 +192,16 @@ namespace RexEditor
 		{
 			auto& light = entity.GetComponent<SpotLightComponent>();
 
-			Vector3 col = (Vector3)light.color;
-			UI::Vector3Input colInput("Color", col);
+			// Split the color in a normalized color (from 0 to 1) and an intensity
+			float intensity = Scalar::Max(Scalar::Max(1.0f, light.color.r), Scalar::Max(light.color.g, light.color.b));
+			Color normalizedColor = Color(light.color.r / intensity, light.color.g / intensity, light.color.b / intensity);
 
-			light.color = Color(col.x, col.y, col.z, 1.0f);
+			UI::ColorInput colInput("Color", normalizedColor, false);
+
+			UI::FloatInput intensityInput("Intensity", intensity);
+
+			if (colInput.HasChanged() || intensityInput.HasChanged())
+				light.color = Color(normalizedColor.r * intensity, normalizedColor.g * intensity, normalizedColor.b * intensity);
 
 			UI::FloatInput      cutOff("CutOff      ", light.cutOff);
 			UI::FloatInput outerCutOff("Outer CutOff", light.outerCutOff);

@@ -313,7 +313,6 @@ namespace RexEditor::UI
         ByteInput(const std::string& label, char& value);
     };
 
-    // a bool input
     class IntInput : public Input<int>
     {
     public:
@@ -324,6 +323,12 @@ namespace RexEditor::UI
     {
     public:
         FloatInput(const std::string& label, float& value);
+    };
+
+    class ColorInput : public Input<Color>
+    {
+    public:
+        ColorInput(const std::string& label, Color& value, bool useAlpha = true);
     };
 
     // a bool input
