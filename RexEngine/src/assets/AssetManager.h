@@ -44,7 +44,7 @@ namespace RexEngine
 		{}
 
 		Asset(const Guid& guid, std::shared_ptr<T> asset) 
-			: m_guid(guid), m_asset(asset)
+			: m_guid(guid), m_asset(std::make_shared<std::shared_ptr<T>>(asset))
 		{}
 
 
@@ -60,7 +60,7 @@ namespace RexEngine
 
 		Asset& operator=(std::shared_ptr<T> from)
 		{
-			m_asset = from;
+			m_asset = std::make_shared<std::shared_ptr<T>>(from);
 			return *this;
 		}
 
@@ -71,11 +71,11 @@ namespace RexEngine
 			return *this;
 		}
 
-		operator std::shared_ptr<T>() const { return m_asset; }
+		operator std::shared_ptr<T>() const { return *m_asset; }
 
 		// Use the underlying asset directly using ->
-		const T* operator->() const  { return m_asset.get(); }
-		T* operator->()  { return m_asset.get(); }
+		const T* operator->() const  { return m_asset->get(); }
+		T* operator->()  { return m_asset->get(); }
 
 		// Check if an asset is empty
 		operator bool() const { return m_asset != nullptr; }
@@ -84,7 +84,7 @@ namespace RexEngine
 		friend class AssetManager;
 
 		Guid m_guid;
-		std::shared_ptr<T> m_asset;
+		std::shared_ptr<std::shared_ptr<T>> m_asset; // Store a ptr to a ptr to make reload possibles
 	};
 
 
@@ -153,7 +153,7 @@ namespace RexEngine
 			metaDataArchive(CUSTOM_NAME(tempguid, "AssetGuid"));
 
 			a.SetAssetGuid(guid);
-			a.m_asset = T::LoadFromAssetFile(guid, metaDataArchive, assetFile);
+			a.m_asset = std::make_shared<std::shared_ptr<T>>(T::LoadFromAssetFile(guid, metaDataArchive, assetFile));
 
 			s_assets[guid] = a;
 
@@ -163,8 +163,30 @@ namespace RexEngine
 		template<typename T>
 		inline static Asset<T> ReloadAsset(const Guid& guid)
 		{
-			s_assets.erase(guid); // Unload
-			return GetAsset<T>(guid);
+			auto path = s_registry.find(guid);
+			if (!s_assets.contains(guid) || path == s_registry.end())
+				return Asset<T>();
+
+			auto asset = std::any_cast<Asset<T>>(s_assets[guid]);
+			(*asset.m_asset) = nullptr; // Unload
+
+
+			// Load from the file
+			std::ifstream metaDataFile(path->second);
+			bool bin = AssetTypes::GetAssetType<T>().binary;
+			std::ifstream assetFile(path->second.string().substr(0, path->second.string().length() - 6), bin ? std::ios::binary : std::ios::in); // Remove the .asset part, std::ios::in used as a dummy
+
+			if (!metaDataFile.is_open() || !assetFile.is_open())
+				return Asset<T>(); // Failed
+
+			JsonDeserializer metaDataArchive(metaDataFile);
+			// Pop the guid
+			Guid tempguid;
+			metaDataArchive(CUSTOM_NAME(tempguid, "AssetGuid"));
+
+			(*asset.m_asset) = T::LoadFromAssetFile(guid, metaDataArchive, assetFile); // The reloaded asset
+
+			return asset;
 		}
 
 		// Will return an empty guid if no asset with the specified path was found
@@ -273,7 +295,7 @@ namespace RexEngine
 			// void SaveToAssetFile(Archive& metaDataArchive)
 			if constexpr (HasSaveMetaOnly<T, JsonSerializer>)
 			{
-				asset.m_asset->SaveToAssetFile(metaDataArchive);
+				(*asset.m_asset)->SaveToAssetFile(metaDataArchive);
 			}
 			else if constexpr (HasSaveMetaAndAsset<T, JsonSerializer>)
 			{
@@ -285,7 +307,7 @@ namespace RexEngine
 
 				if (assetFile.is_open())
 				{
-					asset.m_asset->SaveToAssetFile(metaDataArchive, assetFile);
+					(*asset.m_asset)->SaveToAssetFile(metaDataArchive, assetFile);
 				}
 			}
 

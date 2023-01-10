@@ -26,7 +26,7 @@ namespace RexEditor
 	protected:
 		virtual void OnGui(float deltaTime) override
 		{
-			if (UI::Button clear(std::format("Clear ({})", m_messages.size())); clear.IsClicked())
+			if (UI::Button clear(std::format("Clear ({})###ClearButton", m_messages.size())); clear.IsClicked())
 			{
 				m_messages.clear();
 			}
@@ -73,6 +73,7 @@ namespace RexEditor
 		void OnLog(RexEngine::Log::LogType type, const std::string& msg, uint_least32_t line, const std::string& func, const std::string& file)
 		{
 			m_messages.push_back({type, msg, line, func, file, std::chrono::system_clock::now()});
+			PanelManager::GetPanel("Console")->SetUnsaved(true);
 		}
 
 		struct ConsoleMessage

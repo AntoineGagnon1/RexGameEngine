@@ -1,3 +1,6 @@
 <a href="https://www.flaticon.com/free-icons/document" title="document icons">Document icons created by Freepik - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Good Ware - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/no-photo" title="no photo icons">No photo icons created by LAFS - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/play" title="play icons">Play icons created by Freepik - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/pause" title="pause icons">Pause icons created by Debi Alpa Nugraha - Flaticon</a>
+<a href="https://www.flaticon.com/free-icons/stop" title="stop icons">Stop icons created by Pixel perfect - Flaticon</a>

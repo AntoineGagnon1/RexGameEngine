@@ -70,6 +70,12 @@ namespace RexEngine
 	{
 		m_registry.on_construct<Guid>().connect<&Scene::OnGuidAdded>(guid);
 		m_registry.on_destroy<Guid>().connect<&Scene::OnGuidRemoved>();
+		s_validRegistries.insert(&m_registry);
+	}
+
+	Scene::~Scene()
+	{
+		s_validRegistries.erase(&m_registry);
 	}
 
     Entity Scene::CreateEntity(const std::string& name)

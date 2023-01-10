@@ -14,7 +14,7 @@ namespace RexEngine
 
 	Entity::operator bool() const
 	{
-		return Scene::IsEntityValid(m_entityGuid);
+		return Scene::IsEntityValid(m_entityGuid, m_registry);
 	}
 
 	Guid Entity::GetGuid() const

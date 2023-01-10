@@ -4,6 +4,7 @@
 #include "ui/MenuBar.h"
 #include "panels/PanelManager.h"
 #include "project/ProjectManager.h"
+#include "panels/PlayControls.h"
 
 int WinMain()
 {
@@ -38,8 +39,9 @@ int WinMain()
 		editorFrameTime.Restart();
 
 		EngineEvents::OnPreUpdate().Dispatch();
-		EngineEvents::OnUpdate().Dispatch();
-		EngineEvents::OnPostUpdate().Dispatch();
+
+		if(PanelManager::GetPanel<PlayControlsPanel>()->IsPlaying())
+			EngineEvents::OnUpdate().Dispatch(); // Only update if the engine is in play mode
 		
 		EditorEvents::OnUI().Dispatch(std::forward<float>(deltaTime));
 

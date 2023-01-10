@@ -9,6 +9,8 @@
 #include "SceneTree.h"
 #include "Inspector.h"
 #include "Console.h"
+#include "PlayControls.h"
+#include "GameView.h"
 
 namespace RexEditor
 {
@@ -26,6 +28,8 @@ namespace RexEditor
 															  // this is because the selected tab feature does not seem to work in ImGui
 		PanelManager::RegisterPanel<FileExplorerPanel>("File Explorer");
 		PanelManager::RegisterPanel<InspectorPanel>("Inspector");
+		PanelManager::RegisterPanel<PlayControlsPanel>("Play Controls");
+		PanelManager::RegisterPanel<GameViewPanel>("Game View");
 
 		EditorEvents::OnEditorStarted().Register<&OnEngineStarted>();
 	});

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include <entt/entity/registry.hpp>
 
@@ -15,6 +16,7 @@ namespace RexEngine
 	public:
 
 		Scene(const Guid& guid);
+		~Scene();
 
 		Scene(const Scene&) = delete;
 
@@ -112,9 +114,10 @@ namespace RexEngine
 	private:
 		friend class Entity;
 		// Used in Entity
-		inline static bool IsEntityValid(const Guid& guid)
+		inline static bool IsEntityValid(const Guid& guid, entt::registry* registry)
 		{
-			return s_entities.contains(guid);
+			// Check if the entity exists and if the registry is valid
+			return s_entities.contains(guid) && s_validRegistries.contains(registry);
 		}
 
 		inline static entt::entity GetEntityHandle(const Guid& guid)
@@ -134,5 +137,6 @@ namespace RexEngine
 		inline static Asset<Scene> s_currentScene;
 		// <entity guid, <scene guid, entity handle>>
 		inline static std::unordered_map<Guid, std::tuple<Guid, entt::entity>> s_entities;
+		inline static std::unordered_set<entt::registry*> s_validRegistries;
 	};
 }

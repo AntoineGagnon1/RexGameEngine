@@ -105,8 +105,11 @@ namespace RexEditor::UI
         RexEngine::Vector2 Size() const;
         bool IsFocused() const;
 
+        static void SetFocused(const std::string& title);
+
     private:
         bool m_visible;
+        std::string m_title;
 	};
 
 
@@ -347,6 +350,18 @@ namespace RexEditor::UI
     {
     public:
         Button(const std::string& label);
+
+        bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const override;
+
+    private:
+        bool m_clicked;
+    };
+
+    class ImageButton : public Clickable
+    {
+    public:
+        // size is the size of the whole button, padding included
+        ImageButton(const std::string& id, const RexEngine::Texture& texture, RexEngine::Vector2 size);
 
         bool IsClicked(RexEngine::MouseButton mouseButton = RexEngine::MouseButton::Left, MouseAction action = MouseAction::Clicked) const override;
 

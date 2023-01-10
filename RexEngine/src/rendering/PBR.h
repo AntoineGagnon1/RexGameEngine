@@ -57,7 +57,7 @@ inline Window* testWin;
 		RE_STATIC_CONSTRUCTOR({
 			EngineEvents::OnEngineStarted().Register<&PBR::Init>();
 			EngineEvents::OnEngineStop().Register<&PBR::OnClose>();
-			EngineEvents::OnPostUpdate().Register<&PBR::Update>();
+			EngineEvents::OnPreUpdate().Register<&PBR::Update>();
 		});
 	};
 }

@@ -18,8 +18,13 @@ namespace RexEditor
 
 			if (!entity)
 			{
-				UI::Text t("Invalid Entity !");
-				return;
+				// Try to get the entity using the guid (if the scene was reloaded)
+				entity = Entity(entity.GetGuid()); // This will get the scene automatically
+				if (!entity)
+				{
+					UI::Text t("Invalid Entity !");
+					return;
+				} // The entity was found, continue
 			}
 
 			// Header

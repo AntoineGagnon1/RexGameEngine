@@ -22,6 +22,7 @@ namespace RexEditor
 
 		RexEngine::Vector2 PanelSize() const { return m_size; }
 		bool IsFocused() const { return m_focused; }
+		void SetFocused() { UI::Window::SetFocused(m_title); }
 		bool IsHovered() const;
 
 		const std::string& Title() const { return m_title; }

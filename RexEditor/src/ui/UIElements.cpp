@@ -112,6 +112,7 @@ namespace RexEditor::UI
 
 
 	Window::Window(const std::string& title, bool* open, WindowSetting settings)
+		: m_title(title)
 	{
 		m_visible = ImGui::Begin(title.c_str(), open, (int)settings);
 		m_hovered = ImGui::IsWindowHovered();
@@ -152,6 +153,12 @@ namespace RexEditor::UI
 	{
 		return ImGui::IsWindowFocused();
 	}
+
+	void Window::SetFocused(const std::string& title)
+	{
+		ImGui::SetWindowFocus(title.c_str());
+	}
+
 
 	Anchor::Anchor(AnchorPos anchor)
 		: m_anchor(anchor), m_currentPos(0.0f, 0.0f)
@@ -437,6 +444,25 @@ namespace RexEditor::UI
 	}
 
 	bool Button::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
+	{
+		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
+			return m_clicked;
+		else
+			return Clickable::IsClicked(mouseButton, action);
+	}
+
+	ImageButton::ImageButton(const std::string& label, const Texture& texture, Vector2 size)
+	{
+		auto& style = ImGui::GetStyle();
+		size.x -= style.FramePadding.x * 2.0f;
+		size.y -= style.FramePadding.y * 2.0f;
+
+		Anchor::SetCursorPos(size);
+		m_clicked = ImGui::ImageButton(label.c_str(), (ImTextureID)texture.GetId(), Internal::VecConvert(size));
+		CacheHovered();
+	}
+
+	bool ImageButton::IsClicked(RexEngine::MouseButton mouseButton, MouseAction action) const
 	{
 		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;

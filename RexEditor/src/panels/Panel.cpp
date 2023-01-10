@@ -17,12 +17,13 @@ namespace RexEditor
 		UI::WindowSetting settings = UI::WindowSetting::NoCollapse;	
 		settings |= m_canDock == false ? UI::WindowSetting::NoDocking : UI::WindowSetting::None;
 		settings |= m_unsaved == true ? UI::WindowSetting::UnsavedDocument : UI::WindowSetting::None;
+		
+		UI::Window w(m_title.c_str(), &m_open, settings);
+		// Cache the window
+		m_window = &w;
 
-		if (UI::Window w(m_title.c_str(), &m_open, settings); w.IsVisible())
+		if (w.IsVisible())
 		{
-			// Cache the window
-			m_window = &w;
-
 			// Handle resize
 			auto newSize = w.Size();
 			if (m_size != newSize)
@@ -47,6 +48,8 @@ namespace RexEditor
 			m_hovered = w.IsHovered();
 			OnGui(deltaTime);
 		}
+
+		m_window = nullptr; // The window object will be deleted
 	}
 
 	void Panel::Show(bool show)

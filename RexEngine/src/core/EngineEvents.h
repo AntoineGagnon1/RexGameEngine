@@ -14,7 +14,6 @@
 // {
 //		OnPreUpdate();
 //		OnUpdate();
-//		OnPostUpdate();
 // 
 //		Rendering...
 // }
@@ -34,7 +33,6 @@ namespace RexEngine
 
 		RE_DECL_EVENT(OnPreUpdate) // Runs before the update, poll events, calculate the delta time, ...
 		RE_DECL_EVENT(OnUpdate) // Update event, update the ECS, ScriptEngine, ...
-		RE_DECL_EVENT(OnPostUpdate) // Runs after the update, update the pbr data, ...
 			
 
 		RE_DECL_EVENT(OnEngineStop) // Should only be called once, before the app closes
