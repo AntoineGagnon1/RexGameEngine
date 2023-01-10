@@ -68,7 +68,6 @@ namespace RexEditor::AssetInspectors
 				if (UI::Button b("Reload Shader"); b.IsClicked() || shaderIn.HasChanged()) // Has change or reload
 				{
 					AssetManager::ReloadAsset<Shader>(shader.GetAssetGuid());
-					mat->SetShader(AssetManager::GetAsset<Shader>(shader.GetAssetGuid()));
 					needsSave = true;
 				}
 			}
