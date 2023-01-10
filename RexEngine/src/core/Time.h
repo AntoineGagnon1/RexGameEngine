@@ -76,6 +76,13 @@ namespace RexEngine
 			return (float)(deltaTime / 1.0s);
 		}
 
+		// Time since the start of the app, in seconds
+		inline static double CurrentTime()
+		{
+			using namespace std::chrono_literals;
+			return (ClockType::now() - appStartTime) / 1.0s;
+		}
+
 	private:
 		inline static void StartNewFrame()
 		{
@@ -87,13 +94,15 @@ namespace RexEngine
 			timeLastFrame = now;
 		}
 
-		RE_STATIC_CONSTRUCTOR({ 
-			EngineEvents::OnPreUpdate().Register<&Time::StartNewFrame>();
-		})
-
 	private:
 		using ClockType = std::chrono::steady_clock;
 
 		inline static ClockType::duration deltaTime;
+		inline static ClockType::time_point appStartTime;
+
+		RE_STATIC_CONSTRUCTOR({ 
+			EngineEvents::OnPreUpdate().Register<&Time::StartNewFrame>();
+			appStartTime = ClockType::now();
+		})
 	};
 }
