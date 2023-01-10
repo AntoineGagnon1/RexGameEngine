@@ -1,13 +1,14 @@
 {
-    "Count": 7,
-    "Entity": 4293918725,
+    "Count": 8,
+    "Entity": 4293918726,
     "Entity": 702545920,
     "Entity": 2688548865,
     "Entity": 4050649090,
-    "Entity": 1366294527,
+    "Entity": 641728511,
     "Entity": 195035140,
-    "Entity": 3399483395,
-    "Count": 4,
+    "Entity": 1031798789,
+    "Entity": 1643118595,
+    "Count": 5,
     "Owner": 702545920,
     "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
     "Owner": 2688548865,
@@ -16,7 +17,9 @@
     "struct RexEngine::Guid": "15283814634627207210 1673213653718502",
     "Owner": 195035140,
     "struct RexEngine::Guid": "481194987144494770 1673231638526655",
-    "Count": 4,
+    "Owner": 1031798789,
+    "struct RexEngine::Guid": "17412476535803257272 1673360388262110",
+    "Count": 5,
     "Owner": 702545920,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
@@ -33,7 +36,11 @@
     "struct RexEngine::TagComponent": {
         "name": "Sun"
     },
-    "Count": 4,
+    "Owner": 1031798789,
+    "struct RexEngine::TagComponent": {
+        "name": "Camera"
+    },
+    "Count": 5,
     "Owner": 702545920,
     "struct RexEngine::TransformComponent": {
         "position": [
@@ -122,6 +129,28 @@
             "Guid": "0 0"
         }
     },
+    "Owner": 1031798789,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            0.0,
+            1.0,
+            -1.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
     "Count": 1,
     "Owner": 2688548865,
     "struct RexEngine::MeshRendererComponent": {
@@ -132,7 +161,13 @@
             "Guid": "9561679157417395120 1672093055806690"
         }
     },
-    "Count": 0,
+    "Count": 1,
+    "Owner": 1031798789,
+    "struct RexEngine::CameraComponent": {
+        "fov": 70.0,
+        "zNear": 0.10000000149011612,
+        "zFar": 100.0
+    },
     "Count": 1,
     "Owner": 702545920,
     "struct RexEngine::SkyboxComponent": {

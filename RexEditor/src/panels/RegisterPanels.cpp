@@ -17,6 +17,7 @@ namespace RexEditor
 	static void OnEngineStarted()
 	{
 		// Needs the RenderApi to be initialized
+		PanelManager::RegisterPanel<GameViewPanel>("Game View");
 		PanelManager::RegisterPanel<SceneViewPanel>("Scene View");
 	}
 
@@ -29,7 +30,6 @@ namespace RexEditor
 		PanelManager::RegisterPanel<FileExplorerPanel>("File Explorer");
 		PanelManager::RegisterPanel<InspectorPanel>("Inspector");
 		PanelManager::RegisterPanel<PlayControlsPanel>("Play Controls");
-		PanelManager::RegisterPanel<GameViewPanel>("Game View");
 
 		EditorEvents::OnEditorStarted().Register<&OnEngineStarted>();
 	});

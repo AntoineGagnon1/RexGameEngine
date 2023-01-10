@@ -7,7 +7,6 @@
 #include "ui/UIElements.h"
 
 #include "../core/EditorAssets.h"
-#include "GameView.h"
 #include "SceneView.h"
 
 namespace RexEditor
@@ -33,6 +32,11 @@ namespace RexEditor
 			float size = PanelSize().y - 35;
 			if (UI::ImageButton playPause("PlayPause", m_playing ? EditorAssets::Pause() : EditorAssets::Play(), {size, size}); playPause.IsClicked())
 			{
+				if (!m_playing)
+				{
+					Cursor::SetCursorMode(CursorMode::Locked);
+				}
+
 				if (!m_playing && !m_started)
 				{
 					m_started = true;
@@ -42,7 +46,7 @@ namespace RexEditor
 					RexEngine::AssetManager::SaveAsset<RexEngine::Scene>(scene.GetAssetGuid());
 
 					// Focus on the Game View
-					auto panel = PanelManager::GetPanel<GameViewPanel>();
+					auto panel = PanelManager::GetPanel("Game View");
 					if (panel != nullptr)
 					{
 						panel->Show();
