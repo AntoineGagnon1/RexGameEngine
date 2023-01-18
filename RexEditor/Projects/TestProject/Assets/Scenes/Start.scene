@@ -1,18 +1,19 @@
 {
-    "Count": 8,
-    "Entity": 4293918726,
+    "Count": 9,
+    "Entity": 4293918721,
     "Entity": 702545920,
-    "Entity": 2688548865,
+    "Entity": 2592079875,
     "Entity": 4050649090,
-    "Entity": 641728511,
+    "Entity": 3534749703,
     "Entity": 195035140,
     "Entity": 1031798789,
-    "Entity": 1643118595,
+    "Entity": 2370830342,
+    "Entity": 2264924159,
     "Count": 5,
     "Owner": 702545920,
     "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
-    "Owner": 2688548865,
-    "struct RexEngine::Guid": "16392070106420606896 1672093008906246",
+    "Owner": 2370830342,
+    "struct RexEngine::Guid": "13461611892952272402 1673964389695761",
     "Owner": 4050649090,
     "struct RexEngine::Guid": "15283814634627207210 1673213653718502",
     "Owner": 195035140,
@@ -24,9 +25,9 @@
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
     },
-    "Owner": 2688548865,
+    "Owner": 2370830342,
     "struct RexEngine::TagComponent": {
-        "name": "Sphere"
+        "name": "Dino"
     },
     "Owner": 4050649090,
     "struct RexEngine::TagComponent": {
@@ -63,11 +64,11 @@
             "Guid": "0 0"
         }
     },
-    "Owner": 2688548865,
+    "Owner": 2370830342,
     "struct RexEngine::TransformComponent": {
         "position": [
             0.0,
-            1.0,
+            0.0,
             0.0
         ],
         "scale": [
@@ -88,9 +89,9 @@
     "Owner": 4050649090,
     "struct RexEngine::TransformComponent": {
         "position": [
-            2.0,
-            1.0,
-            0.0
+            0.0,
+            4.0,
+            5.0
         ],
         "scale": [
             1.0,
@@ -152,13 +153,13 @@
         }
     },
     "Count": 1,
-    "Owner": 2688548865,
+    "Owner": 2370830342,
     "struct RexEngine::MeshRendererComponent": {
         "material": {
-            "Guid": "63205357707978445 1672093067157611"
+            "Guid": "13775017754570738698 1673964451412877"
         },
         "mesh": {
-            "Guid": "9561679157417395120 1672093055806690"
+            "Guid": "8709575534362884765 1673964344259249"
         }
     },
     "Count": 1,
@@ -179,9 +180,9 @@
     "Owner": 4050649090,
     "struct RexEngine::PointLightComponent": {
         "color": [
-            10.0,
-            10.0,
-            10.0,
+            5.0,
+            5.0,
+            5.0,
             1.0
         ]
     },

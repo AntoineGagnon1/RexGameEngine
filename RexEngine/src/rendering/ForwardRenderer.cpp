@@ -100,7 +100,7 @@ namespace RexEngine
 		{
 			const Matrix4 modelMatrix = e.GetComponent<TransformComponent>().GetGlobalTransform();
 			
-			if(c.material && c.mesh) // Has a material and a mesh
+			if(c.material && c.mesh && c.material->GetShader()) // Has a material, a shader and a mesh
 				RenderQueue::AddCommand(RenderCommand(c.material, c.mesh, modelMatrix));
 		}
 

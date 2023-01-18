@@ -57,6 +57,10 @@ namespace RexEngine
 		inline static ScriptFunc<void, float> m_setDeltaTime = nullptr;
 		inline static ScriptFunc<void, const char*, uint8_t, float> m_setActionData = nullptr;
 
+		inline static ScriptFunc<void, Guid*, int32_t> m_saveComponentsToString = nullptr;
+		inline static ScriptFunc<void, const char *> m_loadComponentsFromString = nullptr;
+		inline static ScriptFunc<void, Guid*, int32_t> m_removeComponents = nullptr;
+
 		inline static std::vector<std::string> m_loadedAssemblies; // Used to reload all the assemblies
 	};
 }

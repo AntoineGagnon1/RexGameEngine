@@ -62,6 +62,8 @@ namespace RexEditor::AssetInspectors
 			// Shader
 			auto shader = mat->GetShader();
 			UI::AssetInput<Shader> shaderIn("Shader", shader);
+			if (shaderIn.HasChanged())
+				mat->SetShader(shader);
 
 			{
 				UI::Anchor a(UI::AnchorPos::Right);
@@ -236,8 +238,10 @@ namespace RexEditor::AssetInspectors
 		FileExplorerPanel::InspectorRegistry().Add<Mesh>([](const Guid& guid) {
 			auto mesh = AssetManager::GetAsset<Mesh>(guid);
 
-			UI::Text vertices(std::format("Vertex Count :   {}", mesh->GetVertexCount()));
+			UI::Text vertices(std::format( "Vertex Count   :   {}", mesh->GetVertexCount()));
 			UI::Text triangles(std::format("Triangle Count : {}", mesh->GetIndexCount() / 3));
+			UI::Text normals(std::format(  "Has normals : {}", mesh->HasNormals()));
+			UI::Text uvs(std::format(	   "Has UVs     : {}", mesh->HasUVs()));
 		});
 
 	});

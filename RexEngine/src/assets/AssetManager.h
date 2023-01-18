@@ -137,7 +137,23 @@ namespace RexEngine
 			auto path = s_registry.find(guid);
 			if (path == s_registry.end())
 				return Asset<T>(); // Not found
-			
+
+			// Generate the meta file if needed
+			if (!std::filesystem::exists(path->second))
+			{
+				std::ofstream file(path->second);
+				if (!file.is_open())
+					return Asset<T>();
+
+				JsonSerializer archive(file);
+				// Add the guid
+				archive(CUSTOM_NAME(Guid::Generate(), "AssetGuid"));
+
+				// Try to use the metaData creation function
+				if constexpr (HasCreateMeta<T, JsonSerializer>)
+					T::CreateMetaData(archive);
+			}
+
 			// Load the asset from the file
 			Asset<T> a;
 			std::ifstream metaDataFile(path->second);
@@ -163,6 +179,7 @@ namespace RexEngine
 		template<typename T>
 		inline static Asset<T> ReloadAsset(const Guid& guid)
 		{
+			SaveAsset<T>(guid);
 			auto path = s_registry.find(guid);
 			if (!s_assets.contains(guid) || path == s_registry.end())
 				return Asset<T>();

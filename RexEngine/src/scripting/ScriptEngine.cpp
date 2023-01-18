@@ -60,6 +60,11 @@ namespace RexEngine::Internal
 			return 0;
 		}
 	}
+
+	void SaveComponentsCallback(const char* data)
+	{
+
+	}
 }
 
 namespace RexEngine
@@ -115,12 +120,25 @@ namespace RexEngine
 		RE_ASSERT(RegisterInternalCall("RexEngine.SceneCalls.HasComponent", (void*)Internal::HasComponent),
 			"Error registering RexEngine.SceneCalls.HasComponent !");
 
+		// Script Component
+		RE_ASSERT(RegisterInternalCall("RexEngine.ScriptComponentManager.SaveComponentsCallback", (void*)Internal::SaveComponentsCallback),
+			"Error registering RexEngine.ScriptComponentManager.SaveComponentsCallback !");
+
 		// Get Managed functions in ScriptApi
 		m_setDeltaTime = GetManagedFunction<void, float>("RexEngine.Time", "SetDeltaTime");
 		RE_ASSERT(m_setDeltaTime != nullptr, "Error loading the RexEngine.Time.SetDeltaTime function !");
 
 		m_setActionData = GetManagedFunction<void, const char*, uint8_t, float>("RexEngine.Inputs", "SetActionData");
 		RE_ASSERT(m_setActionData != nullptr, "Error loading the RexEngine.Inputs.SetActionData function !");
+
+		m_saveComponentsToString = GetManagedFunction<void, Guid*, int32_t>("RexEngine.ScriptComponentManager", "SaveComponentsToString");
+		RE_ASSERT(m_saveComponentsToString != nullptr, "Error loading the RexEngine.ScriptComponentManager.SaveComponentsToString function !");
+
+		m_loadComponentsFromString = GetManagedFunction<void, const char*>("RexEngine.ScriptComponentManager", "LoadComponentsFromString");
+		RE_ASSERT(m_loadComponentsFromString != nullptr, "Error loading the RexEngine.ScriptComponentManager.LoadComponentsFromString function !");
+
+		m_removeComponents = GetManagedFunction<void, Guid*, int32_t>("RexEngine.ScriptComponentManager", "RemoveComponents");
+		RE_ASSERT(m_removeComponents != nullptr, "Error loading the RexEngine.ScriptComponentManager.RemoveComponents function !");
 	}
 
 	void ScriptEngine::StartEngine()

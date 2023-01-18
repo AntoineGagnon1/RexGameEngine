@@ -11,6 +11,15 @@ namespace RexEngine
 			std::error_code code;
 			if (std::filesystem::equivalent(pair.second, path, code))
 				return pair.first;
+			
+			if (code)
+			{ // An error occured (file does not exist ?), try a different comparaison
+				auto fullpath1 = std::filesystem::weakly_canonical(std::filesystem::absolute(path));
+				auto fullpath2 = std::filesystem::weakly_canonical(std::filesystem::absolute(pair.second));
+
+				if (fullpath1 == fullpath2)
+					return pair.first;
+			}
 		}
 
 		return Guid::Empty;
@@ -46,16 +55,26 @@ namespace RexEngine
 			}
 			else
 			{ // File
-				if (entry.path().has_extension() && entry.path().extension() == AssetFileExtension)
+				if (entry.path().has_extension() && entry.path().extension() != AssetFileExtension)
 				{
-					// Read the guid
-					std::ifstream file(entry.path());
-					JsonDeserializer archive(file);
+					auto metaPath = entry.path();
+					AddMetaExtension(metaPath);
 
 					Guid guid;
-					archive(CUSTOM_NAME(guid, "AssetGuid"));
+					if (std::filesystem::exists(metaPath))
+					{
+						// Read the guid
+						std::ifstream file(metaPath);
+						JsonDeserializer archive(file);
 
-					s_registry.insert({ guid, entry.path() });
+						archive(CUSTOM_NAME(guid, "AssetGuid"));
+					}
+					else
+					{
+						guid = Guid::Generate(); // The asset has no meta file, generate a guid
+					}
+
+					s_registry.insert({ guid, metaPath });
 				}
 			}
 		}

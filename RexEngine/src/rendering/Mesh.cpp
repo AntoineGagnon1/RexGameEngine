@@ -69,8 +69,9 @@ namespace RexEngine
 	{
 		std::vector<Vector3> vertices;
 		std::vector<Vector3> normals = {Vector3(0,0,0)}; // Add a null normal, if the mesh has none this will prevent an out of bounds access
-		//                    <vertex, normal>
-		std::vector<std::tuple<int,int>> faces;
+		std::vector<Vector2> uvs = {Vector2(0,0)}; // Add a null uv, if the mesh has none this will prevent an out of bounds access
+		//                    <vertex, normal, uv>
+		std::vector<std::tuple<int,int, int>> faces;
 
 		// Go line by line
 		std::string line;
@@ -89,17 +90,26 @@ namespace RexEngine
 			{ // normal
 				normals.push_back(Vector3(std::stof(args[1]), std::stof(args[2]), std::stof(args[3])).Normalized());
 			}
+			else if (args[0] == "vt")
+			{
+				uvs.push_back(Vector2(std::stof(args[1]), std::stof(args[2])));
+			}
 			else if (args[0] == "f")
 			{ // face
 				for (int i = 0; i < 3; i++)
 				{ // Get each component : vertexIndex/textureIndex/normalIndex
 					auto components = StringHelper::Split(args[i + 1], '/');
-					if (components.size() == 1) // vertex only
-						faces.push_back({std::stoi(components[0]) - 1, 0});
-					else if (components.size() == 2) // vertex and uv
-						faces.push_back({ std::stoi(components[0]) - 1, 0 });
-					else if (components.size() == 3) // vertex, uv and normal
-						faces.push_back({ std::stoi(components[0]) - 1, std::stoi(components[2]) }); // not -1 because of the default normal
+
+					int v = std::stoi(components[0]) - 1;
+					int uv = 0;
+					int n = 0;
+
+					if (components.size() >= 2 && !components[1].empty())
+						uv = std::stoi(components[1]); // not -1 because of the default normal
+					if (components.size() >= 3 && !components[2].empty())
+						n = std::stoi(components[2]); // not -1 because of the default uv
+
+					faces.push_back({ v, n, uv });
 				}
 			}
 		}
@@ -107,15 +117,16 @@ namespace RexEngine
 		// Loop all the faces and make the vertex buffer
 
 		// This will store the index of each unique vertex
-		//							<<vertex, normal>, meshIndex>
-		std::unordered_map<std::tuple<int, int>, int> vertexIndex;
+		//							<<vertex, normal, uv>, meshIndex>
+		std::unordered_map<std::tuple<int, int, int>, int> vertexIndex;
 		std::vector<unsigned int> meshIndices;
 		std::vector<Vector3> meshVertices;
 		std::vector<Vector3> meshNormals;
+		std::vector<Vector2> meshUVs;
 		
 		for (int i = 0; i < faces.size(); i++)
 		{
-			auto&[vIndex, nIndex] = faces[i];
+			auto&[vIndex, nIndex, uvIndex] = faces[i];
 			auto index = vertexIndex.find(faces[i]);
 			if (index != vertexIndex.end())
 				meshIndices.push_back((unsigned int)index->second);
@@ -127,10 +138,12 @@ namespace RexEngine
 				meshVertices.push_back(vertices[vIndex]);
 				if(normals.size() > 1)
 					meshNormals.push_back(normals[nIndex]);
+				if (uvs.size() > 1)
+					meshUVs.push_back(uvs[uvIndex]);
 			}
 		}
 		
-		return std::make_shared<Mesh>(meshVertices, meshIndices, meshNormals);
+		return std::make_shared<Mesh>(meshVertices, meshIndices, meshNormals, meshUVs);
 	}
 
 	void Mesh::Bind() const

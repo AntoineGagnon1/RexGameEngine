@@ -35,6 +35,9 @@ namespace RexEngine
 				+ (m_hasUVs ? sizeof(Vector2) : 0));
 		}
 
+		bool HasNormals() const { return m_hasNormals; }
+		bool HasUVs() const { return m_hasUVs; }
+
 		template<typename Archive>
 		inline static std::shared_ptr<Mesh> LoadFromAssetFile(Guid _, const Archive& metaDataArchive, std::istream& assetFile)
 		{

@@ -17,7 +17,7 @@ namespace RexEngine
         public static delegate* unmanaged[Stdcall]<byte, string, Int32, string, string, void> Log; // level, msg, line, func, file
 
         public static delegate* unmanaged[Stdcall]<GUID> GenGuid; // Generate a guid
-        public static delegate* unmanaged[Stdcall]<GUID, StringBuilder, void> GuidToString; // Generate a guid
+        public static delegate* unmanaged[Stdcall]<GUID, StringBuilder, void> GuidToString;
 
     }
 

@@ -1,0 +1,15 @@
+{
+    "AssetGuid": "12334302162788425852 1673967769150899",
+    "Target": 0,
+    "Size": [
+        2048,
+        2048
+    ],
+    "Format": 0,
+    "Hdr": false,
+    "FlipY": true,
+    "WrapS": 0,
+    "WrapT": 0,
+    "MinFilter": 2,
+    "MagFilter": 2
+}
