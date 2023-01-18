@@ -12,6 +12,7 @@ int WinMain()
 	using namespace RexEditor;
 
 	Window win("RexEditor", 1280, 720, 8);
+	win.SetWindowIcon("assets/icons/logo.png");
 	win.MakeActive();
 	testWin = &win;
 	win.SetResizeCallback([](Vector2Int size) {

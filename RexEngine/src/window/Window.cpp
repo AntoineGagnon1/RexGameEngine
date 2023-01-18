@@ -1,8 +1,8 @@
-#include "UIElements.h"
 #include "REPch.h"
 #include "Window.h"
 
 #include <core/Libs.h>
+#include <stb/stb_image.h>
 
 namespace RexEngine
 {
@@ -66,11 +66,18 @@ namespace RexEngine
 		return size;
 	}
 
+	void Window::SetWindowIcon(const std::filesystem::path& icon)
+	{
+		GLFWimage image[1];
+		image[0].pixels = stbi_load(icon.string().c_str(), &image[0].width, &image[0].height, 0, 4);
+		glfwSetWindowIcon(m_window, 1, image);
+		stbi_image_free(image[0].pixels);
+	}
+
 	void Window::SetVSync(bool state)
 	{
 		glfwSwapInterval(state ? 1 : 0);
 	}
-
 
 	// Private
 	void Window::HandleResize(GLFWwindow* window, int width, int height)

@@ -29,9 +29,9 @@ namespace RexEngine
 
 		GLFWwindow* WindowHandle() const { return m_window; }
 
+		void SetWindowIcon(const std::filesystem::path& icon);
 
 		static void SetVSync(bool state);
-		static void SetMSAA(int level);
 
 		inline static Window* ActiveWindow() { return s_activeWindow; }
 	

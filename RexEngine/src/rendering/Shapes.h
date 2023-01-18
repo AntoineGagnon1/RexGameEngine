@@ -42,7 +42,7 @@ namespace RexEngine::Shapes
 	}
 
 	namespace Internal{
-		inline void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<unsigned int>& indices)
+		inline void MakeSphereMesh(std::vector<Vector3>& vertices, std::vector<Vector3>& normals, std::vector<unsigned int>& indices, std::vector<Vector2>& uvs)
 		{ // From : http://www.songho.ca/opengl/gl_sphere.html
 			const float PI = 3.1415926f;
 			const int stackCount = 64;
@@ -83,7 +83,7 @@ namespace RexEngine::Shapes
 					// vertex tex coord (s, t) range between [0, 1]
 					s = (float)j / sectorCount;
 					t = (float)i / stackCount;
-					//texCoords.push_back(Vector2(s,t));
+					uvs.push_back(Vector2(s,t));
 				}
 			}
 
@@ -120,14 +120,15 @@ namespace RexEngine::Shapes
 	{
 		static std::vector<Vector3> vertices, normals;
 		static std::vector<unsigned int> indices;
+		static std::vector<Vector2> uvs;
 
 		// Run this once
 		static const auto _ = [] { // Save to static var to only run the lamda once
- 			Internal::MakeSphereMesh(vertices, normals, indices);
+ 			Internal::MakeSphereMesh(vertices, normals, indices, uvs);
 			return 1;
 		}();
 
-		static const NoDestroy<std::shared_ptr<Mesh>> mesh(std::make_shared<Mesh>(vertices, indices, normals));
+		static const NoDestroy<std::shared_ptr<Mesh>> mesh(std::make_shared<Mesh>(vertices, indices, normals, uvs));
 		return *mesh;
 	}
 }
