@@ -1,15 +1,15 @@
 {
     "Count": 9,
-    "Entity": 4293918721,
+    "Entity": 4293918727,
     "Entity": 702545920,
-    "Entity": 2592079875,
+    "Entity": 1352663041,
     "Entity": 4050649090,
-    "Entity": 3534749703,
+    "Entity": 2502950911,
     "Entity": 195035140,
     "Entity": 1031798789,
     "Entity": 2370830342,
-    "Entity": 2264924159,
-    "Count": 5,
+    "Entity": 2470445059,
+    "Count": 6,
     "Owner": 702545920,
     "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
     "Owner": 2370830342,
@@ -20,7 +20,9 @@
     "struct RexEngine::Guid": "481194987144494770 1673231638526655",
     "Owner": 1031798789,
     "struct RexEngine::Guid": "17412476535803257272 1673360388262110",
-    "Count": 5,
+    "Owner": 1352663041,
+    "struct RexEngine::Guid": "3729501931368895854 1674054342111075",
+    "Count": 6,
     "Owner": 702545920,
     "struct RexEngine::TagComponent": {
         "name": "Skybox"
@@ -41,7 +43,11 @@
     "struct RexEngine::TagComponent": {
         "name": "Camera"
     },
-    "Count": 5,
+    "Owner": 1352663041,
+    "struct RexEngine::TagComponent": {
+        "name": "Sphere"
+    },
+    "Count": 6,
     "Owner": 702545920,
     "struct RexEngine::TransformComponent": {
         "position": [
@@ -152,7 +158,29 @@
             "Guid": "0 0"
         }
     },
-    "Count": 1,
+    "Owner": 1352663041,
+    "struct RexEngine::TransformComponent": {
+        "position": [
+            0.0,
+            1.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Count": 2,
     "Owner": 2370830342,
     "struct RexEngine::MeshRendererComponent": {
         "material": {
@@ -160,6 +188,15 @@
         },
         "mesh": {
             "Guid": "8709575534362884765 1673964344259249"
+        }
+    },
+    "Owner": 1352663041,
+    "struct RexEngine::MeshRendererComponent": {
+        "material": {
+            "Guid": "63205357707978445 1672093067157611"
+        },
+        "mesh": {
+            "Guid": "9561679157417395120 1672093055806690"
         }
     },
     "Count": 1,

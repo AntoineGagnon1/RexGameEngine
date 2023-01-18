@@ -3,7 +3,8 @@
 `RexEngine` is a small 3D game engine.  
 `RexEditor` is a level and project editor made for RexEngine.  
 
-![RexEditor screen capture](Misc/EditorDino.png)
+![RexEditor dino screen capture](Misc/EditorDino.png)
+![RexEditor sphere screen capture](Misc/EditorSphere.png)
 
 ### Main features of the engine
 - PBR (physically based rendering) workflow
