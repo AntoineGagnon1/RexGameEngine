@@ -18,6 +18,8 @@ workspace "RexGameEngine"
 local TargetDir = "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.platform}"
 local ObjDir = "%{wks.location}/obj/%{cfg.buildcfg}-%{cfg.platform}"
 
+group "Engine"
+
 project "RexEngine"
 	defines {"GLM_FORCE_LEFT_HANDED"}
     location "RexEngine"
@@ -72,6 +74,8 @@ externalproject "ScriptApi"
    kind "SharedLib"
    language "C#"
    
+group "Editor"
+
 externalproject "RexEditorScript"
    location "%{wks.location}/RexEditorScript"
    uuid "7BF78010-D122-4748-B3D5-5C39DE22E2AD"
@@ -153,3 +157,5 @@ project "RexEditor"
 				return elements
 			end)
 	end
+
+group ""
