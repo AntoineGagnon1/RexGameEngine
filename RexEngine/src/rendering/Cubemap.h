@@ -37,7 +37,7 @@ namespace RexEngine
 		void GenerateMipmaps();
 
 		template<typename Archive>
-		static std::shared_ptr<Cubemap> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
+		static std::shared_ptr<Cubemap> LoadFromAssetFile([[maybe_unused]] Guid assetGuid, [[maybe_unused]] Archive& metaDataArchive, std::istream& assetFile)
 		{
 			JsonDeserializer archive(assetFile);
 			Asset<Texture> source;
@@ -50,7 +50,7 @@ namespace RexEngine
 		}
 
 		template<typename Archive>
-		void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
+		void SaveToAssetFile([[maybe_unused]] Archive& metaDataArchive, std::ostream& assetFile)
 		{
 			JsonSerializer archive(assetFile);
 			archive(CUSTOM_NAME(m_source, "Source"),

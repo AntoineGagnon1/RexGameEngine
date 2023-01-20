@@ -118,7 +118,7 @@ namespace RexEngine
 
 		// This will store the index of each unique vertex
 		//							<<vertex, normal, uv>, meshIndex>
-		std::unordered_map<std::tuple<int, int, int>, int> vertexIndex;
+		std::unordered_map<std::tuple<int, int, int>, size_t> vertexIndex;
 		std::vector<unsigned int> meshIndices;
 		std::vector<Vector3> meshVertices;
 		std::vector<Vector3> meshNormals;

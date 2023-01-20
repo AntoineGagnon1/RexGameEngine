@@ -39,7 +39,7 @@ namespace RexEngine
 		bool HasUVs() const { return m_hasUVs; }
 
 		template<typename Archive>
-		inline static std::shared_ptr<Mesh> LoadFromAssetFile(Guid _, const Archive& metaDataArchive, std::istream& assetFile)
+		inline static std::shared_ptr<Mesh> LoadFromAssetFile([[maybe_unused]]Guid _, [[maybe_unused]]const Archive& metaDataArchive, std::istream& assetFile)
 		{
 			return FromObj(assetFile);
 		}

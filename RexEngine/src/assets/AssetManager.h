@@ -247,7 +247,7 @@ namespace RexEngine
 		{
 			AddMetaExtension(assetPath);
 			
-			for (auto& [guid, path] : s_registry)
+			for (auto& [_, path] : s_registry)
 			{
 				std::error_code code;
 				if (std::filesystem::equivalent(path, assetPath, code))

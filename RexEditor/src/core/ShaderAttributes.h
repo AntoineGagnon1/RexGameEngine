@@ -7,7 +7,7 @@ namespace RexEditor
 {
 	struct HideShaderAttribute
 	{
-		HideShaderAttribute(const std::string& _) { }
+		HideShaderAttribute([[maybe_unused]] const std::string& _) { }
 	};
 
 	struct SliderShaderAttribute

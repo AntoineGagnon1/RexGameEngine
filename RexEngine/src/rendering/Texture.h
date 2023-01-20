@@ -55,7 +55,7 @@ namespace RexEngine
 		void GenerateMipmaps() const;
 
 		template<typename Archive>
-		static std::shared_ptr<Texture> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
+		static std::shared_ptr<Texture> LoadFromAssetFile([[maybe_unused]]Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
 		{
 			// First get the target
 			int targetInt;

@@ -25,8 +25,8 @@ namespace RexEngine
 
 	struct Uniform
 	{
-		int ID; // RenderApi id in the shader
-		RenderApi::UniformType Type;
+		int ID = -1; // RenderApi id in the shader
+		RenderApi::UniformType Type = RenderApi::UniformType::Float;
 
 		std::unordered_map<std::string, std::any> Attributes;
 	};
@@ -105,7 +105,7 @@ namespace RexEngine
 		}
 
 		template<typename Archive>
-		inline static std::shared_ptr<Shader> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
+		inline static std::shared_ptr<Shader> LoadFromAssetFile([[maybe_unused]]Guid _, Archive& metaDataArchive, std::istream& assetFile)
 		{
 			int cullingMode, depthFunction;
 			char priority;

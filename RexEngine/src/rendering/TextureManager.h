@@ -30,12 +30,12 @@ namespace RexEngine
 		inline static int ReserveSlot()
 		{
 			// Start reserving from the last slot
-			for (int i = s_slots.size() - 1; i >= 0; i--)
+			for (auto i = s_slots.size() - 1; i >= 0; i--)
 			{
 				if (!s_slots[i].reserved) // Find a non-reserved slot
 				{
 					s_slots[i].reserved = true;
-					return i;
+					return static_cast<int>(i);
 				}
 			}
 

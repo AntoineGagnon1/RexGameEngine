@@ -42,7 +42,6 @@ namespace RexEditor::UI::Internal
 	// ImGui::Input...();
 	void SetupInput(const std::string& label)
 	{
-		auto& style = ImGui::GetStyle();
 		const Vector2 size{ ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() };
 
 		// Label (to the left of the box)
@@ -137,7 +136,7 @@ namespace RexEditor::UI
 		max.y += winPos.y;
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
-		drawList->AddImage((ImTextureID)texture.GetId(),
+		drawList->AddImage((ImTextureID)static_cast<intptr_t>(texture.GetId()),
 			min,
 			max,
 			ImVec2(0, 1),
@@ -314,9 +313,9 @@ namespace RexEditor::UI
 
 		if (ImGui::IsItemClicked()) // Clicked the text, open the file selector
 		{
-			auto path = SystemDialogs::SelectFile("Select an asset", filter);
-			if (std::filesystem::exists(path)) // Selected a valid file
-				return path;
+			auto newPath = SystemDialogs::SelectFile("Select an asset", filter);
+			if (std::filesystem::exists(newPath)) // Selected a valid file
+				return newPath;
 		}
 
 		return ""; // No change
@@ -354,7 +353,7 @@ namespace RexEditor::UI
 			ImGui::SetCursorPosY(cursorY);
 		}
 		
-		ImGui::ImageButton(label.c_str(), (ImTextureID)id, imgSize, { 0,1 }, { 1,0 });
+		ImGui::ImageButton(label.c_str(), (ImTextureID)static_cast<intptr_t>(id), imgSize, { 0,1 }, { 1,0 });
 		hovered = ImGui::IsItemHovered();
 
 		if (hovered) // Tooltip
@@ -458,7 +457,7 @@ namespace RexEditor::UI
 		size.y -= style.FramePadding.y * 2.0f;
 
 		Anchor::SetCursorPos(size);
-		m_clicked = ImGui::ImageButton(label.c_str(), (ImTextureID)texture.GetId(), Internal::VecConvert(size));
+		m_clicked = ImGui::ImageButton(label.c_str(), (ImTextureID)static_cast<intptr_t>(texture.GetId()), Internal::VecConvert(size));
 		CacheHovered();
 	}
 
@@ -493,7 +492,7 @@ namespace RexEditor::UI
 
 		// Icon
 		ImGui::SetCursorPos(cursor);
-		ImGui::Image((ImTextureID)icon.GetId(), Internal::VecConvert(iconSize));
+		ImGui::Image((ImTextureID)static_cast<intptr_t>(icon.GetId()), Internal::VecConvert(iconSize));
 
 		// Centered text
 		ImGui::SetCursorPosX(cursor.x + (iconSize.x - ImGui::CalcTextSize(label.c_str(), 0, false, iconSize.x).x) * 0.5f);
@@ -543,7 +542,7 @@ namespace RexEditor::UI
 
 		// Label to the left
 		Internal::SetupInput(label);
-		m_changed = ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), options.size());
+		m_changed = ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), static_cast<int>(options.size()));
 		CacheHovered();
 	}
 
@@ -607,8 +606,8 @@ namespace RexEditor::UI
 	void Table::SetCellPadding(Vector2Int padding)
 	{
 		auto table = ImGui::GetCurrentTable();
-		table->CellPaddingX = padding.x;
-		table->CellPaddingY = padding.y;
+		table->CellPaddingX = (float)padding.x;
+		table->CellPaddingY = (float)padding.y;
 	}
 
 	void Table::NextElement()
@@ -660,7 +659,7 @@ namespace RexEditor::UI
 			size.y = ImGui::GetContentRegionAvail().y;
 
 		Anchor::SetCursorPos(size);
-		ImGui::Image((ImTextureID)texture.GetId(), Internal::VecConvert(size));
+		ImGui::Image((ImTextureID)static_cast<intptr_t>(texture.GetId()), Internal::VecConvert(size));
 		CacheHovered();
 	}
 
@@ -687,8 +686,7 @@ namespace RexEditor::UI
 	{
 		if (mouseButton == MouseButton::Left && action == MouseAction::Clicked)
 			return m_clicked;
-		else
-			Clickable::IsClicked(mouseButton, action);
+		return Clickable::IsClicked(mouseButton, action);
 	}
 
 

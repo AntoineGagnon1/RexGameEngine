@@ -26,7 +26,7 @@ namespace RexEditor
 		bool IsPlaying() const { return m_playing; }
 
 	protected:
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]] float deltaTime) override
 		{
 			// Play/Pause Button
 			float size = PanelSize().y - 35;

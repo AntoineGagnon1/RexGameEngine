@@ -24,7 +24,7 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]] float deltaTime) override
 		{
 			if (UI::Button clear(std::format("Clear ({})###ClearButton", m_messages.size())); clear.IsClicked())
 			{
@@ -50,9 +50,10 @@ namespace RexEditor
 					// Time
 					table.NextElement();
 					auto time_t = std::chrono::system_clock::to_time_t(msg.time);
-					auto time = std::localtime(&time_t);
+					tm time;
+					localtime_s(&time, &time_t);
 					auto mili = std::chrono::time_point_cast<std::chrono::milliseconds>(msg.time).time_since_epoch() % 1000;
-					UI::FramedText(std::format("{}:{}:{}:{}", time->tm_hour, time->tm_min, time->tm_sec, mili));
+					UI::FramedText(std::format("{}:{}:{}:{}", time.tm_hour, time.tm_min, time.tm_sec, mili));
 
 					// Message
 					table.NextElement();

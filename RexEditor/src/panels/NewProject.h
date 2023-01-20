@@ -24,7 +24,7 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]] float deltaTime) override
 		{
 			UI::TextInput nameInput("Project name : ", Project::MaxNameLength, m_name);
 

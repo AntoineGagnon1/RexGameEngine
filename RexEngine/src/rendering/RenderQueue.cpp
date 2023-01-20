@@ -93,7 +93,7 @@ namespace RexEngine
 			auto buf = RenderApi::MakeBuffer();
 			auto data = ModelUniforms();
 			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(ModelUniforms));
-			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 2);
+			RenderApi::BindBufferBase(buf, 2);
 
 			return buf;
 		}();

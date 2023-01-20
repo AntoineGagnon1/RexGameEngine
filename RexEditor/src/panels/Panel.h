@@ -33,7 +33,7 @@ namespace RexEditor
 
 	protected:
 		virtual void OnGui(float deltaTime) = 0;
-		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) {};
+		virtual void OnResize([[maybe_unused]]RexEngine::Vector2 oldSize, [[maybe_unused]]RexEngine::Vector2 newSize) {};
 		virtual void OnFocusEnter() {};
 		virtual void OnFocusLeave() {};
 

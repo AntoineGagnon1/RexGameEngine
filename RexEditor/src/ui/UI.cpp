@@ -31,7 +31,7 @@ namespace RexEditor::UI::Internal
 	{
 		PanelStateEntry* ptr = (PanelStateEntry*)entry;
 		int open = 0;
-		if (sscanf(line, "Open=%d", &open) == 1)
+		if (sscanf_s(line, "Open=%d", &open) == 1)
 		{
 			auto panel = PanelManager::GetPanel(ptr->name);
 			if (panel)
@@ -41,9 +41,9 @@ namespace RexEditor::UI::Internal
 		}
 	}
 
-	void PanelStateWriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+	void PanelStateWriteAll([[maybe_unused]] ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
 	{
-		buf->reserve(buf->size() + sizeof(PanelStateEntry) * PanelManager::PanelCount());
+		buf->reserve(static_cast<int>(buf->size() + sizeof(PanelStateEntry) * PanelManager::PanelCount()));
 
 		// Write to text buffer
 		for (size_t i = 0; i < PanelManager::PanelCount(); i++)
@@ -91,8 +91,6 @@ namespace RexEditor::UI::Internal
 
 		// Load the default font sizes (dpiScale == 1.0f)
 		auto& io = ImGui::GetIO();
-
-		auto scale = ImGui::GetWindowDpiScale();
 
 		FontCollection col;
 		col[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10);

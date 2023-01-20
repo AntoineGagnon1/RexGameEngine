@@ -1,7 +1,10 @@
 #pragma once
 
+#pragma warning(push, 0)
+#define GLM_SILENT_WARNINGS GLM_ENABLE
 #include "glm/gtx/quaternion.hpp"
 #include "glm/ext/quaternion_trigonometric.hpp"
+#pragma warning(pop)
 
 #include "Vectors.h"
 #include "../core/Serialization.h"

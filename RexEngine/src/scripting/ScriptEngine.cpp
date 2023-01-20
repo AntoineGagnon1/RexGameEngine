@@ -37,7 +37,7 @@ namespace RexEngine::Internal
 	void GuidToString(Guid guid, char* writeInto)
 	{
 		auto str = guid.ToString();
-		strcpy(writeInto, str.c_str());
+		strcpy_s(writeInto, str.size(), str.c_str());
 	}
 
 	uint8_t IsEntityValid(Guid guid)
@@ -61,9 +61,9 @@ namespace RexEngine::Internal
 		}
 	}
 
-	void SaveComponentsCallback(const char* data)
+	void SaveComponentsCallback([[maybe_unused]]const char* data)
 	{
-
+		// TODO : remove [[maybe_unused]]
 	}
 }
 
@@ -173,9 +173,9 @@ namespace RexEngine
 			auto& action = Inputs::GetAction(name);
 
 			uint8_t bools = 0;
-			bools |= action.IsDown();
-			bools |= action.IsJustDown() << 1;
-			bools |= action.IsJustUp() << 2;
+			bools |= (uint8_t)action.IsDown();
+			bools |= (uint8_t)action.IsJustDown() << 1;
+			bools |= (uint8_t)action.IsJustUp() << 2;
 
 			m_setActionData(name.c_str(), bools, action.GetValue());
 		}

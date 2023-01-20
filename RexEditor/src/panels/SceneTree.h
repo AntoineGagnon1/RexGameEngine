@@ -30,7 +30,7 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]] float deltaTime) override
 		{
 			auto scene = RexEngine::Scene::CurrentScene();
 			if (!scene)

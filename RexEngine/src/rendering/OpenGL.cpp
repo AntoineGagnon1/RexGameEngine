@@ -361,7 +361,7 @@ namespace RexEngine
 		GL_CALL(glBufferSubData(Internal::BufferTypeToGLType(type), offset, size, data));
 	}
 
-	void RenderApi::BindBufferBase(BufferID id, BufferType type, int location)
+	void RenderApi::BindBufferBase(BufferID id, int location)
 	{
 		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, location, id));
 	}

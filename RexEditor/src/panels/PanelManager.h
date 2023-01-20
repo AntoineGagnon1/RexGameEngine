@@ -60,6 +60,8 @@ namespace RexEditor
 				if (cast != nullptr)
 					return cast;
 			}
+
+			return nullptr;
 		}
 
 		// Will return nullptr if the index is out if range

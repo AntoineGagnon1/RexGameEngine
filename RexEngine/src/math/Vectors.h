@@ -3,11 +3,14 @@
 #include <string>
 #include <array>
 
+#pragma warning(push, 0)
+#define GLM_SILENT_WARNINGS GLM_ENABLE
 #define GLM_FORCE_SWIZZLE // .xy, .xyz, ...
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/geometric.hpp>
+#pragma warning(pop)
 
 #include "../utils/Concepts.h"
 #include "../core/Serialization.h"

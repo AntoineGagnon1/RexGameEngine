@@ -45,7 +45,7 @@ namespace RexEngine
 			RenderApi::SetBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(LightData) * lights.size() + sizeof(uint32_t) + 12); // 12 is the padding
 		}
 
-		uint32_t LightsCount = lights.size();
+		uint32_t LightsCount = static_cast<uint32_t>(lights.size());
 		RenderApi::SubBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &LightsCount);
 		if(LightsMax > 0)
 			RenderApi::SubBufferData(GetLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(LightData) * lights.size(), lights.data()); // 12 is the padding
@@ -63,7 +63,7 @@ namespace RexEngine
 			RenderApi::SetBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, nullptr, sizeof(SpotLightData) * spotLights.size() + sizeof(uint32_t) + 12); // 12 is the padding
 		}
 
-		uint32_t SpotLightsCount = spotLights.size();
+		uint32_t SpotLightsCount = static_cast<uint32_t>(spotLights.size());
 		RenderApi::SubBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, 0, sizeof(uint32_t), &SpotLightsCount);
 		if (SpotLightsMax > 0)
 			RenderApi::SubBufferData(GetSpotLightsBuffer(), RenderApi::BufferType::ShaderStorage, sizeof(uint32_t) + 12, sizeof(SpotLightData) * spotLights.size(), spotLights.data()); // 12 is the padding
@@ -115,7 +115,7 @@ namespace RexEngine
 			auto buf = RenderApi::MakeBuffer();
 			auto data = SceneDataUniforms();
 			RenderApi::SetBufferData(buf, RenderApi::BufferType::Uniforms, RenderApi::BufferMode::Dynamic, (uint8_t*)&data, sizeof(SceneDataUniforms));
-			RenderApi::BindBufferBase(buf, RenderApi::BufferType::Uniforms, 1);
+			RenderApi::BindBufferBase(buf, 1);
 
 			return buf;
 		}();
@@ -128,7 +128,7 @@ namespace RexEngine
 		static RenderApi::BufferID uniforms = []() {
 			auto buf = RenderApi::MakeBuffer();
 			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&LightsMax, sizeof(uint32_t));
-			RenderApi::BindBufferBase(buf, RenderApi::BufferType::ShaderStorage, 3);
+			RenderApi::BindBufferBase(buf, 3);
 			return buf;
 		}();
 
@@ -140,7 +140,7 @@ namespace RexEngine
 		static RenderApi::BufferID uniforms = []() {
 			auto buf = RenderApi::MakeBuffer();
 			RenderApi::SetBufferData(buf, RenderApi::BufferType::ShaderStorage, RenderApi::BufferMode::Dynamic, (uint8_t*)&SpotLightsMax, sizeof(uint32_t));
-			RenderApi::BindBufferBase(buf, RenderApi::BufferType::ShaderStorage, 4);
+			RenderApi::BindBufferBase(buf, 4);
 			return buf;
 		}();
 

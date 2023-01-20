@@ -35,13 +35,13 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnResize(RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
+		virtual void OnResize([[maybe_unused]] RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
 		{
 			m_viewTexture.SetData((Vector2Int)newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
 			m_viewDepth.SetSize((Vector2Int)newSize);
 		}
 
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]]float deltaTime) override
 		{
 			if (!Scene::CurrentScene())
 			{ // No scene loaded

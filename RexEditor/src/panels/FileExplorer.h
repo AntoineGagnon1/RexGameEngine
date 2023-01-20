@@ -31,7 +31,7 @@ namespace RexEditor
 		}
 
 	protected:
-		virtual void OnGui(float deltaTime) override
+		virtual void OnGui([[maybe_unused]] float deltaTime) override
 		{
 			if (!std::filesystem::exists(m_currentFolder))
 				return;
@@ -50,8 +50,8 @@ namespace RexEditor
 			UI::Text pathText(pathString);
 
 			// Calculate the number of columns
-			int itemWidth = 64 * m_scale;
-			int cols = (int)floor((float)PanelSize().x / (float)(itemWidth + (8 * 2)));
+			float itemWidth = floor(64.0f * m_scale);
+			int cols = (int)floor((float)PanelSize().x / (itemWidth + (8.0f * 2.0f)));
 			cols = RexEngine::Scalar::Clamp(cols, 1, 64); // imgui needs a value between 1 and 64
 
 			// The file names should be small
@@ -66,7 +66,7 @@ namespace RexEditor
 					table.NextElement();
 					if (entry.is_directory())
 					{ // Folder
-						UI::Icon icon(entry.path().filename().string(), EditorAssets::FolderIcon(), {(float)itemWidth ,(float)itemWidth});
+						UI::Icon icon(entry.path().filename().string(), EditorAssets::FolderIcon(), {itemWidth ,itemWidth});
 						
 						if (icon.IsDoubleClicked()) // go into the folder
 						{
@@ -92,7 +92,7 @@ namespace RexEditor
 
 							UI::Icon icon(entry.path().filename().string(),
 								*iconTexture,
-								{ (float)itemWidth , (float)itemWidth }
+								{ itemWidth , itemWidth }
 							);
 
 							if (!type.Empty())
@@ -106,7 +106,7 @@ namespace RexEditor
 									if (InspectorRegistry().Contains(type.type))
 									{
 										auto guid = AssetManager::GetAssetGuidFromPath(entry.path());
-										InspectorPanel::InspectElement([t = type.type, guid, p = entry.path()](float _) {
+										InspectorPanel::InspectElement([t = type.type, guid, p = entry.path()]([[maybe_unused]]float _) {
 											{
 												UI::Anchor a(UI::AnchorPos::Center);
 												UI::PushFontScale(UI::FontScale::Large);
@@ -123,7 +123,7 @@ namespace RexEditor
 									}
 									else
 									{
-										InspectorPanel::InspectElement([](float _) {
+										InspectorPanel::InspectElement([]([[maybe_unused]] float _) {
 											UI::Text("No inspector found for this asset type !");
 										});
 									}

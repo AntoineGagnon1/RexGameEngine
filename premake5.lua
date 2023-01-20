@@ -24,6 +24,8 @@ project "RexEngine"
     kind "StaticLib"
     language "C++"
     cppdialect "C++20"
+	warnings "Extra"
+	flags { "FatalCompileWarnings" }
 	
 	dependson { "ScriptEngine", "ScriptApi" }
    
@@ -83,6 +85,8 @@ project "RexEditor"
     kind "WindowedApp"
     language "C++"
     cppdialect "C++20"
+	warnings "Extra"
+	flags { "FatalCompileWarnings" }
 
 	ignoredefaultlibraries { "MSVCRT" }
    

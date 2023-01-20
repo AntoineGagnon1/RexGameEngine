@@ -45,6 +45,7 @@ namespace glm
 #				ifdef GLM_FORCE_QUAT_DATA_WXYZ
 					struct { T w, x, y, z; };
 #				else
+			#pragma warning(suppress: 4201)
 					struct { T x, y, z, w; };
 #				endif
 

@@ -39,7 +39,7 @@ namespace RexEngine
 
 			[](void* user) { // eof
 				std::istream& stream = *(std::istream*)user;
-				return stream.peek() == stream.eof() ? 1 : 0; // return non-zero if at oef
+				return stream.eof() ? 1 : 0; // return non-zero if at oef
 			}
 		};
 	}

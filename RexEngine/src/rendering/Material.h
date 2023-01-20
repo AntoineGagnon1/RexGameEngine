@@ -66,7 +66,7 @@ namespace RexEngine
 		bool IsValid() const;
 
 		template<typename Archive>
-		inline static std::shared_ptr<Material> LoadFromAssetFile(Guid _, Archive& metaDataArchive, std::istream& assetFile)
+		inline static std::shared_ptr<Material> LoadFromAssetFile([[maybe_unused]]Guid _, [[maybe_unused]]Archive& metaDataArchive, std::istream& assetFile)
 		{
 			JsonDeserializer archive(assetFile);
 			Guid guid;
@@ -80,7 +80,7 @@ namespace RexEngine
 		}
 
 		template<typename Archive>
-		void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile)
+		void SaveToAssetFile([[maybe_unused]] Archive& metaDataArchive, std::ostream& assetFile)
 		{
 			JsonSerializer archive(assetFile);
 			archive(CUSTOM_NAME(m_shader.GetAssetGuid(), "Shader"));

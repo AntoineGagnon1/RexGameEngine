@@ -30,20 +30,22 @@ namespace RexEngine
 
 			// Cache the uniforms
 			auto uniforms = RenderApi::GetShaderUniforms(m_id);
-			for (auto& [name, data] : uniforms)
+			for (auto& [name, uniformData] : uniforms)
 			{
 				decltype(Uniform::Attributes) attribs;
 				if (attributes.contains(name))
 					attribs = attributes[name];
 
-				Uniform uniform{ std::get<0>(data), std::get<1>(data), attribs };
+				Uniform uniform{ std::get<0>(uniformData), std::get<1>(uniformData), attribs };
 				m_uniforms[name] = uniform;
 			}
 		}
 	}
 
+	template<typename T> T& Unmove(T&& t) { return t; } // rvalue to lvalue cast
+
 	Shader::Shader(const std::string& data, RenderApi::CullingMode cullingMode, char priority, RenderApi::DepthFunction depth)
-		: Shader((std::istream&)std::istringstream(data), cullingMode, priority, depth)
+		: Shader(Unmove(std::istringstream(data)), cullingMode, priority, depth)
 	{
 
 	}

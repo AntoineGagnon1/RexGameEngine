@@ -1,6 +1,8 @@
 #pragma once
 #include <filesystem>
 
+#pragma warning(push, 0)
+#pragma warning(disable : 26451)
 #include <cereal/cereal.hpp>
 #include <cereal/details/traits.hpp>
 #include <cereal/details/util.hpp>
@@ -15,6 +17,7 @@
 #include <cereal/types/unordered_set.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/variant.hpp>
+#pragma warning(pop)
 
 namespace RexEngine
 {
@@ -44,7 +47,7 @@ namespace std
 		}
 
 		template<class Archive>
-		std::string CEREAL_SAVE_MINIMAL_FUNCTION_NAME(const Archive& ar, const path& p)
+		std::string CEREAL_SAVE_MINIMAL_FUNCTION_NAME([[maybe_unused]]const Archive& ar, const path& p)
 		{
 			return p.string();
 		}

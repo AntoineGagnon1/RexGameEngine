@@ -3,8 +3,11 @@
 #include <concepts>
 #include <tuple>
 
+#pragma warning(push, 0)
+#define GLM_SILENT_WARNINGS GLM_ENABLE
 #include <glm/matrix.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#pragma warning(pop)
 
 #include "Vectors.h"
 #include "Quaternion.h"
@@ -65,12 +68,12 @@ namespace RexEngine
 
 		VecType& operator[](size_t i)
 		{
-			return (VecType&)GlmType::operator[](i);
+			return (VecType&)GlmType::operator[](static_cast<GlmType::length_type>(i));
 		}
 
 		const VecType& operator[](size_t i) const
 		{
-			return (const VecType&)GlmType::operator[](i);
+			return (const VecType&)GlmType::operator[](static_cast<GlmType::length_type>(i));
 		}
 
 		inline static MatType MakeTransform(const Vector3& translate, const Quaternion& rotation, const Vector3& scale) requires IsEqual<Size, 4>

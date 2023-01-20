@@ -70,7 +70,7 @@ namespace RexEngine
 		}
 
 		template<typename Archive>
-		static std::shared_ptr<Scene> LoadFromAssetFile(Guid assetGuid, Archive& metaDataArchive, std::istream& assetFile)
+		static std::shared_ptr<Scene> LoadFromAssetFile(Guid assetGuid, [[maybe_unused]]Archive& metaDataArchive, std::istream& assetFile)
 		{
 			auto scene = std::make_shared<Scene>(assetGuid);
 			scene->DeserializeJson(assetFile);
@@ -78,7 +78,7 @@ namespace RexEngine
 		}
 		 
 		template<typename Archive>
-		void SaveToAssetFile(Archive& metaDataArchive, std::ostream& assetFile) const
+		void SaveToAssetFile([[maybe_unused]] Archive& metaDataArchive, std::ostream& assetFile) const
 		{
 			SerializeJson(assetFile);
 		}

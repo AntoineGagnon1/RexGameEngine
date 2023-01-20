@@ -64,7 +64,7 @@ namespace RexEngine
 		}
 
 		static void SubBufferData(BufferID id, BufferType type, size_t offset, size_t size, const void* data);
-		static void BindBufferBase(BufferID id, BufferType type, int location);
+		static void BindBufferBase(BufferID id, int location);
 
 		// Vertex Attributes
 		typedef unsigned int VertexAttribID;
