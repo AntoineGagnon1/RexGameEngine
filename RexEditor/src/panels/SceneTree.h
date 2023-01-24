@@ -5,8 +5,8 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
+#include "PanelManager.h"
 #include "Inspector.h"
-#include "../inspectors/EntityInspector.h"
 
 namespace RexEditor
 {
@@ -107,7 +107,8 @@ namespace RexEditor
 					{
 						// Select the new Entity
 						m_selected = created;
-						InspectorPanel::InspectElement(std::bind(EntityInspector::InspectEntity, std::placeholders::_1, created));
+						if(auto panel = PanelManager::GetPanel<InspectorPanel>(); panel != nullptr)
+							panel->InspectEntity(created.GetGuid());
 					}
 						
 
@@ -141,7 +142,8 @@ namespace RexEditor
 			{
 				m_selected = node->entity;
 				// Tell the inspector
-				InspectorPanel::InspectElement(std::bind(EntityInspector::InspectEntity, std::placeholders::_1, node->entity));
+				if (auto panel = PanelManager::GetPanel<InspectorPanel>(); panel != nullptr)
+					panel->InspectEntity(node->entity.GetGuid());
 			}
 
 			// Context menu

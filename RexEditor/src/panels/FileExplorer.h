@@ -6,12 +6,13 @@
 #include <RexEngine.h>
 
 #include "Panel.h"
+#include "PanelManager.h"
 #include "../project/ProjectManager.h"
+#include "Inspector.h"
 
 #include "../core/EditorAssets.h"
 #include "../ui/DragDrop.h"
 #include "../ui/MenuSystem.h"
-#include "Inspector.h"
 #include "../utils/TypeMap.h"
 
 
@@ -82,12 +83,13 @@ namespace RexEditor
 						{
 							// Get the asset type
 							auto type = RexEngine::AssetTypes::GetAssetTypeFromExtension(extension);
+							auto guid = AssetManager::GetAssetGuidFromPath(entry.path());
 							
 							const Texture* iconTexture = &EditorAssets::FileIcon();
 
 							if (IconRegistry().Contains(type.type)) // Check for special icons
 							{
-								iconTexture = &IconRegistry().Get(type.type)(AssetManager::GetAssetGuidFromPath(entry.path()));
+								iconTexture = &IconRegistry().Get(type.type)(guid);
 							}
 
 							UI::Icon icon(entry.path().filename().string(),
@@ -103,30 +105,8 @@ namespace RexEditor
 								if (icon.IsClicked(MouseButton::Left, UI::MouseAction::Released) 
 									&& m_canInspect) // Debounce, don't inspect if the folder just changed
 								{ // Tell the inspector
-									if (InspectorRegistry().Contains(type.type))
-									{
-										auto guid = AssetManager::GetAssetGuidFromPath(entry.path());
-										InspectorPanel::InspectElement([t = type.type, guid, p = entry.path()]([[maybe_unused]]float _) {
-											{
-												UI::Anchor a(UI::AnchorPos::Center);
-												UI::PushFontScale(UI::FontScale::Large);
-												UI::Text title(p.filename().string());
-												UI::Separator();
-												UI::PopFontScale();
-											}
-
-											UI::EmptyLine(); // Not in the centered anchor
-
-
-											InspectorRegistry().Get(t)(guid);
-										});
-									}
-									else
-									{
-										InspectorPanel::InspectElement([]([[maybe_unused]] float _) {
-											UI::Text("No inspector found for this asset type !");
-										});
-									}
+									if(auto panel = PanelManager::GetPanel<InspectorPanel>(); panel != nullptr)
+										panel->InspectAsset(type.type, guid);
 								}
 
 								// TODO : double click : do something based on the file type
@@ -205,13 +185,6 @@ namespace RexEditor
 		inline static TypeMap<std::function<const Texture& (Guid)>>& IconRegistry()
 		{
 			static TypeMap<std::function<const Texture& (Guid)>> map;
-			return map;
-		}
-
-		// std::function<void(asset guid)>
-		inline static TypeMap<std::function<void(const Guid&)>>& InspectorRegistry()
-		{
-			static TypeMap<std::function<void(const Guid&)>> map;
 			return map;
 		}
 

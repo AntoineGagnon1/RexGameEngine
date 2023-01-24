@@ -4,6 +4,8 @@
 #include "../core/Log.h"
 #include "../core/Serialization.h"
 
+#include <typeindex>
+
 #include <entt/entt.hpp>
 
 namespace RexEngine
@@ -42,9 +44,6 @@ namespace RexEngine
 
 		TransformComponent& Transform();
 		const TransformComponent& Transform() const;
-
-		// TODO : GetTransform
-		// TODO : Get Name
 		
 		template<typename ...Types>
 		bool HasComponents() const
@@ -55,6 +54,8 @@ namespace RexEngine
 		
 		template<typename T>
 		bool HasComponent() const { return HasComponents<T>(); }
+
+		bool HasComponent(std::type_index type) const;
 		
 		// Will trigger an assert break if the entity already had the component
 		template<typename T, typename ...Args>
@@ -100,6 +101,8 @@ namespace RexEngine
 			AssertValid();
 			return m_registry->remove<T>(m_handle) > 0;
 		}
+
+		bool RemoveComponent(std::type_index type);
 
 		template<>
 		bool RemoveComponent<Guid>() = delete; // Cannot delete the Guid

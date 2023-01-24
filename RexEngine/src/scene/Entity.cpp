@@ -42,6 +42,15 @@ namespace RexEngine
 		return GetComponent<TransformComponent>();
 	}
 
+	bool Entity::HasComponent(std::type_index type) const
+	{
+		return Components::EntityHasComponent(*this, type);
+	}
+
+	bool Entity::RemoveComponent(std::type_index type)
+	{
+		return Components::EntityRemoveComponent(*this, type);
+	}
 
 	void Entity::AssertValid() const
 	{

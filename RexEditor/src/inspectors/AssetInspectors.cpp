@@ -3,7 +3,7 @@
 #include "../ui/UIElements.h"
 #include "../ui/UI.h"
 
-#include "../panels/FileExplorer.h"
+#include "../panels/Inspector.h"
 
 #include "core/ShaderAttributes.h"
 
@@ -13,7 +13,7 @@ namespace RexEditor::AssetInspectors
 	RE_STATIC_CONSTRUCTOR({
 
 		// Shader
-		FileExplorerPanel::InspectorRegistry().Add<Shader>([] (const Guid& guid) {
+		InspectorPanel::AssetInspectors().Add<Shader>([] (const Guid& guid) {
 			auto shader = AssetManager::GetAsset<Shader>(guid);
 
 			// Valid or not
@@ -54,7 +54,7 @@ namespace RexEditor::AssetInspectors
 		});
 
 		// Material
-		FileExplorerPanel::InspectorRegistry().Add<Material>([](const Guid& guid) {
+		InspectorPanel::AssetInspectors().Add<Material>([](const Guid& guid) {
 			auto mat = AssetManager::GetAsset<Material>(guid);
 
 			bool needsSave = false;
@@ -132,7 +132,7 @@ namespace RexEditor::AssetInspectors
 		});
 
 		// Texture
-		FileExplorerPanel::InspectorRegistry().Add<Texture>([](const Guid& guid) {
+		InspectorPanel::AssetInspectors().Add<Texture>([](const Guid& guid) {
 			auto texture = AssetManager::GetAsset<Texture>(guid);
 
 			static RenderApi::TextureTarget tempTarget = RenderApi::TextureTarget::Texture2D;
@@ -204,7 +204,7 @@ namespace RexEditor::AssetInspectors
 		});
 
 		// CubeMap
-		FileExplorerPanel::InspectorRegistry().Add<Cubemap>([](const Guid& guid) {
+		InspectorPanel::AssetInspectors().Add<Cubemap>([](const Guid& guid) {
 			auto cubemap = AssetManager::GetAsset<Cubemap>(guid);
 
 			static RexEngine::NoDestroy<Asset<Texture>> tempSource;
@@ -235,7 +235,7 @@ namespace RexEditor::AssetInspectors
 		});
 
 		// Mesh
-		FileExplorerPanel::InspectorRegistry().Add<Mesh>([](const Guid& guid) {
+		InspectorPanel::AssetInspectors().Add<Mesh>([](const Guid& guid) {
 			auto mesh = AssetManager::GetAsset<Mesh>(guid);
 
 			UI::Text vertices(std::format( "Vertex Count   :   {}", mesh->GetVertexCount()));
