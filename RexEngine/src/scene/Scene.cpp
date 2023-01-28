@@ -16,6 +16,7 @@ namespace RexEngine
 
 	Scene::~Scene()
 	{
+		m_registry.clear(); // Allow the entities to be removed from s_entities
 		s_validRegistries.erase(&m_registry);
 	}
 
