@@ -90,9 +90,9 @@ namespace RexEditor
 				UI::Separator();
 
 				// Other components
-				for (auto& c : Components::GetComponents())
+				for (auto& c : ComponentFactories::GetFactories())
 				{
-					TryDrawComponent(c, entity);
+					TryDrawComponent(c->GetType(), entity);
 				}
 
 				// Add components

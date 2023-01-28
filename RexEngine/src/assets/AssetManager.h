@@ -176,10 +176,14 @@ namespace RexEngine
 			return a;
 		}
 
+
+		// This will save the asset before the reload
 		template<typename T>
-		inline static Asset<T> ReloadAsset(const Guid& guid)
+		inline static Asset<T> ReloadAsset(const Guid& guid, bool saveBefore = true)
 		{
-			SaveAsset<T>(guid);
+			if(saveBefore)
+				SaveAsset<T>(guid);
+
 			auto path = s_registry.find(guid);
 			if (!s_assets.contains(guid) || path == s_registry.end())
 				return Asset<T>();

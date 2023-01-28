@@ -9,7 +9,7 @@ namespace RexEngine
 	Scene::Scene(const Guid& guid)
 		: m_guid(guid)
 	{
-		m_registry.on_construct<Guid>().connect<&Scene::OnGuidAdded>(guid);
+		m_registry.on_construct<Guid>().connect<&Scene::OnGuidAdded>(m_guid);
 		m_registry.on_destroy<Guid>().connect<&Scene::OnGuidRemoved>();
 		s_validRegistries.insert(&m_registry);
 	}
@@ -55,33 +55,76 @@ namespace RexEngine
 
     void Scene::SerializeJson(std::ostream& output) const
     {
-        JsonSerializer serializer(output);
-        Internal::OutputArchive<JsonSerializer> archive(serializer);
+        JsonSerializer archive(output);
 
-		auto snapshot = entt::snapshot{ m_registry };
-		snapshot.entities(archive);
-		snapshot.component<Guid>(archive); // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
+		archive(CUSTOM_NAME(m_registry.alive(), "EntityCount"));
 
-		for (auto& c : Components::GetComponents())
-		{
-			if(c != typeid(Guid))
-				Components::SaveJson(snapshot, archive, c);
-		}
+		// For each entity
+		m_registry.each([&archive, this](auto handle) {
+			auto constRegistry = &m_registry;
+			entt::registry* registry = (entt::registry*)((void*)constRegistry); // Cast the const away, bad but the entity will only be used in a const way
+			const Entity e = Entity(registry, handle);
+
+			archive(CUSTOM_NAME(e.GetGuid(), "Guid"));
+
+			archive(CUSTOM_NAME(e.GetComponentCount(), "ComponentCount"));
+
+			// Loop all component types, save the 
+			for (auto& c : ComponentFactories::GetFactories())
+			{
+				if (c->HasComponent(e))
+				{
+					archive(CUSTOM_NAME(c->GetName(), "Type"));
+
+					c->ToJson(e, archive);
+				}
+			}
+		});
     }
 
     void Scene::DeserializeJson(std::istream& input)
     {
-        JsonDeserializer deserializer(input);
-		Internal::InputArchive<JsonDeserializer> archive(deserializer);
+        JsonDeserializer archive(input);
 
-		auto snapshot = entt::snapshot_loader{ m_registry };
-		snapshot.entities(archive);
-		snapshot.component<Guid>(archive); // Guid first, this is important because the guid.on_connect event is used to notify the scenemanager that an entity has been added
-
-		for (auto& c : Components::GetComponents())
+		size_t nbEntities;
+		archive(CUSTOM_NAME(nbEntities, "EntityCount"));
+		
+		for (auto i = 0; i < nbEntities; i++)
 		{
-			if (c != typeid(Guid))
-				Components::LoadJson(snapshot, archive, c);
+			// Do the Guid first, to create the entity
+			Guid guid;
+			archive(CUSTOM_NAME(guid, "Guid"));
+
+			// Create the entity
+			auto handle = m_registry.create();
+			m_registry.emplace<Guid>(handle, guid);
+			// These components can't be added via the Entity class, so add them now
+			m_registry.emplace<TagComponent>(handle);
+			m_registry.emplace<TransformComponent>(handle);
+
+			Entity e = Entity(&m_registry, handle);
+
+			// Load the components
+			size_t nbComponents;
+			archive(CUSTOM_NAME(nbComponents, "ComponentCount"));
+
+			for (auto j = 0; j < nbComponents; j++)
+			{
+				// Get the name of the component
+				std::string name;
+				archive(CUSTOM_NAME(name, "Type"));
+
+				auto factory = ComponentFactories::GetFactory(name);
+				if (factory != nullptr)
+				{
+					factory->FromJson(e, archive);
+				}
+				else
+				{
+					RE_LOG_WARN("Component type {} not found", name);
+				}
+
+			}
 		}
     }
 }

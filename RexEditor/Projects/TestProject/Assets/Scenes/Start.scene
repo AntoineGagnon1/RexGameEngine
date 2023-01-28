@@ -1,197 +1,50 @@
 {
-    "Count": 9,
-    "Entity": 4293918727,
-    "Entity": 702545920,
-    "Entity": 1352663041,
-    "Entity": 4050649090,
-    "Entity": 3447717887,
-    "Entity": 195035140,
-    "Entity": 1031798789,
-    "Entity": 2370830342,
-    "Entity": 3415212035,
-    "Count": 6,
-    "Owner": 702545920,
-    "struct RexEngine::Guid": "11411048784769280883 1672092999976061",
-    "Owner": 2370830342,
-    "struct RexEngine::Guid": "13461611892952272402 1673964389695761",
-    "Owner": 4050649090,
-    "struct RexEngine::Guid": "15283814634627207210 1673213653718502",
-    "Owner": 195035140,
-    "struct RexEngine::Guid": "481194987144494770 1673231638526655",
-    "Owner": 1031798789,
-    "struct RexEngine::Guid": "17412476535803257272 1673360388262110",
-    "Owner": 1352663041,
-    "struct RexEngine::Guid": "3729501931368895854 1674054342111075",
-    "Count": 6,
-    "Owner": 702545920,
-    "struct RexEngine::TagComponent": {
-        "name": "Skybox"
-    },
-    "Owner": 2370830342,
-    "struct RexEngine::TagComponent": {
-        "name": "Dino"
-    },
-    "Owner": 4050649090,
-    "struct RexEngine::TagComponent": {
-        "name": "Light"
-    },
-    "Owner": 195035140,
-    "struct RexEngine::TagComponent": {
+    "EntityCount": 5,
+    "Guid": "5322420384735241793 1674874937677872",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
         "name": "Sun"
     },
-    "Owner": 1031798789,
-    "struct RexEngine::TagComponent": {
-        "name": "Camera"
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.3826834559440613,
+            0.0,
+            0.9238795042037964
+        ],
+        "parent": {
+            "Guid": "14012215322122859498 1674870299652889"
+        }
     },
-    "Owner": 1352663041,
-    "struct RexEngine::TagComponent": {
+    "Type": "DirectionalLight",
+    "DirectionalLight": {
+        "color": [
+            10.0,
+            10.0,
+            10.0,
+            1.0
+        ]
+    },
+    "Guid": "16117924528898737478 1674870434378368",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
         "name": "Sphere"
     },
-    "Count": 6,
-    "Owner": 702545920,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Owner": 2370830342,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Owner": 4050649090,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            4.0,
-            5.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Owner": 195035140,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            -0.12059081345796585,
-            0.379409521818161,
-            0.04995030164718628,
-            0.9159755706787109
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Owner": 1031798789,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            1.0,
-            -1.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Owner": 1352663041,
-    "struct RexEngine::TransformComponent": {
-        "position": [
-            0.0,
-            1.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Count": 2,
-    "Owner": 2370830342,
-    "struct RexEngine::MeshRendererComponent": {
-        "material": {
-            "Guid": "13775017754570738698 1673964451412877"
-        },
-        "mesh": {
-            "Guid": "8709575534362884765 1673964344259249"
-        }
-    },
-    "Owner": 1352663041,
-    "struct RexEngine::MeshRendererComponent": {
+    "Type": "MeshRenderer",
+    "MeshRenderer": {
         "material": {
             "Guid": "63205357707978445 1672093067157611"
         },
@@ -199,39 +52,131 @@
             "Guid": "9561679157417395120 1672093055806690"
         }
     },
-    "Count": 1,
-    "Owner": 1031798789,
-    "struct RexEngine::CameraComponent": {
-        "fov": 70.0,
-        "zNear": 0.10000000149011612,
-        "zFar": 100.0
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            1.0,
+            1.0
+        ],
+        "scale": [
+            2.0,
+            2.0,
+            2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
     },
-    "Count": 1,
-    "Owner": 702545920,
-    "struct RexEngine::SkyboxComponent": {
+    "Guid": "4720617059845446784 1674870364441021",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Dino"
+    },
+    "Type": "MeshRenderer",
+    "MeshRenderer": {
+        "material": {
+            "Guid": "13775017754570738698 1673964451412877"
+        },
+        "mesh": {
+            "Guid": "8709575534362884765 1673964344259249"
+        }
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Guid": "14012215322122859498 1674870299652889",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Sky"
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Type": "Skybox",
+    "Skybox": {
         "material": {
             "Guid": "11700521787635595622 1671822723887916"
         }
     },
-    "Count": 1,
-    "Owner": 4050649090,
-    "struct RexEngine::PointLightComponent": {
-        "color": [
-            5.0,
-            5.0,
-            5.0,
-            1.0
-        ]
+    "Guid": "18097277385103005146 1674871974739169",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Camera"
     },
-    "Count": 1,
-    "Owner": 195035140,
-    "struct RexEngine::DirectionalLightComponent": {
-        "color": [
+    "Type": "Transform",
+    "Transform": {
+        "position": [
             5.0,
-            5.0,
-            5.0,
+            2.5,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
             1.0
-        ]
+        ],
+        "rotation": [
+            0.0,
+            0.7069846987724304,
+            0.0,
+            0.7072288393974304
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
     },
-    "Count": 0
+    "Type": "Camera",
+    "Camera": {
+        "fov": 90.0,
+        "zNear": 0.10000000149011612,
+        "zFar": 100.0
+    }
 }

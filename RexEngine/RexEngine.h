@@ -21,6 +21,7 @@
 #include "src/scene/Scene.h"
 #include "src/scene/Entity.h"
 #include "src/scene/Components.h"
+#include "src/scene/ComponentFactory.h"
 
 // Rendering
 #include "src/rendering/Shader.h"

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <typeindex>
 #include <ranges>
 
 #include "../rendering/Material.h"
@@ -16,125 +15,10 @@
 
 #include "Entity.h"
 #include "Scene.h"
+#include "ComponentFactory.h"
 
 namespace RexEngine
 {
-	class Components
-	{
-	private:
-		struct ComponentInfo
-		{
-			std::type_index type;
-			std::function<bool(const Entity&)> HasComponent;
-			std::function<bool(Entity&)> RemoveComponent;
-			std::function<void(entt::snapshot&, RexEngine::Internal::OutputArchive<JsonSerializer>&)> SaveJson;
-			std::function<void(entt::snapshot_loader&, RexEngine::Internal::InputArchive<JsonDeserializer>&)> LoadJson;
-		};
-
-	public:
-
-		template<typename T>
-		inline static void RegisterComponent()
-		{
-			ComponentInfo info{
-				typeid(T),
-				[](const Entity& e) { return e.HasComponent<T>(); }, 
-				nullptr,
-				[](entt::snapshot& s, RexEngine::Internal::OutputArchive<JsonSerializer>& a) { s.component<T>(a); },
-				[](entt::snapshot_loader& s, RexEngine::Internal::InputArchive<JsonDeserializer>& a) { s.component<T>(a); }
-			};
-
-			// I can't find a way to check if the function is deleted :( maybe someday : https://en.cppreference.com/w/cpp/experimental/reflect
-			if constexpr (std::is_same_v<T, TransformComponent> || std::is_same_v<T, TagComponent> || std::is_same_v<T, Guid>)
-			{
-				info.RemoveComponent = []([[maybe_unused]] Entity& e) {
-					return false;
-				};
-			}
-			else
-			{
-				info.RemoveComponent = [](Entity& e) {
-					return e.RemoveComponent<T>();
-				};
-			}
-			
-			ComponentsVector().emplace_back(std::move(info));
-		}
-
-		// Returns a vector with all the type_index registered
-		inline static auto GetComponents() 
-		{
-			std::vector<std::type_index> keys;
-			keys.reserve(ComponentsVector().size());
-			
-			for (auto& c : ComponentsVector())
-				keys.push_back(c.type);
-
-			return keys;
-		}
-
-	private:
-
-		friend class Entity;
-		inline static bool EntityHasComponent(const Entity& e, std::type_index componentType)
-		{
-			for (auto& c : ComponentsVector())
-			{
-				if (c.type == componentType)
-					return c.HasComponent(e);
-			}
-
-			return false;
-		}
-		inline static bool EntityRemoveComponent(Entity& e, std::type_index componentType)
-		{
-			for (auto& c : ComponentsVector())
-			{
-				if (c.type == componentType)
-					return c.RemoveComponent(e);
-			}
-
-			return false;
-		}
-
-		friend class Scene;
-		inline static void SaveJson(entt::snapshot& s, RexEngine::Internal::OutputArchive<JsonSerializer>& a, std::type_index componentType)
-		{
-			for (auto& c : ComponentsVector())
-			{
-				if (c.type == componentType)
-				{
-					c.SaveJson(s, a);
-					return;
-				}
-			}
-		}
-		inline static void LoadJson(entt::snapshot_loader& s, RexEngine::Internal::InputArchive<JsonDeserializer>& a, std::type_index componentType)
-		{
-			for (auto& c : ComponentsVector())
-			{
-				if (c.type == componentType)
-				{
-					c.LoadJson(s, a);
-					return;
-				}
-			}
-		}
-
-		static void StaticConstructor();
-		
-		RE_STATIC_CONSTRUCTOR({
-			StaticConstructor();
-		})
-
-		inline static std::vector<ComponentInfo>& ComponentsVector()
-		{ // Lazy init
-			static std::vector<ComponentInfo> components;
-			return components;
-		}
-	};
-
-
 	struct TagComponent
 	{
 		std::string name;
@@ -145,6 +29,7 @@ namespace RexEngine
 			archive(KEEP_NAME(name));
 		}
 	};
+	RE_REGISTER_COMPONENT(TagComponent, "Tag")
 
 	struct MeshRendererComponent
 	{
@@ -157,6 +42,7 @@ namespace RexEngine
 			archive(KEEP_NAME(material), KEEP_NAME(mesh));
 		}
 	};
+	RE_REGISTER_COMPONENT(MeshRendererComponent, "MeshRenderer")
 
 	struct TransformComponent
 	{
@@ -207,6 +93,7 @@ namespace RexEngine
 			archive(KEEP_NAME(position), KEEP_NAME(scale), KEEP_NAME(rotation), KEEP_NAME(parent));
 		}
 	};
+	RE_REGISTER_COMPONENT(TransformComponent, "Transform")
 
 	struct CameraComponent
 	{
@@ -220,6 +107,7 @@ namespace RexEngine
 			archive(KEEP_NAME(fov), KEEP_NAME(zNear), KEEP_NAME(zFar));
 		}
 	};
+	RE_REGISTER_COMPONENT(CameraComponent, "Camera")
 
 	struct SkyboxComponent
 	{
@@ -231,6 +119,7 @@ namespace RexEngine
 			archive(KEEP_NAME(material));
 		}
 	};
+	RE_REGISTER_COMPONENT(SkyboxComponent, "Skybox")
 
 	struct PointLightComponent
 	{
@@ -242,6 +131,7 @@ namespace RexEngine
 			archive(KEEP_NAME(color));
 		}
 	};
+	RE_REGISTER_COMPONENT(PointLightComponent, "PointLight")
 
 	struct DirectionalLightComponent
 	{
@@ -253,6 +143,8 @@ namespace RexEngine
 			archive(KEEP_NAME(color));
 		}
 	};
+	RE_REGISTER_COMPONENT(DirectionalLightComponent, "DirectionalLight")
+
 
 	struct SpotLightComponent
 	{
@@ -266,6 +158,7 @@ namespace RexEngine
 			archive(KEEP_NAME(color), KEEP_NAME(cutOff), KEEP_NAME(outerCutOff));
 		}
 	};
+	RE_REGISTER_COMPONENT(SpotLightComponent, "SpotLight")
 
 	// This holds the guid of the scripts on this entity
 	struct ScriptComponent
@@ -294,4 +187,5 @@ namespace RexEngine
 	private:
 		std::vector<Guid> scripts;
 	};
+	//RE_REGISTER_COMPONENT(ScriptComponent, "Script")
 }

@@ -11,67 +11,6 @@
 
 namespace RexEngine
 {
-	namespace Internal
-	{
-		// entt archives with names
-		template<typename Serializer> // ex : JsonSerializer
-		class OutputArchive
-		{
-		public:
-
-			OutputArchive(Serializer& output) : m_output(output) {}
-
-			// count is the number of entity that will be stored
-			void operator()(std::underlying_type_t<entt::entity> count)
-			{
-				m_output(CUSTOM_NAME(count, "Count"));
-			}
-
-			void operator()(entt::entity e)
-			{
-				m_output(CUSTOM_NAME(e, "Entity"));
-			}
-
-			template<typename T>
-			void operator()(entt::entity e, const T& c)
-			{
-				m_output(CUSTOM_NAME(e, "Owner"), CUSTOM_NAME(c, typeid(c).name()));
-			}
-
-		private:
-			Serializer& m_output;
-		};
-
-		template<typename Deserializer> // ex : JsonDeserializer
-		class InputArchive
-		{
-		public:
-
-			InputArchive(Deserializer& input) : m_input(input) {}
-
-			// count is the number of entity that will be stored
-			void operator()(std::underlying_type_t<entt::entity>& count) const
-			{
-				m_input(CUSTOM_NAME(count, "Count"));
-			}
-
-			void operator()(entt::entity& e) const
-			{
-				m_input(CUSTOM_NAME(e, "Entity"));
-			}
-
-			template<typename T>
-			void operator()(entt::entity& e, T& c) const
-			{
-				m_input(CUSTOM_NAME(e, "Owner"), CUSTOM_NAME(c, typeid(c).name()));
-			}
-
-		private:
-			Deserializer& m_input;
-		};
-	}
-
-
 	class Scene
 	{
 	public:
@@ -134,7 +73,11 @@ namespace RexEngine
 		static std::shared_ptr<Scene> LoadFromAssetFile(Guid assetGuid, [[maybe_unused]]Archive& metaDataArchive, std::istream& assetFile)
 		{
 			auto scene = std::make_shared<Scene>(assetGuid);
+
+			s_registryLoading = &scene->m_registry;
 			scene->DeserializeJson(assetFile);
+			s_registryLoading = nullptr;
+			
 			return scene;
 		}
 		 
@@ -191,6 +134,8 @@ namespace RexEngine
 
 		entt::registry* GetRegistry() { return &m_registry; }
 
+		inline static entt::registry* GetLoadingRegistry() { return s_registryLoading; }
+
 	private:
 		entt::registry m_registry;
 		Guid m_guid;
@@ -199,5 +144,9 @@ namespace RexEngine
 		// <entity guid, <scene guid, entity handle>>
 		inline static std::unordered_map<Guid, std::tuple<Guid, entt::entity>> s_entities;
 		inline static std::unordered_set<entt::registry*> s_validRegistries;
+
+		// This is set by a scene while loading, entities that get loaded in this scene use this as their registry
+		// Should be set back to nullptr after loading
+		inline static entt::registry* s_registryLoading = nullptr;
 	};
 }

@@ -49,6 +49,9 @@ namespace RexEditor
 			// Render the current scene using the first camera found
 			auto scene = Scene::CurrentScene();
 
+			if (!scene)
+				return; // No scene active, exit
+
 			auto&& cameras = scene->GetComponents<CameraComponent>();
 			if (cameras.size() <= 0)
 			{

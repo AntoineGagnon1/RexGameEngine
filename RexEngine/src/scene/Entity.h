@@ -45,6 +45,8 @@ namespace RexEngine
 		TransformComponent& Transform();
 		const TransformComponent& Transform() const;
 		
+		size_t GetComponentCount() const;
+
 		template<typename ...Types>
 		bool HasComponents() const
 		{

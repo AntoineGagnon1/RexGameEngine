@@ -42,14 +42,27 @@ namespace RexEngine
 		return GetComponent<TransformComponent>();
 	}
 
+	size_t Entity::GetComponentCount() const
+	{
+		size_t count = 0;
+
+		for (auto& c : ComponentFactories::GetFactories())
+		{
+			if (c->HasComponent(*this))
+				count++;
+		}
+
+		return count;
+	}
+
 	bool Entity::HasComponent(std::type_index type) const
 	{
-		return Components::EntityHasComponent(*this, type);
+		return ComponentFactories::GetFactory(type)->HasComponent(*this);
 	}
 
 	bool Entity::RemoveComponent(std::type_index type)
 	{
-		return Components::EntityRemoveComponent(*this, type);
+		return ComponentFactories::GetFactory(type)->RemoveComponent(*this);
 	}
 
 	void Entity::AssertValid() const
@@ -67,10 +80,16 @@ namespace RexEngine
 		}
 
 		m_handle = Scene::GetEntityHandle(m_entityGuid);
-		auto scene = AssetManager::GetAsset<Scene>(Scene::GetEntityScene(m_entityGuid));
-		if (scene)
-			m_registry = scene->GetRegistry();
+
+		if (Scene::GetLoadingRegistry() != nullptr)
+			m_registry = Scene::GetLoadingRegistry();
 		else
-			m_registry = nullptr;
+		{ // Not loading a scene, get the registry using the asset manager
+			auto scene = AssetManager::GetAsset<Scene>(Scene::GetEntityScene(m_entityGuid));
+			if (scene)
+				m_registry = scene->GetRegistry();
+			else
+				m_registry = nullptr;
+		}
 	}
 }

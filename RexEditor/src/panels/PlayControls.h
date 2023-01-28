@@ -66,7 +66,9 @@ namespace RexEditor
 					m_started = false;
 
 					// Reload scene from file
-					RexEngine::AssetManager::ReloadAsset<RexEngine::Scene>(RexEngine::Scene::CurrentScene().GetAssetGuid());
+					auto newScene = RexEngine::AssetManager::ReloadAsset<RexEngine::Scene>(RexEngine::Scene::CurrentScene().GetAssetGuid(), false);
+					Scene::SetCurrentScene(newScene);
+					//RexEngine::AssetManager::ReloadAsset<RexEngine::Scene>(RexEngine::Scene::CurrentScene().GetAssetGuid());
 
 					// Focus the Scene View
 					auto panel = PanelManager::GetPanel<SceneViewPanel>();
