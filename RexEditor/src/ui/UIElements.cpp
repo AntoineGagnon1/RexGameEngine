@@ -49,12 +49,21 @@ namespace RexEditor::UI::Internal
 		auto visibleLabel = GetVisibleLabel(label);
 		if (visibleLabel.size() > 0)
 		{
+			ImGui::BeginColumns("InputColumns", 2);
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(visibleLabel.c_str());
-			ImGui::SameLine();
+			ImGui::NextColumn();
+			//ImGui::SameLine();
 		}
+
 		// Text box
 		ImGui::SetNextItemWidth(-1); // Full width
+	}
+
+	void EndInput(const std::string& label)
+	{
+		if (GetVisibleLabel(label).size() > 0)
+			ImGui::EndColumns();
 	}
 }
 
@@ -243,6 +252,7 @@ namespace RexEditor::UI
 
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputText(("##" + label).c_str(), m_value.data(), m_value.capacity(), readOnly ? ImGuiInputTextFlags_ReadOnly : 0);
+		Internal::EndInput(label);
 		CacheHovered();
 		// Set the new size for the string, based on the content of the buffer
 		m_value.resize(strlen(m_value.c_str()));
@@ -253,6 +263,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputInt2(("##" + label).c_str(), &m_value.x);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -261,6 +272,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputFloat2(("##" + label).c_str(), &m_value.x);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -269,6 +281,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputFloat3(("##" + label).c_str(), &m_value.x);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -277,6 +290,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputFloat4(("##" + label).c_str(), &m_value.x);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -304,6 +318,7 @@ namespace RexEditor::UI
 
 		Internal::SetupInput(label);
 		ImGui::InputText(("##" + label).c_str(), name.data(), name.length(), ImGuiInputTextFlags_ReadOnly);
+		Internal::EndInput(label);
 		hovered = ImGui::IsItemHovered();
 		auto payload = UI::DragDrop::Target<std::filesystem::path>("Asset" + assetType);
 		if (payload)
@@ -388,6 +403,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputScalar(("##" + label).c_str(), ImGuiDataType_S8, &m_value);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -396,6 +412,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputInt(("##" + label).c_str(), &m_value);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -404,6 +421,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::InputFloat(("##" + label).c_str(), &m_value);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -421,6 +439,7 @@ namespace RexEditor::UI
 
 		Internal::SetupInput(label);
 		m_changed = ImGui::ColorEdit4(label.c_str(), &value.r, flags);
+		Internal::EndInput(label);
 
 		CacheHovered();
 	}
@@ -430,6 +449,7 @@ namespace RexEditor::UI
 	{
 		Internal::SetupInput(label);
 		m_changed = ImGui::Checkbox(("##" + label).c_str(), &m_value);
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 
@@ -515,22 +535,33 @@ namespace RexEditor::UI
 	FloatSlider::FloatSlider(const std::string& label, float min, float max, float width, float& value, int precision)
 		: Input(value)
 	{
-		auto& style = ImGui::GetStyle();
-	
-		if (width == -1)
-			width = ImGui::GetContentRegionAvail().x - (ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x);
+		if (width == -1.0f)
+		{ // Normal full-width input
+			Internal::SetupInput(label);
+			m_changed = ImGui::SliderFloat(("##" + label).c_str(), &m_value, min, max, ("%." + std::to_string(precision) + "f").c_str());
+			Internal::EndInput(label);
+			CacheHovered();
+			return;
+		}
+		else
+		{ // Custom width
+			auto& style = ImGui::GetStyle();
 
-		const Vector2 size = { width + ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x,
-						 ImGui::GetFrameHeight() };
+			if (width == -1)
+				width = ImGui::GetContentRegionAvail().x - (ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x);
 
-		// Label to the left
-		Anchor::SetCursorPos(size);
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(label.c_str());
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(width);
-		ImGui::SliderFloat(("##" + label).c_str(), &m_value, min, max, ("%." + std::to_string(precision) + "f").c_str());
-		CacheHovered();
+			const Vector2 size = { width + ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x,
+							 ImGui::GetFrameHeight() };
+
+			// Label to the left
+			Anchor::SetCursorPos(size);
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(label.c_str());
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(width);
+			ImGui::SliderFloat(("##" + label).c_str(), &m_value, min, max, ("%." + std::to_string(precision) + "f").c_str());
+			CacheHovered();
+		}
 	}
 
 
@@ -544,6 +575,7 @@ namespace RexEditor::UI
 		// Label to the left
 		Internal::SetupInput(label);
 		m_changed = ImGui::Combo(("##" + label).c_str(), &m_value, optionsStr.data(), static_cast<int>(options.size()));
+		Internal::EndInput(label);
 		CacheHovered();
 	}
 

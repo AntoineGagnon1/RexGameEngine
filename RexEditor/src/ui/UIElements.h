@@ -389,6 +389,7 @@ namespace RexEditor::UI
     {
     public:
 
+        // Set width to -1 for normal input (full width)
         FloatSlider(const std::string& label, float min, float max, float width, float& value, int precision = 1);
     };
 
