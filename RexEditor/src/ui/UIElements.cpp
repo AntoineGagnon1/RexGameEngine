@@ -340,37 +340,44 @@ namespace RexEditor::UI
 	std::filesystem::path Internal::TextureInputUI(const std::string& label, const std::string& assetType, RenderApi::TextureID id, float ratio, const std::vector<std::string>& filter, const Guid& currentGuid, bool& hovered)
 	{
 		auto& style = ImGui::GetStyle();
-		ImVec2 imgSize{ // Max 196 pixels wide
-			std::min(196.0f, ImGui::GetContentRegionAvail().x 
-				- style.ItemSpacing.x 
-				- (style.FramePadding.x * 2) 
-				- ImGui::CalcTextSize(Internal::GetVisibleLabel(label).c_str()).x),
-			1.0f
-		};
-
-		imgSize.y = imgSize.x * ratio;
-
-		const Vector2 size{ ImGui::GetContentRegionAvail().x, imgSize.y };
 
 		// Fallback texture
 		if (id == RenderApi::InvalidTextureID)
 			id = EditorAssets::NoTexture().GetId();
 
-		// Label (to the left of the box)
-		Anchor::SetCursorPos(size);
 		auto visibleLabel = GetVisibleLabel(label);
 		if (visibleLabel.size() > 0)
-		{
+		{ // Has a label
+			auto totalWidth = ImGui::GetContentRegionAvail().x;
+			ImGui::BeginColumns("InputColumns", 2);
+			auto imgWidth = ImGui::GetColumnWidth(1) - (style.FramePadding.x * 2.0f) - (style.WindowPadding.x * 2.0f);
+
+			const Vector2 size = { totalWidth, imgWidth * ratio };
+
+			Anchor::SetCursorPos(size);
+
+			// Label
 			float cursorY = ImGui::GetCursorPosY();
 			ImGui::SetCursorPosY(cursorY + (size.y / 2.0f) - (ImGui::GetFrameHeight() / 2.0f));
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted(visibleLabel.c_str());
-			ImGui::SameLine();
 			ImGui::SetCursorPosY(cursorY);
+			ImGui::NextColumn();
+
+			ImGui::ImageButton(label.c_str(), (ImTextureID)static_cast<intptr_t>(id), { imgWidth, imgWidth * ratio }, { 0,1 }, { 1,0 });
+			hovered = ImGui::IsItemHovered();
+			Internal::EndInput(label);
 		}
-		
-		ImGui::ImageButton(label.c_str(), (ImTextureID)static_cast<intptr_t>(id), imgSize, { 0,1 }, { 1,0 });
-		hovered = ImGui::IsItemHovered();
+		else
+		{ // No label
+			auto totalWidth = ImGui::GetContentRegionAvail().x - (style.FramePadding.x * 2.0f);
+			const Vector2 size = { totalWidth, totalWidth * ratio };
+			Anchor::SetCursorPos(size);
+
+			ImGui::ImageButton(label.c_str(), (ImTextureID)static_cast<intptr_t>(id), { totalWidth, totalWidth * ratio }, { 0,1 }, { 1,0 });
+			hovered = ImGui::IsItemHovered();
+		}
+	
 
 		if (hovered) // Tooltip
 		{
@@ -388,7 +395,7 @@ namespace RexEditor::UI
 		}
 
 
-		if (ImGui::IsItemClicked()) // Clicked the text, open the file selector
+		if (hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) // Clicked the text, open the file selector
 		{
 			auto path = SystemDialogs::SelectFile("Select an asset", filter);
 			if (std::filesystem::exists(path)) // Selected a valid file
