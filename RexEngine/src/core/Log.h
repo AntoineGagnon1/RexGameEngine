@@ -47,7 +47,7 @@ namespace RexEngine::Log
 }
 
 
-// ASSETS
+// ASSERTS
 
 #ifdef RE_WIN64
 #include <intrin.h>

@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <random>
 #include <chrono>
-#include <functional>
 #include <sstream>
 
 #include "Serialization.h"
@@ -16,8 +15,6 @@ namespace RexEngine
 		uint64_t dataHigh;
 		uint64_t dataLow;
 
-
-
 	public:
 
 		// Use explicit generation instead : Guid::Generate() or Guid::Empty,
@@ -25,10 +22,10 @@ namespace RexEngine
 		Guid() : Guid(0,0) {}
 
 		// An empty Guid
-		static const Guid Empty;
+		static constinit const Guid Empty;
 
 		// Generate a new random Guid
-		inline static Guid Generate()
+		static Guid Generate()
 		{
 			// The low 64bits are the unix epoch in microseconds,
 			// The high 64bits is a random number
@@ -51,7 +48,7 @@ namespace RexEngine
 		{ }
 
 
-		// Format this Guid to a sring
+		// Format this Guid to a string
 		// Format : 00000000-00000000-00000000-00000000
 		std::string ToString() const
 		{
@@ -105,8 +102,7 @@ namespace RexEngine
 		auto operator<=>(Guid const&) const = default;
 	};
 
-	inline const Guid Guid::Empty = Guid(0,0);
-
+	inline constinit const Guid Guid::Empty = Guid(0,0);
 }
 
 template <>
