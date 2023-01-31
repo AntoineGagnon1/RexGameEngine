@@ -113,15 +113,16 @@ namespace RexEditor::UI
 	Window::Window(const std::string& title, bool* open, WindowSetting settings)
 		: m_title(title)
 	{
+		UI::SetDefaultFont(FontScale::Normal); // To make the title use the correct dpi
+		UI::PushFontScale(FontScale::Normal);
 		m_visible = ImGui::Begin(title.c_str(), open, (int)settings);
 		m_hovered = ImGui::IsWindowHovered();
-		UI::PushFontScale(FontScale::Normal);
 	}
 
 	Window::~Window()
 	{
-		UI::PopFontScale();
 		ImGui::End();
+		UI::PopFontScale();
 	}
 
 	void Window::DrawFullWindowTexture(const Texture& texture)

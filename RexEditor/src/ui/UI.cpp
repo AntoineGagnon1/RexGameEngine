@@ -93,9 +93,9 @@ namespace RexEditor::UI::Internal
 		auto& io = ImGui::GetIO();
 
 		FontCollection col;
-		col[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10);
-		col[1] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 13);
-		col[2] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 20);
+		col[0] = io.Fonts->AddFontFromFileTTF(FontLocation, 11);
+		col[1] = io.Fonts->AddFontFromFileTTF(FontLocation, 13);
+		col[2] = io.Fonts->AddFontFromFileTTF(FontLocation, 20);
 		Fonts.emplace(1.0f, col);
 
 		// Set the default to normal
@@ -116,9 +116,9 @@ namespace RexEditor::UI::Internal
 		for (float winScale : Internal::FontsNeeded)
 		{
 			Internal::FontCollection col;
-			col[0] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 10 * winScale);
-			col[1] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 13 * winScale);
-			col[2] = io.Fonts->AddFontFromFileTTF("assets/fonts/CascadiaMono.ttf", 20 * winScale);
+			col[0] = io.Fonts->AddFontFromFileTTF(FontLocation, 11 * winScale);
+			col[1] = io.Fonts->AddFontFromFileTTF(FontLocation, 13 * winScale);
+			col[2] = io.Fonts->AddFontFromFileTTF(FontLocation, 20 * winScale);
 			Internal::Fonts.emplace(winScale, col);
 		}
 
@@ -162,6 +162,21 @@ namespace RexEditor::UI
 	void UI::PopFontScale()
 	{
 		ImGui::PopFont();
+	}
+
+	void SetDefaultFont(FontScale scale)
+	{
+		auto& io = ImGui::GetIO();
+		auto winScale = ImGui::GetWindowDpiScale();
+
+		if (!Internal::Fonts.contains(winScale))
+		{
+			Internal::FontsNeeded.push_back(winScale);
+			io.FontDefault = Internal::Fonts[1.0f][(int)scale]; // Set a default font
+			return;
+		}
+
+		io.FontDefault = Internal::Fonts[winScale][(int)scale];
 	}
 
 	void PushFontColor(RexEngine::Color color)
