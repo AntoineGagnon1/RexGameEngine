@@ -3395,32 +3395,35 @@ bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data
 
         BeginGroup(); // The only purpose of the group here is to allow the caller to query item data e.g. IsItemActive()
         PushID(label);
-        SetNextItemWidth(ImMax(1.0f, CalcItemWidth() - (button_size + style.ItemInnerSpacing.x) * 2));
+        SetNextItemWidth(ImMax(1.0f, CalcItemWidth() -
+            ((g.CurrentItemFlags & ImGuiItemFlags_Disabled) ? 0.0f : (button_size + style.ItemInnerSpacing.x) * 2)));
         if (InputText("", buf, IM_ARRAYSIZE(buf), flags)) // PushId(label) + "" gives us the expected ID from outside point of view
             value_changed = DataTypeApplyFromText(buf, data_type, p_data, format);
         IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags);
 
         // Step buttons
         const ImVec2 backup_frame_padding = style.FramePadding;
-        style.FramePadding.x = style.FramePadding.y;
-        ImGuiButtonFlags button_flags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
-        if (flags & ImGuiInputTextFlags_ReadOnly)
-            BeginDisabled();
-        SameLine(0, style.ItemInnerSpacing.x);
-        if (ButtonEx("-", ImVec2(button_size, button_size), button_flags))
+        if (!(g.CurrentItemFlags & ImGuiItemFlags_Disabled))
         {
-            DataTypeApplyOp(data_type, '-', p_data, p_data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step);
-            value_changed = true;
+            style.FramePadding.x = style.FramePadding.y;
+            ImGuiButtonFlags button_flags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
+            if (flags & ImGuiInputTextFlags_ReadOnly)
+                BeginDisabled();
+            SameLine(0, style.ItemInnerSpacing.x);
+            if (ButtonEx("-", ImVec2(button_size, button_size), button_flags))
+            {
+                DataTypeApplyOp(data_type, '-', p_data, p_data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step);
+                value_changed = true;
+            }
+            SameLine(0, style.ItemInnerSpacing.x);
+            if (ButtonEx("+", ImVec2(button_size, button_size), button_flags))
+            {
+                DataTypeApplyOp(data_type, '+', p_data, p_data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step);
+                value_changed = true;
+            }
+            if (flags & ImGuiInputTextFlags_ReadOnly)
+                EndDisabled();
         }
-        SameLine(0, style.ItemInnerSpacing.x);
-        if (ButtonEx("+", ImVec2(button_size, button_size), button_flags))
-        {
-            DataTypeApplyOp(data_type, '+', p_data, p_data, g.IO.KeyCtrl && p_step_fast ? p_step_fast : p_step);
-            value_changed = true;
-        }
-        if (flags & ImGuiInputTextFlags_ReadOnly)
-            EndDisabled();
-
         const char* label_end = FindRenderedTextEnd(label);
         if (label != label_end)
         {

@@ -238,10 +238,15 @@ namespace RexEditor::AssetInspectors
 		InspectorPanel::AssetInspectors().Add<Mesh>([](const Guid& guid) {
 			auto mesh = AssetManager::GetAsset<Mesh>(guid);
 
-			UI::Text vertices(std::format( "Vertex Count   :   {}", mesh->GetVertexCount()));
-			UI::Text triangles(std::format("Triangle Count : {}", mesh->GetIndexCount() / 3));
-			UI::Text normals(std::format(  "Has normals : {}", mesh->HasNormals()));
-			UI::Text uvs(std::format(	   "Has UVs     : {}", mesh->HasUVs()));
+			UI::ReadOnly<UI::IntInput> vertices("Vertex Count", (int)mesh->GetVertexCount());
+			UI::ReadOnly<UI::IntInput> triangles("Triangle Count", (int)mesh->GetIndexCount() / 3);
+			UI::ReadOnly<UI::CheckBox> normals("Has normals", mesh->HasNormals());
+			UI::ReadOnly<UI::CheckBox> uvs("Has UVs", mesh->HasUVs());
+		});
+
+		// Scene
+		InspectorPanel::AssetInspectors().Add<Scene>([]([[maybe_unused]]const Guid& guid) {
+			UI::Text text("Use Scene->Open... to open this scene");
 		});
 
 	});

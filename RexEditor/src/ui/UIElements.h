@@ -647,10 +647,10 @@ namespace RexEditor::UI
     {
     public:
         template<typename ...Args>
-        ReadOnly(Args&&... args)
+        ReadOnly(const std::string& label, Args... args) // Take the args by copy, so make_unique has something to ref on
         {
             Internal::BeginDisabled();
-            m_input = std::make_unique<T>(std::forward<Args>(args)...);
+            m_input = std::make_unique<T>(label, args...);
             Internal::EndDisabled();
         }
 
