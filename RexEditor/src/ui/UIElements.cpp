@@ -49,11 +49,21 @@ namespace RexEditor::UI::Internal
 		auto visibleLabel = GetVisibleLabel(label);
 		if (visibleLabel.size() > 0)
 		{
-			ImGui::BeginColumns("InputColumns", 2);
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(visibleLabel.c_str());
-			ImGui::NextColumn();
-			//ImGui::SameLine();
+			// Dont use the columns if the window can resize (ex : popup)
+			if (ImGui::GetCurrentWindow()->Flags & ImGuiWindowFlags_AlwaysAutoResize)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(visibleLabel.c_str());
+				ImGui::SameLine();
+			}
+			else
+			{
+				ImGui::BeginColumns("InputColumns", 2);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(visibleLabel.c_str());
+				ImGui::NextColumn();
+			}
+
 		}
 
 		// Text box
@@ -62,7 +72,7 @@ namespace RexEditor::UI::Internal
 
 	void EndInput(const std::string& label)
 	{
-		if (GetVisibleLabel(label).size() > 0)
+		if (GetVisibleLabel(label).size() > 0 && !(ImGui::GetCurrentWindow()->Flags & ImGuiWindowFlags_AlwaysAutoResize))
 			ImGui::EndColumns();
 	}
 }
