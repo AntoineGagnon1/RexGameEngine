@@ -33,6 +33,7 @@
 #include "src/rendering/MSAATexture.h"
 #include "src/rendering/Material.h"
 #include "src/rendering/shaders/PBRLit.h"
+#include "src/rendering/TextureManager.h"
 
 // Window
 #include "src/window/Window.h"

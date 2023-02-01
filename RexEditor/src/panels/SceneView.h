@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Panel.h"
+#include "../ui/Gizmos.h"
 
 namespace RexEditor
 {
@@ -116,14 +117,19 @@ namespace RexEditor
 			// Render the scene from the pov of the editor camera
 			RexEngine::ForwardRenderer::RenderScene(Scene::CurrentScene(), cameraComponent);
 
+			// Remove the camera
+			Scene::CurrentScene()->DestroyEntity(camera);
+			Scene::CurrentScene()->DestroyEntity(grid);
+
+			// Render the gizmos
+			Gizmos::DrawGizmos(m_cameraTransform);
+
 			// Display the texture to the ui
 			Window()->DrawFullWindowTexture(m_viewTexture);
 			
 			// Revert back to the cached states
 			m_viewBuffer.UnBind();
 			RexEngine::RenderApi::SetViewportSize(oldViewportSize);
-			Scene::CurrentScene()->DestroyEntity(camera);
-			Scene::CurrentScene()->DestroyEntity(grid);
 		}
 
 	private:

@@ -85,6 +85,7 @@ externalproject "RexEditorScript"
 	
 
 project "RexEditor"
+	defines {"GLM_FORCE_LEFT_HANDED"}
     location "RexEditor"
     kind "WindowedApp"
     language "C++"

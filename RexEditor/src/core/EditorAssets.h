@@ -17,6 +17,8 @@ namespace RexEditor
 		inline static const RexEngine::Texture& Play() { return *s_play; }
 		inline static const RexEngine::Texture& Pause() { return *s_pause; }
 		inline static const RexEngine::Texture& Stop() { return *s_stop; }
+		inline static const RexEngine::Texture& Camera() { return *s_camera; }
+		inline static const RexEngine::Texture& Bulb() { return *s_bulb; }
 
 	private:
 
@@ -28,6 +30,8 @@ namespace RexEditor
 			s_play = RexEngine::Texture::FromFile("assets/icons/play.png");
 			s_pause = RexEngine::Texture::FromFile("assets/icons/pause.png");
 			s_stop = RexEngine::Texture::FromFile("assets/icons/stop.png");
+			s_camera = RexEngine::Texture::FromFile("assets/icons/camera.png");
+			s_bulb = RexEngine::Texture::FromFile("assets/icons/bulb.png");
 		}
 
 		inline static void UnLoadAssets()
@@ -38,6 +42,8 @@ namespace RexEditor
 			s_play = nullptr;
 			s_pause = nullptr;
 			s_stop = nullptr;
+			s_camera = nullptr;
+			s_bulb = nullptr;
 		}
 
 		RE_STATIC_CONSTRUCTOR({
@@ -52,6 +58,8 @@ namespace RexEditor
 		inline static std::shared_ptr<RexEngine::Texture> s_play;
 		inline static std::shared_ptr<RexEngine::Texture> s_pause;
 		inline static std::shared_ptr<RexEngine::Texture> s_stop;
+		inline static std::shared_ptr<RexEngine::Texture> s_camera;
+		inline static std::shared_ptr<RexEngine::Texture> s_bulb;
 
 	};
 }

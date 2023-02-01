@@ -18,5 +18,6 @@ namespace RexEditor
 			RE_DECL_EVENT(OnOpenScene, Asset<Scene>) // Called after a scene is opened, argument is the scene that was opened
 
 			RE_DECL_EVENT(OnUI, float) // Called when the UI should be rendered, argument is the deltaTime to use
+			RE_DECL_EVENT(OnGizmos)
 	};
 }

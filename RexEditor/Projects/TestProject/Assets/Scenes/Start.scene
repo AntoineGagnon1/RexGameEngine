@@ -1,10 +1,44 @@
 {
     "EntityCount": 5,
-    "Guid": "5322420384735241793 1674874937677872",
+    "Guid": "18097277385103005146 1674871974739169",
     "ComponentCount": 3,
     "Type": "Tag",
     "Tag": {
-        "name": "Sun"
+        "name": "Camera"
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            1.0,
+            2.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Type": "Camera",
+    "Camera": {
+        "fov": 90.0,
+        "zNear": 0.10000000149011612,
+        "zFar": 100.0
+    },
+    "Guid": "14012215322122859498 1674870299652889",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Sky"
     },
     "Type": "Transform",
     "Transform": {
@@ -20,58 +54,18 @@
         ],
         "rotation": [
             0.0,
-            0.3826834559440613,
-            0.0,
-            0.9238795042037964
-        ],
-        "parent": {
-            "Guid": "14012215322122859498 1674870299652889"
-        }
-    },
-    "Type": "DirectionalLight",
-    "DirectionalLight": {
-        "color": [
-            10.0,
-            10.0,
-            10.0,
-            1.0
-        ]
-    },
-    "Guid": "16117924528898737478 1674870434378368",
-    "ComponentCount": 3,
-    "Type": "Tag",
-    "Tag": {
-        "name": "Sphere"
-    },
-    "Type": "MeshRenderer",
-    "MeshRenderer": {
-        "material": {
-            "Guid": "63205357707978445 1672093067157611"
-        },
-        "mesh": {
-            "Guid": "9561679157417395120 1672093055806690"
-        }
-    },
-    "Type": "Transform",
-    "Transform": {
-        "position": [
-            0.0,
-            1.0,
-            1.0
-        ],
-        "scale": [
-            2.0,
-            2.0,
-            2.0
-        ],
-        "rotation": [
-            0.0,
             0.0,
             0.0,
             1.0
         ],
         "parent": {
             "Guid": "0 0"
+        }
+    },
+    "Type": "Skybox",
+    "Skybox": {
+        "material": {
+            "Guid": "11700521787635595622 1671822723887916"
         }
     },
     "Guid": "4720617059845446784 1674870364441021",
@@ -111,51 +105,54 @@
             "Guid": "0 0"
         }
     },
-    "Guid": "14012215322122859498 1674870299652889",
+    "Guid": "16117924528898737478 1674870434378368",
     "ComponentCount": 3,
     "Type": "Tag",
     "Tag": {
-        "name": "Sky"
+        "name": "Sphere"
     },
-    "Type": "Transform",
-    "Transform": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Type": "Skybox",
-    "Skybox": {
+    "Type": "MeshRenderer",
+    "MeshRenderer": {
         "material": {
-            "Guid": "11700521787635595622 1671822723887916"
+            "Guid": "63205357707978445 1672093067157611"
+        },
+        "mesh": {
+            "Guid": "9561679157417395120 1672093055806690"
         }
-    },
-    "Guid": "18097277385103005146 1674871974739169",
-    "ComponentCount": 3,
-    "Type": "Tag",
-    "Tag": {
-        "name": "Camera"
     },
     "Type": "Transform",
     "Transform": {
         "position": [
-            5.0,
-            2.5,
+            0.0,
+            1.0,
+            1.0
+        ],
+        "scale": [
+            2.0,
+            2.0,
+            2.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Guid": "5322420384735241793 1674874937677872",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Sun"
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            0.0,
             0.0
         ],
         "scale": [
@@ -165,18 +162,21 @@
         ],
         "rotation": [
             0.0,
-            0.7069846987724304,
+            0.3826834559440613,
             0.0,
-            0.7072288393974304
+            0.9238795042037964
         ],
         "parent": {
-            "Guid": "0 0"
+            "Guid": "14012215322122859498 1674870299652889"
         }
     },
-    "Type": "Camera",
-    "Camera": {
-        "fov": 90.0,
-        "zNear": 0.10000000149011612,
-        "zFar": 100.0
+    "Type": "DirectionalLight",
+    "DirectionalLight": {
+        "color": [
+            10.0,
+            10.0,
+            10.0,
+            1.0
+        ]
     }
 }
