@@ -18,6 +18,7 @@ namespace RexEditor
 			m_viewDepth(RexEngine::RenderApi::PixelType::Depth, { 0,0 }),
 			m_roll(0.0f), m_pitch(0.0f), m_captured(false)
 		{
+			using namespace RexEngine;
 			m_viewBuffer.BindTexture(m_viewTexture, RexEngine::RenderApi::FrameBufferTextureType::Color);
 			m_viewBuffer.BindRenderBuffer(m_viewDepth, RexEngine::RenderApi::FrameBufferTextureType::Depth);
 
@@ -38,12 +39,13 @@ namespace RexEditor
 	protected:
 		virtual void OnResize([[maybe_unused]] RexEngine::Vector2 oldSize, RexEngine::Vector2 newSize) override
 		{
-			m_viewTexture.SetData((Vector2Int)newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
-			m_viewDepth.SetSize((Vector2Int)newSize);
+			m_viewTexture.SetData((RexEngine::Vector2Int)newSize, nullptr, RexEngine::RenderApi::PixelFormat::RGB, RexEngine::RenderApi::PixelType::UByte);
+			m_viewDepth.SetSize((RexEngine::Vector2Int)newSize);
 		}
 
 		virtual void OnGui([[maybe_unused]]float deltaTime) override
 		{
+			using namespace RexEngine;
 			if (!Scene::CurrentScene())
 			{ // No scene loaded
 				UI::Text("No active scene !");
@@ -114,15 +116,21 @@ namespace RexEditor
 			RexEngine::RenderApi::ClearColorBit();
 			RexEngine::RenderApi::ClearDepthBit();
 			
+			RenderQueues::ClearQueues();
+
 			// Render the scene from the pov of the editor camera
 			RexEngine::ForwardRenderer::RenderScene(Scene::CurrentScene(), cameraComponent);
 
-			// Remove the camera
+			// Remove the editor camera (so it does not have a gizmo)
 			Scene::CurrentScene()->DestroyEntity(camera);
 			Scene::CurrentScene()->DestroyEntity(grid);
 
 			// Render the gizmos
 			Gizmos::DrawGizmos(m_cameraTransform);
+
+			// Actually run the render calls
+			RenderQueues::ExecuteQueues();
+			RenderQueues::ClearQueues();
 
 			// Display the texture to the ui
 			Window()->DrawFullWindowTexture(m_viewTexture);

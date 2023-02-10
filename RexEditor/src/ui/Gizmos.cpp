@@ -6,24 +6,24 @@
 
 namespace RexEditor
 {
-	void Gizmos::Billboard([[maybe_unused]]const RexEngine::Texture& texture, [[maybe_unused]] const RexEngine::Vector3& position, [[maybe_unused]] const RexEngine::Vector3& size)
+	void Gizmos::Billboard(const RexEngine::Texture& texture, const RexEngine::Vector3& position, const RexEngine::Vector3& size)
 	{
-		// TODO : change this when upgrading the RenderQueue
 		static auto textureIndex = TextureManager::ReserveSlot();
 		s_billboardMaterial->GetShader()->SetUniformInt("texture", textureIndex);
 		RenderApi::SetActiveTexture(textureIndex);
 		texture.Bind();
 
-		RenderQueue::AddCommand(RenderCommand(
-			s_billboardMaterial,
-			Shapes::GetQuadMesh(), 
-			Matrix4::MakeTransform(position, Quaternion::Identity(), size * 0.5f)) // size * 0.5 because the Quad is 2x2x2
-		);
-
-		RenderQueue::ExecuteCommands();
+		// size * 0.5 because the Quad is 2x2x2
+		RenderQueues::GetQueue<TransparentRenderCommand>("Gizmos")
+			.AddCommand<TransparentRenderCommand>(
+				s_billboardMaterial, 
+				Shapes::GetQuadMesh(), 
+				Matrix4::MakeTransform(position, Quaternion::Identity(), size * 0.5f),
+				s_cameraPos
+			);
 	}
 
-	void Gizmos::DrawGizmos([[maybe_unused]] const TransformComponent& camera)
+	void Gizmos::DrawGizmos(const TransformComponent& camera)
 	{
 		auto [cameraPos, cameraRotation, _] = camera.GetGlobalTransform().Decompose();
 		auto viewMatrix = Matrix4::MakeLookAt(cameraPos, cameraPos + (cameraRotation * Directions::Forward), Directions::Up);
@@ -33,6 +33,8 @@ namespace RexEditor
 
 		s_billboardMaterial->GetUniform<Vector3>("CameraRightWS") = right;
 		s_billboardMaterial->GetUniform<Vector3>("CameraUpWS") = up;
+
+		s_cameraPos = cameraPos;
 
 		EditorEvents::OnGizmos().Dispatch();
 	}

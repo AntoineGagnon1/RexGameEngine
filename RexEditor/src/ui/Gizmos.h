@@ -18,6 +18,7 @@ namespace RexEditor
 
 	private:
 		inline static std::shared_ptr<Material> s_billboardMaterial;
+		inline static RexEngine::Vector3 s_cameraPos; // The current camera pos
 
 		static void Init()
 		{
@@ -36,6 +37,7 @@ namespace RexEditor
 			EngineEvents::OnEngineStop().Register<&Gizmos::Close>();
 
 			EditorEvents::OnGizmos().Register<&Gizmos::DefaultGizmos>();
+			RenderQueues::AddQueue<TransparentRenderCommand>("Gizmos", 10000);
 		})
 	};
 }

@@ -4,13 +4,13 @@
 #include "../scene/Components.h"
 
 #include "FrameBuffer.h"
+#include "UniformBlock.h"
 
 namespace RexEngine
 {
 	class ForwardRenderer
 	{
 	public:
-
 		static constexpr int MaxLights = 32; // Max lights for each type
 
 		// Uniform block sent to the shaders for the scene data
@@ -19,6 +19,12 @@ namespace RexEngine
 			Matrix4 worldToView;
 			Matrix4 viewToScreen;
 			Vector3 cameraPos;
+		
+		private:
+			RE_STATIC_CONSTRUCTOR({
+				const int location = UniformBlocks::ReserveBlock<SceneDataUniforms>("SceneData");
+				Shader::RegisterParserUsing("SceneData", std::format("layout (std140, binding = {}) uniform SceneData{{ mat4 worldToView; mat4 viewToScreen; vec3 cameraPos; }}; ", location));
+			})
 		};
 
 		struct LightData
@@ -48,32 +54,31 @@ namespace RexEngine
 			SpotLightData(Vector3 pos, Vector3 dir, Vector3 color, float cutOff, float outerCutOff)
 				: Dir(dir), padding1(0.0f), Pos(pos), padding2(0.0f), Color(color), padding3(0.0f), CutOff(cutOff), OuterCutOff(outerCutOff), padding4(0.0f), padding5(0.0f)
 			{ }
+
+		private:
+			RE_STATIC_CONSTRUCTOR({
+	const int lights = UniformBlocks::ReserveBlock<LightData>("LightsData");
+	const int spotLights = UniformBlocks::ReserveBlock<SpotLightData>("SpotLightsData");
+Shader::RegisterParserUsing("Lighting", std::format(R"(
+struct LightData {{ vec4 Pos; vec3 Color; }};
+layout (std140, binding = {}) uniform LightsData {{ uint LightCount; LightData Lights[]; }};
+struct SpotLightData {{ vec4 Dir; vec4 Pos; vec4 Color; float CutOff; float OuterCutOff; }};
+layout (std140, binding = {}) uniform SpotLightsData {{ uint SpotLightCount; SpotLightData SpotLights[]; }};
+)", lights, spotLights));
+				})
 		};
 
 	public:
 
 		// Render a scene using a camera
+		// All the render calls will be added to the respective queues,
+		// call RenderQueues::ExecuteQueues() to render
 		static void RenderScene(Asset<Scene> scene, const CameraComponent& camera);
-
-		static RenderApi::BufferID GetSceneDataUniforms();
-		static RenderApi::BufferID GetLightsBuffer();
-		static RenderApi::BufferID GetSpotLightsBuffer();
 
 	private:
 
 		// Size of the current Lights buffer, this will change if more are needed
 		inline static uint32_t LightsMax = 0;
 		inline static uint32_t SpotLightsMax = 0;
-
-		RE_STATIC_CONSTRUCTOR({
-			Shader::RegisterParserUsing("SceneData", "layout (std140, binding = 1) uniform SceneData{ mat4 worldToView; mat4 viewToScreen; vec3 cameraPos; }; ");
-			
-			Shader::RegisterParserUsing("Lighting", R"(
-struct LightData { vec4 Pos; vec3 Color; };
-layout (std140, binding = 3) uniform LightsData { uint LightCount; LightData Lights[]; };
-struct SpotLightData { vec4 Dir; vec4 Pos; vec4 Color; float CutOff; float OuterCutOff; };
-layout (std140, binding = 4) uniform SpotLightsData { uint SpotLightCount; SpotLightData SpotLights[]; };
-)");
-		});
 	};
 }

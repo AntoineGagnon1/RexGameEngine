@@ -71,7 +71,13 @@ namespace RexEditor
 			Timer renderTimer;
 			renderTimer.Start();
 			RexEngine::ForwardRenderer::RenderScene(Scene::CurrentScene(), cameras[0].second);
+
+			// Actually run the render calls
+			RenderQueues::ExecuteQueues();
+			RenderQueues::ClearQueues();
+
 			renderTimer.Pause();
+
 
 			// Display the texture to the ui
 			Window()->DrawFullWindowTexture(m_viewTexture);

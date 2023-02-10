@@ -46,7 +46,7 @@ namespace RexEngine
 		{
 			T result = static_cast<T>(0);
 			for (size_t i = 0; i < Size; i++)
-				result += GlmType::operator[](i) * GlmType::operator[](i);
+				result += GlmType::operator[](static_cast<GlmType::length_type>(i)) * GlmType::operator[](static_cast<GlmType::length_type>(i));
 
 			return result;
 		}

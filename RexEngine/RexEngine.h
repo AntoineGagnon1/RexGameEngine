@@ -27,6 +27,7 @@
 #include "src/rendering/Shader.h"
 #include "src/rendering/Mesh.h"
 #include "src/rendering/RenderQueue.h"
+#include "src/rendering/RenderCommands.h"
 #include "src/rendering/ForwardRenderer.h"
 #include "src/rendering/Shapes.h"
 #include "src/rendering/PBR.h"
