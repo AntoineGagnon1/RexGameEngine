@@ -18,8 +18,6 @@ workspace "RexGameEngine"
 local TargetDir = "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.platform}"
 local ObjDir = "%{wks.location}/obj/%{cfg.buildcfg}-%{cfg.platform}"
 
-group "Engine"
-
 project "RexEngine"
 	defines {"GLM_FORCE_LEFT_HANDED"}
     location "RexEngine"
@@ -28,8 +26,6 @@ project "RexEngine"
     cppdialect "C++20"
 	warnings "Extra"
 	flags { "FatalCompileWarnings" }
-	
-	dependson { "ScriptEngine", "ScriptApi" }
    
     targetdir (TargetDir .. "/%{prj.name}")
     objdir (ObjDir .. "/%{prj.name}")
@@ -53,8 +49,8 @@ project "RexEngine"
         "%{prj.name}/vendor"
     }
     
-	libdirs { "%{prj.name}/vendor/glfw/lib", "%{prj.name}/vendor/dotnet" }
-	links { "glfw3", "opengl32.lib", "nethost.lib" }
+	libdirs { "%{prj.name}/vendor/glfw/lib" }
+	links { "glfw3", "opengl32.lib" }
 	
     -- Disable Pch for vendors
     filter "files:**/vendor/**.**"
@@ -111,11 +107,6 @@ project "RexEditor"
 	filter {}
 	
 	prebuildcommands {
-		"{COPY} $(SolutionDir)RexEngine/vendor/dotnet/nethost.dll $(OutDir)", -- copy the nethost dll
-		"{COPY} ".. TargetDir .."/ScriptEngine/ScriptEngine.dll $(OutDir)Dotnet/ScriptEngine", -- copy the ScriptEngine files
-		"{COPY} ".. TargetDir .."/ScriptEngine/ScriptEngine.runtimeconfig.json $(OutDir)Dotnet/ScriptEngine",
-		"{COPY} ".. TargetDir .."/ScriptApi/ScriptApi.dll $(OutDir)Dotnet/ScriptEngine", -- ScriptApi
-		"{COPY} ".. TargetDir .."/RexEditorScript/RexEditorScript.dll $(OutDir)Dotnet/Editor", -- RexEditorScript
 		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets", -- assets
 	}
 	
