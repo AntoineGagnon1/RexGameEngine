@@ -46,8 +46,6 @@
 #include "src/inputs/Input.h"
 
 // Scripting
-#include "src/scripting/ScriptEngine.h"
-#include "src/scripting/ScriptHost.h"
 
 // Assets
 #include "src/assets/AssetManager.h"

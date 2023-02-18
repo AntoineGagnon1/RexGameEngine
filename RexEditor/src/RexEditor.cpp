@@ -25,8 +25,6 @@ int WinMain()
 
 	EngineEvents::OnEngineStarted().Dispatch();
 
-	ScriptEngine::LoadAssembly(Dirs::ScriptDir / "Editor" / "RexEditorScript.dll");
-
 	EditorEvents::OnEditorStarted().Dispatch();
 
 	// Temp to save some time while testing

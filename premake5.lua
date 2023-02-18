@@ -61,28 +61,6 @@ project "RexEngine"
     flags {"NoPCH"}
     filter {}
 	
-	
-externalproject "ScriptEngine"
-   location "%{wks.location}/ScriptEngine"
-   uuid "308A4845-1CED-D7E9-C572-10A0B1B4A36C"
-   kind "SharedLib"
-   language "C#"
-   
-externalproject "ScriptApi"
-   location "%{wks.location}/ScriptApi"
-   uuid "C0575995-79D9-48EE-B4DE-4F0FF0FC7F1F"
-   kind "SharedLib"
-   language "C#"
-   
-group "Editor"
-
-externalproject "RexEditorScript"
-   location "%{wks.location}/RexEditorScript"
-   uuid "7BF78010-D122-4748-B3D5-5C39DE22E2AD"
-   kind "SharedLib"
-   language "C#"
-	
-	
 
 project "RexEditor"
 	defines {"GLM_FORCE_LEFT_HANDED"}
