@@ -6,7 +6,6 @@
 #include "src/core/Log.h"
 #include "src/core/Guid.h"
 #include "src/core/Time.h"
-#include "src/core/FileStructure.h"
 #include "src/core/Serialization.h"
 #include "src/core/Event.h"
 #include "src/core/EngineEvents.h"
@@ -46,6 +45,8 @@
 #include "src/inputs/Input.h"
 
 // Scripting
+#include "src/scripting/LuaEngine.h"
+#include "src/scripting/LuaApi.h"
 
 // Assets
 #include "src/assets/AssetManager.h"

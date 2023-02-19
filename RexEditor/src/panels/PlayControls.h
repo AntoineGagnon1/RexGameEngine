@@ -77,6 +77,12 @@ namespace RexEditor
 					}
 				}
 			}
+
+			UI::SameLine();
+			if (UI::ImageButton luaReload("LuaReload", EditorAssets::LuaReload(), { size , size }); luaReload.IsClicked())
+			{
+				LuaEngine::Reload();
+			}
 		}
 
 	private:

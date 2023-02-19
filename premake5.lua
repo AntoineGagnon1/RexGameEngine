@@ -49,8 +49,8 @@ project "RexEngine"
         "%{prj.name}/vendor"
     }
     
-	libdirs { "%{prj.name}/vendor/glfw/lib" }
-	links { "glfw3", "opengl32.lib" }
+	libdirs { "%{prj.name}/vendor/glfw/lib", "%{prj.name}/vendor/lua/lib" }
+	links { "glfw3", "opengl32.lib", "lua54" }
 	
     -- Disable Pch for vendors
     filter "files:**/vendor/**.**"
@@ -107,7 +107,8 @@ project "RexEditor"
 	filter {}
 	
 	prebuildcommands {
-		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets", -- assets
+		"{COPY} $(SolutionDir)RexEngine/vendor/lua/lua54.dll $(OutDir)", -- lua dll
+		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets" -- assets
 	}
 	
 	-- Always run the post build commands
@@ -127,5 +128,3 @@ project "RexEditor"
 				return elements
 			end)
 	end
-
-group ""

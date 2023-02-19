@@ -19,6 +19,7 @@ namespace RexEditor
 		inline static const RexEngine::Texture& Stop() { return *s_stop; }
 		inline static const RexEngine::Texture& Camera() { return *s_camera; }
 		inline static const RexEngine::Texture& Bulb() { return *s_bulb; }
+		inline static const RexEngine::Texture& LuaReload() { return *s_luaReload; }
 
 	private:
 
@@ -32,6 +33,7 @@ namespace RexEditor
 			s_stop = RexEngine::Texture::FromFile("assets/icons/stop.png");
 			s_camera = RexEngine::Texture::FromFile("assets/icons/camera.png");
 			s_bulb = RexEngine::Texture::FromFile("assets/icons/bulb.png");
+			s_luaReload = RexEngine::Texture::FromFile("assets/icons/luaReload.png");
 		}
 
 		inline static void UnLoadAssets()
@@ -44,6 +46,7 @@ namespace RexEditor
 			s_stop = nullptr;
 			s_camera = nullptr;
 			s_bulb = nullptr;
+			s_luaReload = nullptr;
 		}
 
 		RE_STATIC_CONSTRUCTOR({
@@ -60,6 +63,7 @@ namespace RexEditor
 		inline static std::shared_ptr<RexEngine::Texture> s_stop;
 		inline static std::shared_ptr<RexEngine::Texture> s_camera;
 		inline static std::shared_ptr<RexEngine::Texture> s_bulb;
+		inline static std::shared_ptr<RexEngine::Texture> s_luaReload;
 
 	};
 }

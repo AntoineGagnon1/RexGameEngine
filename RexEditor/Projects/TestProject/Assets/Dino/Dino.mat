@@ -23,7 +23,7 @@
             "key": "roughness",
             "value": {
                 "index": 0,
-                "data": 1.0
+                "data": 0.0
             }
         },
         {
@@ -48,14 +48,14 @@
             "key": "metallic",
             "value": {
                 "index": 0,
-                "data": 1.0
+                "data": 0.30000001192092898
             }
         },
         {
             "key": "ao",
             "value": {
                 "index": 0,
-                "data": 0.10000000149011612
+                "data": 0.6000000238418579
             }
         }
     ]
