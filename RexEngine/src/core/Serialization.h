@@ -10,7 +10,6 @@
 #include <cereal/archives/json.hpp>
 
 #include <cereal/types/array_better.hpp> // DO NOT include cereal/types/array, a custom serializer is used to generate json arrays
-#include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/map.hpp>
 #include <cereal/types/unordered_map.hpp>

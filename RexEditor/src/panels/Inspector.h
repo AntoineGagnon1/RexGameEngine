@@ -108,22 +108,6 @@ namespace RexEditor
 				if (UI::Popup p("NewComponentPopup"); p.IsOpen())
 				{
 					NewComponentMenu().DrawMenu(entity);
-
-					// Lua components
-					const auto& luaComponents = LuaApi::GetRegisteredComponents();
-					UI::Menu luaSubmenu("Lua");
-					
-					if (luaSubmenu.IsOpen())
-					{
-						for (const auto& c : luaComponents)
-						{
-							if (UI::MenuItem item(c); item.IsClicked())
-							{
-								// Add the component
-								LuaApi::CreateComponent(c, entity);
-							}
-						}
-					}
 				}
 			});
 		}

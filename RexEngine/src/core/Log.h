@@ -29,11 +29,6 @@ namespace RexEngine::Log
 		LogEvent().Dispatch(type, msg, location.line(), std::string(location.function_name()), std::string(location.file_name()));
 	}
 
-	inline void DispatchLog(LogType type, uint_least32_t line, const std::string& funcName, const std::string& fileName, const std::string& msg)
-	{
-		LogEvent().Dispatch(type, msg, line, funcName, fileName);
-	}
-
 	// Print using the std::format syntax, in debug mode only
 	#ifdef RE_DEBUG
 		#define RE_LOG_DEBUG(FMT, ...) RexEngine::Log::DispatchLog(RexEngine::Log::LogType::Debug, std::source_location::current(), std::format(FMT, __VA_ARGS__))
