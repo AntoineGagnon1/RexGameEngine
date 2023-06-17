@@ -29,6 +29,7 @@
 #include "utils/StringHelper.h"
 #include "utils/NoDestroy.h"
 #include "utils/StaticConstructor.h"
+#include "utils/FileHelper.h"
 
 #include "math/Vectors.h"
 #include "math/Quaternion.h"

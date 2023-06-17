@@ -18,6 +18,12 @@ workspace "RexGameEngine"
 local TargetDir = "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.platform}"
 local ObjDir = "%{wks.location}/obj/%{cfg.buildcfg}-%{cfg.platform}"
 
+externalproject "DotNetApi"
+   location "%{wks.location}/DotNetApi"
+   uuid "1447E25E-34A0-4BDB-9AA7-FF1CE309BDBD"
+   kind "SharedLib"
+   language "C#"
+
 project "RexEngine"
 	defines {"GLM_FORCE_LEFT_HANDED"}
     location "RexEngine"
@@ -33,7 +39,8 @@ project "RexEngine"
     pchheader "REPch.h"
     pchsource "%{prj.name}/src/REPch.cpp"
 
-    
+    dependson { "DotNetApi" }
+	
     files { 
         "%{prj.name}/src/**.h", 
 		"%{prj.name}/src/**.cpp",
@@ -49,8 +56,8 @@ project "RexEngine"
         "%{prj.name}/vendor"
     }
     
-	libdirs { "%{prj.name}/vendor/glfw/lib" }
-	links { "glfw3", "opengl32.lib" }
+	libdirs { "%{prj.name}/vendor/glfw/lib", "%{prj.name}/vendor/mono/lib/%{cfg.buildcfg}" }
+	links { "glfw3", "opengl32.lib", "mono-2.0-sgen.lib" }
 	
     -- Disable Pch for vendors
     filter "files:**/vendor/**.**"
@@ -74,8 +81,6 @@ project "RexEditor"
 
 	pchheader "REDPch.h"
     pchsource "%{prj.name}/src/REDPch.cpp"
-
-	dependson { "RexEditorScript" }
 
     files { 
 		"%{prj.name}/src/**.h", 
@@ -108,6 +113,9 @@ project "RexEditor"
 	
 	prebuildcommands {
 		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets", -- assets
+		"{COPY} $(SolutionDir)RexEngine/vendor/mono/bin/%{cfg.buildcfg}/ $(OutDir)", -- mono
+		"{COPY} $(SolutionDir)RexEngine/vendor/mono/lib/mono/ $(OutDir)/mono/lib",
+		"{COPY} $(OutDir)/../DotNetApi/ $(OutDir)/mono/" -- DotNetApi
 	}
 	
 	-- Always run the post build commands

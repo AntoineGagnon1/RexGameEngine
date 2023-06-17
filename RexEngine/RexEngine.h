@@ -46,6 +46,7 @@
 #include "src/inputs/Input.h"
 
 // Scripting
+#include "src/scripting/MonoEngine.h"
 
 // Assets
 #include "src/assets/AssetManager.h"
