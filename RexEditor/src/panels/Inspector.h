@@ -105,6 +105,13 @@ namespace RexEditor
 						UI::TreeNode n(name + std::format("##{}", (intptr_t)script), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
 						if (n.IsOpen())
 						{
+							auto fields = MonoApi::GetSerializedFields(type);
+							for (auto field : fields)
+							{
+								UI::Text(MonoEngine::GetFieldName(field));
+								UI::SameLine();
+								UI::Text(MonoEngine::GetFieldType(field).name());
+							}
 							// TODO : draw fields
 						}
 						UI::Separator();

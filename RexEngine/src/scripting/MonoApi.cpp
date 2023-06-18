@@ -46,6 +46,21 @@ namespace RexEngine
 		return types;
 	}
 
+	std::vector<MonoClassField*> MonoApi::GetSerializedFields(MonoClass* class_)
+	{
+		// For each field : check if it has the ShowInEditor attribute, if not, remove it
+		static auto showInEditorClass = MonoEngine::GetClass(s_apiAssembly, "RexEngine", "ShowInEditorAttribute");
+		auto fields = MonoEngine::GetFields(class_);
+		fields.erase(
+			std::remove_if(fields.begin(), fields.end(), [class_](MonoClassField* field) {
+				if(MonoEngine::ContainsAttribute(MonoEngine::GetAttributes(class_, field), showInEditorClass))
+					return false; // Keep this field
+				return true;
+			}),
+			fields.end());
+		return fields;
+	}
+
 	void MonoApi::MonoStart()
 	{
 		s_apiAssembly = MonoEngine::LoadAssembly("mono/CSharpApi.dll", "EngineApi");

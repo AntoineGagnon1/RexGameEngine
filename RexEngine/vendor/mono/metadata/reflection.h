@@ -18,7 +18,7 @@ typedef struct {
 	const mono_byte* data;
 } MonoCustomAttrEntry;
 
-typedef struct {
+typedef struct _MonoCustomAttrInfo {
 	int num_attrs;
 	int cached;
 	MonoImage *image;

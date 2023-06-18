@@ -10,6 +10,8 @@ typedef struct _MonoClass MonoClass;
 typedef struct _MonoObject MonoObject;
 typedef struct _MonoMethod MonoMethod;
 typedef struct _MonoString MonoString;
+typedef struct _MonoClassField MonoClassField;
+typedef struct _MonoCustomAttrInfo MonoCustomAttrInfo;
 typedef union _MonoError MonoError;
 
 namespace RexEngine
@@ -31,6 +33,10 @@ namespace RexEngine
 		static MonoMethod* GetMethod(MonoClass* class_, const std::string& methodName, int numArgs);
 		static std::string_view GetClassName(MonoClass* class_);
 		static MonoClass* GetParent(MonoClass* class_);
+		static std::vector<MonoClassField*> GetFields(MonoClass* class_);
+
+		static std::string GetFieldName(MonoClassField* field);
+		static std::type_index GetFieldType(MonoClassField* field);
 
 		static MonoClass* GetClass(MonoObject* obj);
 		// Will return nullptr if the creation failed
@@ -63,19 +69,29 @@ namespace RexEngine
 		static void RegisterCall(const std::string& name, const void* function);
 
 
+		static MonoAssembly* GetMainAssembly() { return s_mainAssembly; }
 		static MonoAssembly* GetAssembly(const std::string& name);
 		static std::string_view GetAssemblyName(MonoAssembly* assembly);
 		static std::vector<MonoAssembly*> GetAssemblies();
 		static std::vector<MonoClass*> GetTypes(MonoAssembly* assembly);
 
+		static MonoCustomAttrInfo* GetAttributes(MonoClass* class_, MonoClassField* field);
+		static bool ContainsAttribute(MonoCustomAttrInfo* attributes, MonoClass* attribute);
 
 		static std::string GetString(MonoString* string);
+		template<typename T>
+		static T Unbox(MonoObject* obj)
+		{
+			return *(T*)UnboxInternal(obj);
+		}
 	private:
 		static std::optional<MonoObject*> CallMethodInternal(MonoMethod* method, void* thisPtr, void* params[]);
 
 		static std::string GetExceptionMessage(MonoObject* exception);
 		
 		static bool CheckMonoError(MonoError& error);
+
+		static void* UnboxInternal(MonoObject* obj);
 
 		static void Init();
 		static void Stop();
@@ -88,6 +104,7 @@ namespace RexEngine
 	private:
 		inline static MonoDomain* s_rootDomain;
 		inline static MonoDomain* s_appDomain;
+		inline static MonoAssembly* s_mainAssembly;
 
 		inline static std::unordered_map<std::string, MonoAssembly*> s_loadedAssemblies;
 	};

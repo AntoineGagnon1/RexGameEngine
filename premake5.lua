@@ -29,7 +29,7 @@ project "RexEngine"
     location "RexEngine"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
 	warnings "Extra"
 	flags { "FatalCompileWarnings" }
    
@@ -70,7 +70,7 @@ project "RexEditor"
     location "RexEditor"
     kind "WindowedApp"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
 	warnings "Extra"
 	flags { "FatalCompileWarnings" }
 

@@ -3,6 +3,7 @@
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
+#include <mono/metadata/tokentype.h>
 
 namespace RexEngine
 {
@@ -96,6 +97,51 @@ namespace RexEngine
         return mono_class_get_parent(class_);
     }
 
+    std::vector<MonoClassField*> MonoEngine::GetFields(MonoClass* class_)
+    {
+        std::vector<MonoClassField*> fields;
+        void* iter = nullptr;
+        MonoClassField* field;
+
+        while (field = mono_class_get_fields(class_, &iter), field != nullptr)
+        {
+            fields.push_back(field);
+        }
+        return fields;
+    }
+
+    std::string MonoEngine::GetFieldName(MonoClassField* field)
+    {
+        return mono_field_get_name(field);
+    }
+
+    std::type_index MonoEngine::GetFieldType(MonoClassField* field)
+    {
+        if (field == nullptr)
+            return typeid(void);
+
+        // TODO : Add support for more types, figure-out how to do string and char
+        int typeID = mono_type_get_type(mono_field_get_type(field));
+        switch (typeID)
+        {
+        case MONO_TYPE_VOID: return typeid(void);
+        case MONO_TYPE_BOOLEAN: return typeid(bool);
+
+        case MONO_TYPE_I1: return typeid(int8_t);
+        case MONO_TYPE_I2: return typeid(int16_t);
+        case MONO_TYPE_I4: return typeid(int32_t);
+        case MONO_TYPE_I8: return typeid(int64_t);
+        case MONO_TYPE_U1: return typeid(uint8_t);
+        case MONO_TYPE_U2: return typeid(uint16_t);
+        case MONO_TYPE_U4: return typeid(uint32_t);
+        case MONO_TYPE_U8: return typeid(uint64_t);
+
+        case MONO_TYPE_R4: return typeid(float);
+        case MONO_TYPE_R8: return typeid(double);
+        }
+        return typeid(void);
+    }
+
     MonoClass* MonoEngine::GetClass(MonoObject* obj)
     {
         return mono_object_get_class(obj);
@@ -139,7 +185,7 @@ namespace RexEngine
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
         std::vector<MonoClass*> types;
         types.reserve(numTypes);
-
+    
         for (int32_t i = 0; i < numTypes; i++)
         {
             uint32_t cols[MONO_TYPEDEF_SIZE];
@@ -149,10 +195,30 @@ namespace RexEngine
             const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
             auto class_ = mono_class_from_name(image, nameSpace, name);
             
-            if(class_ != nullptr)
+            if (class_ != nullptr)
+            {
                 types.push_back(class_);
+            }
         }
         return types;
+    }
+
+    MonoCustomAttrInfo* MonoEngine::GetAttributes(MonoClass* class_, MonoClassField* field)
+    {
+        return mono_custom_attrs_from_field(class_, field);
+    }
+
+    bool MonoEngine::ContainsAttribute(MonoCustomAttrInfo* attributes, MonoClass* attribute)
+    {
+        if (attributes == nullptr || attribute == nullptr)
+            return false;
+
+        for (int i = 0; i < attributes->num_attrs; i++)
+        {
+            if (mono_method_get_class(attributes->attrs[i].ctor) == attribute)
+                return true;
+        }
+        return false;
     }
 
     void MonoEngine::RegisterCall(const std::string& name, const void* function)
@@ -206,6 +272,11 @@ namespace RexEngine
         return hasError;
     }
 
+    void* MonoEngine::UnboxInternal(MonoObject* obj)
+    {
+        return mono_object_unbox(obj);
+    }
+
     void MonoEngine::Init()
 	{
 		mono_set_assemblies_path("mono/lib");
@@ -225,6 +296,10 @@ namespace RexEngine
             return;
         }
         mono_domain_set(s_appDomain, true);
+
+        mono_assembly_foreach([](auto assembly, [[maybe_unused]]auto user_data) {
+            s_mainAssembly = (MonoAssembly*)assembly;
+            }, nullptr);
 
         OnMonoStart().Dispatch();
 	}

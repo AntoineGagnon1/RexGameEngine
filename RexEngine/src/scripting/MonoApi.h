@@ -37,6 +37,8 @@ namespace RexEngine
 		// Returns all the script types registered
 		static std::vector<MonoClass*> GetScriptTypes();
 
+		static std::vector<MonoClassField*> GetSerializedFields(MonoClass* class_);
+
 	private:
 		static void MonoStart();
 

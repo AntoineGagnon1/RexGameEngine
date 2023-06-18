@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace RexEngine
 {
@@ -10,6 +11,15 @@ namespace RexEngine
     {
     }
 
-    public class Test1 : ScriptComponent { }
-    public class Test2 : Test1 { }
+    [Serializable]
+    public class Test1 : ScriptComponent 
+    {
+        [ShowInEditor] int testInt;
+        [ShowInEditor] uint testInt2;
+    }
+    [Serializable]
+    public class Test2 : Test1 
+    {
+        [ShowInEditor] short test3;
+    }
 }

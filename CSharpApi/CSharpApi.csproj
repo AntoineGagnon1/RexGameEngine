@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\ShowInEditorAttribute.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Core\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
