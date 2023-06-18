@@ -18,8 +18,8 @@ workspace "RexGameEngine"
 local TargetDir = "%{wks.location}/bin/%{cfg.buildcfg}-%{cfg.platform}"
 local ObjDir = "%{wks.location}/obj/%{cfg.buildcfg}-%{cfg.platform}"
 
-externalproject "DotNetApi"
-   location "%{wks.location}/DotNetApi"
+externalproject "CSharpApi"
+   location "%{wks.location}/CSharpApi"
    uuid "1447E25E-34A0-4BDB-9AA7-FF1CE309BDBD"
    kind "SharedLib"
    language "C#"
@@ -39,7 +39,7 @@ project "RexEngine"
     pchheader "REPch.h"
     pchsource "%{prj.name}/src/REPch.cpp"
 
-    dependson { "DotNetApi" }
+    dependson { "CSharpApi" }
 	
     files { 
         "%{prj.name}/src/**.h", 
@@ -115,7 +115,7 @@ project "RexEditor"
 		"{COPY} $(SolutionDir)RexEditor/assets/ $(OutDir)/assets", -- assets
 		"{COPY} $(SolutionDir)RexEngine/vendor/mono/bin/%{cfg.buildcfg}/ $(OutDir)", -- mono
 		"{COPY} $(SolutionDir)RexEngine/vendor/mono/lib/mono/ $(OutDir)/mono/lib",
-		"{COPY} $(OutDir)/../DotNetApi/ $(OutDir)/mono/" -- DotNetApi
+		"{COPY} $(OutDir)/../CSharpApi/ $(OutDir)/mono/" -- CSharpApi
 	}
 	
 	-- Always run the post build commands

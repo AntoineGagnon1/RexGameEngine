@@ -95,6 +95,33 @@ namespace RexEditor
 					TryDrawComponent(c->GetType(), entity);
 				}
 
+				// Script components
+				if (entity.HasComponent<ScriptComponent>())
+				{
+					for (auto script : entity.GetComponent<ScriptComponent>().Scripts())
+					{
+						auto type = MonoEngine::GetClass(script);
+						auto name = std::string(MonoEngine::GetClassName(type));
+						UI::TreeNode n(name + std::format("##{}", (intptr_t)script), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
+						if (n.IsOpen())
+						{
+							// TODO : draw fields
+						}
+						UI::Separator();
+
+						if (n.IsClicked(RexEngine::MouseButton::Right))
+						{
+							UI::Popup::Open("ComponentContextMenu" + name);
+						}
+
+						if (UI::Popup p("ComponentContextMenu" + name); p.IsOpen())
+						{
+							if (UI::MenuItem i("Remove " + name); i.IsClicked())
+								entity.GetComponent<ScriptComponent>().RemoveScript(script);
+						}
+					}
+				}
+
 				// Add components
 				{
 					UI::Anchor a(UI::AnchorPos::Center);
@@ -108,6 +135,20 @@ namespace RexEditor
 				if (UI::Popup p("NewComponentPopup"); p.IsOpen())
 				{
 					NewComponentMenu().DrawMenu(entity);
+					if (UI::Menu m("Scripts"); m.IsOpen())
+					{
+						auto types = MonoApi::GetScriptTypes();
+						for (auto type : types)
+						{
+							if (UI::MenuItem i(std::string(MonoEngine::GetClassName(type))); i.IsClicked())
+							{
+								if (!entity.HasComponent<ScriptComponent>())
+									entity.AddComponent<ScriptComponent>();
+
+								entity.GetComponent<ScriptComponent>().AddScript(type);
+							}
+						}
+					}
 				}
 			});
 		}
@@ -165,7 +206,7 @@ namespace RexEditor
 		inline static void TryDrawComponent(std::type_index type, RexEngine::Entity entity)
 		{
 			// The tag and the transform are already drawn
-			if (type == typeid(TransformComponent) || type == typeid(TagComponent) || type == typeid(Guid))
+			if (type == typeid(TransformComponent) || type == typeid(TagComponent) || type == typeid(Guid) || type == typeid(ScriptComponent))
 				return;
 
 			std::string label = type.name();

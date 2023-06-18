@@ -6,24 +6,89 @@
 #include <filesystem>
 
 typedef struct _MonoAssembly MonoAssembly;
+typedef struct _MonoClass MonoClass;
+typedef struct _MonoObject MonoObject;
+typedef struct _MonoMethod MonoMethod;
+typedef struct _MonoString MonoString;
+typedef union _MonoError MonoError;
 
 namespace RexEngine
 {
 	class MonoEngine
 	{
 	public:
-		// Will return nullptr if it fails
-		static MonoAssembly* LoadAssembly(const std::filesystem::path& path);
+		RE_DECL_EVENT(OnMonoStart)
 
+	public:
+		// path is the path of the dll
+		// name is a name used to reference it later
+		// Will return nullptr if it fails
+		static MonoAssembly* LoadAssembly(const std::filesystem::path& path, const std::string& name);
+
+
+		// Will return nullptr if the class is not found
+		static MonoClass* GetClass(MonoAssembly* assembly, const std::string& namespaceName, const std::string& className);
+		static MonoMethod* GetMethod(MonoClass* class_, const std::string& methodName, int numArgs);
+		static std::string_view GetClassName(MonoClass* class_);
+		static MonoClass* GetParent(MonoClass* class_);
+
+		static MonoClass* GetClass(MonoObject* obj);
+		// Will return nullptr if the creation failed
+		static MonoObject* CreateObject(MonoClass* class_);
+		// Uses mono_runtime_invoke (slower, safer)
+		// the optional will be set if the method call worked
+		template<typename... Args>
+		static std::optional<MonoObject*> CallMethod(MonoMethod* method, void* thisPtr, Args... args)
+		{
+			static constexpr auto getValue = [](auto&& val) {
+				if constexpr (std::is_same_v<decltype(val), MonoObject*>)
+					return (void*)val;
+				else
+					return (void*)&val;
+			};
+
+			void* params[sizeof...(Args)];
+			size_t i = 0;
+			(void(params[i++] = getValue(args)), ...);
+			
+			return CallMethodInternal(method, thisPtr, params);
+		}
+		static std::optional<MonoObject*> CallMethod(MonoMethod* method, void* thisPtr)
+		{
+			return CallMethodInternal(method, thisPtr, nullptr);
+		}
+
+
+		// Name must be the full path, like : RexEngine.SomeClass::SomeMethod
+		static void RegisterCall(const std::string& name, const void* function);
+
+
+		static MonoAssembly* GetAssembly(const std::string& name);
+		static std::string_view GetAssemblyName(MonoAssembly* assembly);
+		static std::vector<MonoAssembly*> GetAssemblies();
+		static std::vector<MonoClass*> GetTypes(MonoAssembly* assembly);
+
+
+		static std::string GetString(MonoString* string);
 	private:
+		static std::optional<MonoObject*> CallMethodInternal(MonoMethod* method, void* thisPtr, void* params[]);
+
+		static std::string GetExceptionMessage(MonoObject* exception);
+		
+		static bool CheckMonoError(MonoError& error);
+
 		static void Init();
+		static void Stop();
 
 		RE_STATIC_CONSTRUCTOR({
 			EngineEvents::OnEngineStart().Register<&MonoEngine::Init>();
+			EngineEvents::OnEngineStop().Register<&MonoEngine::Stop>();
 		})
 
 	private:
 		inline static MonoDomain* s_rootDomain;
 		inline static MonoDomain* s_appDomain;
+
+		inline static std::unordered_map<std::string, MonoAssembly*> s_loadedAssemblies;
 	};
 }

@@ -47,6 +47,7 @@
 
 // Scripting
 #include "src/scripting/MonoEngine.h"
+#include "src/scripting/MonoApi.h"
 
 // Assets
 #include "src/assets/AssetManager.h"

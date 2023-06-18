@@ -6,16 +6,16 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>RexEngine</RootNamespace>
-    <AssemblyName>DotNetApi</AssemblyName>
+    <AssemblyName>CSharpApi</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup>
-	<Configurations>Debug Win64; Release Win64</Configurations>
-	<Platforms>x64</Platforms>
-	<OutputPath>$(SolutionDir)bin\$(Configuration.Replace(" ", "-"))\DotNetApi</OutputPath>
-    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(Configuration.Replace(" ", "-"))\DotNetApi</BaseIntermediateOutputPath>
+    <Configurations>Debug Win64; Release Win64</Configurations>
+    <Platforms>x64</Platforms>
+    <OutputPath>$(SolutionDir)bin\$(Configuration.Replace(" ", "-"))\CSharpApi</OutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir)obj\$(Configuration.Replace(" ", "-"))\CSharpApi</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug Win64|x64' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Core\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scene\ScriptComponent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
