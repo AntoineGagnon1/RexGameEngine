@@ -4,16 +4,15 @@
 
 namespace RexEngine
 {
-	MonoObject* ScriptComponent::AddScript(MonoClass* class_)
+	const Script& ScriptComponent::AddScript(MonoClass* class_)
 	{
 		RE_ASSERT(class_ != nullptr, "Cannot create a <null> script !");
 
-		auto script = MonoEngine::CreateObject(class_);
-		m_scripts.push_back(script);
-		return script;
+		m_scripts.push_back(Script{ MonoEngine::CreateObject(class_) });
+		return m_scripts.back();
 	}
 
-	void ScriptComponent::RemoveScript(MonoObject* script)
+	void ScriptComponent::RemoveScript(const Script& script)
 	{
 		m_scripts.erase(std::remove(m_scripts.begin(), m_scripts.end(), script), m_scripts.end());
 	}

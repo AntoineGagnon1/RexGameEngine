@@ -31,12 +31,25 @@ namespace RexEngine
 		// Will return nullptr if the class is not found
 		static MonoClass* GetClass(MonoAssembly* assembly, const std::string& namespaceName, const std::string& className);
 		static MonoMethod* GetMethod(MonoClass* class_, const std::string& methodName, int numArgs);
-		static std::string_view GetClassName(MonoClass* class_);
+		static std::string GetClassName(MonoClass* class_);
+		static std::string GetClassNamespace(MonoClass* class_);
 		static MonoClass* GetParent(MonoClass* class_);
 		static std::vector<MonoClassField*> GetFields(MonoClass* class_);
 
 		static std::string GetFieldName(MonoClassField* field);
 		static std::type_index GetFieldType(MonoClassField* field);
+		template<typename T>
+		static T GetFieldValue(MonoObject* instance, MonoClassField* field)
+		{
+			T value;
+			GetFieldValueInternal(instance, field, &value);
+			return value;
+		}
+		template<typename T>
+		static void SetFieldValue(MonoObject* instance, MonoClassField* field, T value)
+		{
+			SetFieldValueInternal(instance, field, &value);
+		}
 
 		static MonoClass* GetClass(MonoObject* obj);
 		// Will return nullptr if the creation failed
@@ -92,6 +105,9 @@ namespace RexEngine
 		static bool CheckMonoError(MonoError& error);
 
 		static void* UnboxInternal(MonoObject* obj);
+
+		static void GetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value);
+		static void SetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value);
 
 		static void Init();
 		static void Stop();

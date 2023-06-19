@@ -1,7 +1,7 @@
 {
     "EntityCount": 5,
     "Guid": "18097277385103005146 1674871974739169",
-    "ComponentCount": 3,
+    "ComponentCount": 4,
     "Type": "Tag",
     "Tag": {
         "name": "Camera"
@@ -33,6 +33,17 @@
         "fov": 90.0,
         "zNear": 0.10000000149011612,
         "zFar": 100.0
+    },
+    "Type": "ScriptComponent",
+    "ScriptComponent": {
+        "Scripts": [
+            {
+                "TypeNamespace": "RexEngine",
+                "TypeName": "Test1",
+                "testInt": 3,
+                "testInt2": 4
+            }
+        ]
     },
     "Guid": "14012215322122859498 1674870299652889",
     "ComponentCount": 3,

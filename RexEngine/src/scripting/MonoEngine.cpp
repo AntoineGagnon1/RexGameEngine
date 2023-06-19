@@ -87,9 +87,14 @@ namespace RexEngine
         return method;
     }
 
-    std::string_view MonoEngine::GetClassName(MonoClass* class_)
+    std::string MonoEngine::GetClassName(MonoClass* class_)
     {
         return mono_class_get_name(class_);
+    }
+
+    std::string MonoEngine::GetClassNamespace(MonoClass* class_)
+    {
+        return mono_class_get_namespace(class_);
     }
 
     MonoClass* MonoEngine::GetParent(MonoClass* class_)
@@ -275,6 +280,16 @@ namespace RexEngine
     void* MonoEngine::UnboxInternal(MonoObject* obj)
     {
         return mono_object_unbox(obj);
+    }
+
+    void MonoEngine::GetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value)
+    {
+        mono_field_get_value(instance, field, value);
+    }
+
+    void MonoEngine::SetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value)
+    {
+        mono_field_set_value(instance, field, value);
     }
 
     void MonoEngine::Init()

@@ -98,21 +98,21 @@ namespace RexEditor
 				// Script components
 				if (entity.HasComponent<ScriptComponent>())
 				{
-					for (auto script : entity.GetComponent<ScriptComponent>().Scripts())
+					for (auto& script : entity.GetComponent<ScriptComponent>().Scripts())
 					{
-						auto type = MonoEngine::GetClass(script);
-						auto name = std::string(MonoEngine::GetClassName(type));
-						UI::TreeNode n(name + std::format("##{}", (intptr_t)script), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
+						auto name = script.GetClassName();
+						UI::TreeNode n(name + std::format("##{}", (intptr_t)script.GetObject()), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
 						if (n.IsOpen())
 						{
-							auto fields = MonoApi::GetSerializedFields(type);
-							for (auto field : fields)
+							for (auto field : script.GetSerializedFields())
 							{
-								UI::Text(MonoEngine::GetFieldName(field));
-								UI::SameLine();
-								UI::Text(MonoEngine::GetFieldType(field).name());
+								int value = script.GetFieldValue<int>(field);
+								if (UI::IntInput input(MonoEngine::GetFieldName(field), value); input.HasChanged())
+								{
+									script.SetFieldValue<int>(field, value);
+								}
+								// TODO : draw fields
 							}
-							// TODO : draw fields
 						}
 						UI::Separator();
 

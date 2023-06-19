@@ -15,11 +15,11 @@ namespace RexEngine
     public class Test1 : ScriptComponent 
     {
         [ShowInEditor] int testInt;
-        [ShowInEditor] uint testInt2;
+        [ShowInEditor] int testInt2;
     }
     [Serializable]
     public class Test2 : Test1 
     {
-        [ShowInEditor] short test3;
+        [ShowInEditor] int test3;
     }
 }
