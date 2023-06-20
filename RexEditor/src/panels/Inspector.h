@@ -106,12 +106,15 @@ namespace RexEditor
 						{
 							for (auto field : script.GetSerializedFields())
 							{
-								int value = script.GetFieldValue<int>(field);
-								if (UI::IntInput input(MonoEngine::GetFieldName(field), value); input.HasChanged())
+								auto type = script.GetFieldType(field);
+								if (type == typeid(int))
 								{
-									script.SetFieldValue<int>(field, value);
+									int value = script.GetFieldValue<int>(field);
+									if (UI::IntInput input(MonoEngine::GetFieldName(field), value); input.HasChanged())
+									{
+										script.SetFieldValue<int>(field, value);
+									}
 								}
-								// TODO : draw fields
 							}
 						}
 						UI::Separator();

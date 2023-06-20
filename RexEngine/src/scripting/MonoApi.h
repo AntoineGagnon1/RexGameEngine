@@ -40,6 +40,7 @@ namespace RexEngine
 		std::string GetClassNamespace() const { return MonoEngine::GetClassNamespace(GetClass()); }
 		auto GetSerializedFields() const { return MonoApi::GetSerializedFields(GetClass()); }
 
+		std::type_index GetFieldType(MonoClassField* field) const { return MonoEngine::GetFieldType(field); }
 		template<typename T>
 		T GetFieldValue(MonoClassField* field) const { return MonoEngine::GetFieldValue<T>(m_object, field); }
 		template<typename T>
@@ -57,8 +58,19 @@ namespace RexEngine
 			archive(CUSTOM_NAME(GetClassName(), "TypeName"));
 			for (auto field : GetSerializedFields())
 			{
+				// TODO : use some kind of map instead of checking for each type
 				auto type = MonoEngine::GetFieldType(field);
-				if (type == typeid(int)) archive(CUSTOM_NAME(GetFieldValue<int>(field), GetFieldName(field)));
+				if(TrySaveField<bool>(field, type, archive)) {}
+				else if(TrySaveField<int8_t>(field, type, archive)) {}
+				else if(TrySaveField<int16_t>(field, type, archive)) {}
+				else if(TrySaveField<int32_t>(field, type, archive)) {}
+				else if(TrySaveField<int64_t>(field, type, archive)) {}
+				else if(TrySaveField<uint8_t>(field, type, archive)) {}
+				else if(TrySaveField<uint16_t>(field, type, archive)) {}
+				else if(TrySaveField<uint32_t>(field, type, archive)) {}
+				else if(TrySaveField<uint64_t>(field, type, archive)) {}
+				else if(TrySaveField<float>(field, type, archive)) {}
+				else if(TrySaveField<double>(field, type, archive)) {}
 			}
 		}
 
@@ -79,9 +91,43 @@ namespace RexEngine
 			for (auto field : GetSerializedFields())
 			{
 				auto type = MonoEngine::GetFieldType(field);
-				int value;
-				if (type == typeid(int)) { archive(CUSTOM_NAME(value, GetFieldName(field))); SetFieldValue<int>(field, value); }
+				if (TryLoadField<bool>(field, type, archive)) {}
+				else if (TryLoadField<int8_t>(field, type, archive)) {}
+				else if (TryLoadField<int16_t>(field, type, archive)) {}
+				else if (TryLoadField<int32_t>(field, type, archive)) {}
+				else if (TryLoadField<int64_t>(field, type, archive)) {}
+				else if (TryLoadField<uint8_t>(field, type, archive)) {}
+				else if (TryLoadField<uint16_t>(field, type, archive)) {}
+				else if (TryLoadField<uint32_t>(field, type, archive)) {}
+				else if (TryLoadField<uint64_t>(field, type, archive)) {}
+				else if (TryLoadField<float>(field, type, archive)) {}
+				else if (TryLoadField<double>(field, type, archive)) {}
 			}
+		}
+
+	private:
+		template<typename T, typename Archive>
+		bool TrySaveField(MonoClassField* field, std::type_index type, Archive& archive) const
+		{
+			if (type == typeid(T))
+			{
+				archive(CUSTOM_NAME(GetFieldValue<T>(field), GetFieldName(field)));
+				return true;
+			}
+			return false;
+		}
+
+		template<typename T, typename Archive>
+		bool TryLoadField(MonoClassField* field, std::type_index type, Archive& archive)
+		{
+			if (type == typeid(T))
+			{
+				T value;
+				archive(CUSTOM_NAME(value, GetFieldName(field))); 
+				SetFieldValue<T>(field, value);
+				return true;
+			}
+			return false;
 		}
 
 	private:
@@ -110,35 +156,3 @@ namespace RexEngine
 	};
 	RE_REGISTER_COMPONENT(ScriptComponent, "ScriptComponent")
 }
-
-
-//template <class Archive>
-//void save(Archive& archive)
-//{
-//	for (auto script : m_scripts)
-//	{
-//		auto fields = MonoApi::GetSerializedFields(MonoEngine::GetClass(script));
-//		for (auto field : fields)
-//		{
-//			auto type = MonoEngine::GetFieldType(field);
-//			auto name = MonoEngine::GetFieldName(field);
-//			if (type == typeid(int32_t)) archive(CUSTOM_NAME(MonoEngine::GetFieldValue<int32_t>(script, field), name));
-//		}
-//	}
-//}
-//
-//
-//template <class Archive>
-//void load(Archive& archive)
-//{
-//	for (auto script : m_scripts)
-//	{
-//		auto fields = MonoApi::GetSerializedFields(MonoEngine::GetClass(script));
-//		for (auto field : fields)
-//		{
-//			auto type = MonoEngine::GetFieldType(field);
-//			auto name = MonoEngine::GetFieldName(field);
-//			if (type == typeid(int32_t)) LoadFieldValue<Archive, int32_t>(archive, script, field, name);
-//		}
-//	}
-//}
