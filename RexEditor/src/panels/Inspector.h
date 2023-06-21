@@ -147,10 +147,10 @@ namespace RexEditor
 					NewComponentMenu().DrawMenu(entity);
 					if (UI::Menu m("Scripts"); m.IsOpen())
 					{
-						auto types = MonoApi::GetScriptTypes();
-						for (auto type : types)
+						auto& types = MonoApi::ScriptTypes();
+						for (auto& type : types)
 						{
-							if (UI::MenuItem i(std::string(MonoEngine::GetClassName(type))); i.IsClicked())
+							if (UI::MenuItem i(std::string(MonoEngine::GetClassName(type->GetClass()))); i.IsClicked())
 							{
 								if (!entity.HasComponent<ScriptComponent>())
 									entity.AddComponent<ScriptComponent>();

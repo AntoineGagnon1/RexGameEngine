@@ -13,6 +13,7 @@ typedef struct _MonoString MonoString;
 typedef struct _MonoClassField MonoClassField;
 typedef struct _MonoCustomAttrInfo MonoCustomAttrInfo;
 typedef union _MonoError MonoError;
+typedef struct _MonoException MonoException;
 
 namespace RexEngine
 {
@@ -31,6 +32,24 @@ namespace RexEngine
 		// Will return nullptr if the class is not found
 		static MonoClass* GetClass(MonoAssembly* assembly, const std::string& namespaceName, const std::string& className);
 		static MonoMethod* GetMethod(MonoClass* class_, const std::string& methodName, int numArgs);
+		// Will not report an error if the method was not found
+		static MonoMethod* TryGetMethod(MonoClass* class_, const std::string& methodName, int numArgs);
+		template<typename... Args>
+		static std::function<void(Args...)> GetMethodThunk(MonoMethod* method)
+		{
+			// TODO : only add __stdcall on windows
+			auto thunk = (void(__stdcall*)(Args..., MonoException**))GetMethodThunkInternal(method);
+			if (thunk == nullptr)
+				return nullptr;
+			return [thunk] (Args... args) {
+				MonoException* ex = nullptr;
+				thunk(args..., &ex);
+				if (ex != nullptr)
+				{
+					RE_LOG_ERROR("Error while calling method thunk");
+				}
+			};
+		}
 		static std::string GetClassName(MonoClass* class_);
 		static std::string GetClassNamespace(MonoClass* class_);
 		static MonoClass* GetParent(MonoClass* class_);
@@ -108,6 +127,8 @@ namespace RexEngine
 
 		static void GetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value);
 		static void SetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value);
+
+		static void* GetMethodThunkInternal(MonoMethod* method);
 
 		static void Init();
 		static void Stop();

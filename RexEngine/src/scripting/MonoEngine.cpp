@@ -87,6 +87,11 @@ namespace RexEngine
         return method;
     }
 
+    MonoMethod* MonoEngine::TryGetMethod(MonoClass* class_, const std::string& methodName, int numArgs)
+    {
+        return mono_class_get_method_from_name(class_, methodName.c_str(), numArgs);
+    }
+
     std::string MonoEngine::GetClassName(MonoClass* class_)
     {
         return mono_class_get_name(class_);
@@ -290,6 +295,11 @@ namespace RexEngine
     void MonoEngine::SetFieldValueInternal(MonoObject* instance, MonoClassField* field, void* value)
     {
         mono_field_set_value(instance, field, value);
+    }
+
+    void* MonoEngine::GetMethodThunkInternal(MonoMethod* method)
+    {
+        return mono_method_get_unmanaged_thunk(method);
     }
 
     void MonoEngine::Init()

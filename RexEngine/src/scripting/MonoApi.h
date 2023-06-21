@@ -4,37 +4,61 @@
 
 namespace RexEngine
 {
+	class Script;
+
+	class ScriptType
+	{
+	public:
+		ScriptType(MonoClass* class_);
+
+		MonoClass* GetClass() const { return m_class; }
+
+		void CallOnUpdate(const Script& script);
+
+	private:
+		MonoClass* m_class;
+		std::function<void(MonoObject*)> m_onUpdate;
+	};
+
+
 	class MonoApi
 	{
 	public:
 
 		// Returns all the script types registered
-		static std::vector<MonoClass*> GetScriptTypes();
+		static const auto& ScriptTypes() { return s_scriptTypes; }
 
 		static std::vector<MonoClassField*> GetSerializedFields(MonoClass* class_);
 
 		static MonoAssembly* GetApiAssembly() { return s_apiAssembly; }
 
+		static std::shared_ptr<ScriptType> GetScriptType(MonoClass* class_);
+
 	private:
+		static void LoadScriptTypes(MonoAssembly* assembly);
+
 		static void MonoStart();
+		static void OnUpdate();
 
 		RE_STATIC_CONSTRUCTOR({
 			MonoEngine::OnMonoStart().Register<&MonoApi::MonoStart>();
+			EngineEvents::OnUpdate().Register<&MonoApi::OnUpdate>();
 		});
 	private:
 		static void RegisterLog();
 
 	private:
 		inline static MonoAssembly* s_apiAssembly = nullptr;
+		inline static std::vector<std::shared_ptr<ScriptType>> s_scriptTypes;
 	};
 
 	class Script
 	{
 	public:
-		Script() : Script(nullptr) {}
+		Script() : Script(nullptr, nullptr) {}
 
-		Script(MonoObject* obj)
-			: m_object(obj) {}
+		Script(MonoObject* obj, std::shared_ptr<ScriptType> type)
+			: m_object(obj), m_type(type) {}
 
 		std::string GetClassName() const { return MonoEngine::GetClassName(GetClass()); }
 		std::string GetClassNamespace() const { return MonoEngine::GetClassNamespace(GetClass()); }
@@ -48,8 +72,11 @@ namespace RexEngine
 		std::string GetFieldName(MonoClassField* field) const { return MonoEngine::GetFieldName(field); }
 
 		auto GetObject() const { return m_object; }
+		auto GetType() const { return m_type; }
 
-		auto operator<=>(const Script&) const = default;
+		void CallOnUpdate() const { GetType()->CallOnUpdate(*this); }
+
+		bool operator==(const Script& other) const { return m_object == other.m_object; }
 
 		template <class Archive>
 		void save(Archive& archive) const
@@ -87,6 +114,7 @@ namespace RexEngine
 				return;
 			}
 			
+			m_type = MonoApi::GetScriptType(class_);
 			m_object = MonoEngine::CreateObject(class_);
 			for (auto field : GetSerializedFields())
 			{
@@ -135,13 +163,14 @@ namespace RexEngine
 
 	private:
 		MonoObject* m_object;
+		std::shared_ptr<ScriptType> m_type;
 	};
 
 	struct ScriptComponent
 	{
 	public:
 
-		const Script& AddScript(MonoClass* class_);
+		const Script& AddScript(std::shared_ptr<ScriptType> type);
 		void RemoveScript(const Script& script);
 		const std::vector<Script>& Scripts() const { return m_scripts; }
 

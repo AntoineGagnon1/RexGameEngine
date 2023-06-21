@@ -16,6 +16,11 @@ namespace RexEngine
     {
         [ShowInEditor] int testInt;
         [ShowInEditor] int testInt2;
+
+        void OnUpdate()
+        {
+            Log.Info("Here");
+        }
     }
     [Serializable]
     public class Test2 : Test1 
