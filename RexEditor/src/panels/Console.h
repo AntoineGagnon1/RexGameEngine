@@ -57,7 +57,7 @@ namespace RexEditor
 
 					// Message
 					table.NextElement();
-					UI::Text text(msg.msg);
+					UI::Text text((msg.count <= 1 ? "" : std::format("({}) ", msg.count)) + msg.msg);
 					UI::PopFontColor();
 
 					// file:line(func)
@@ -73,7 +73,27 @@ namespace RexEditor
 
 		void OnLog(RexEngine::Log::LogType type, const std::string& msg, uint_least32_t line, const std::string& func, const std::string& file)
 		{
-			m_messages.push_back({type, msg, line, func, file, std::chrono::system_clock::now()});
+			// Merge messages if they are the same
+			bool skipMsg = false;
+			if (!m_messages.empty())
+			{
+				auto& lastMsg = m_messages.back();
+				if (lastMsg.msg == msg
+					&& lastMsg.line == line
+					&& lastMsg.funcName == func
+					&& lastMsg.fileName == file
+					&& lastMsg.type == type)
+				{
+					lastMsg.count++;
+					skipMsg = true;
+				}
+			}
+
+			if (!skipMsg)
+			{
+				m_messages.push_back({ type, msg, line, func, file, std::chrono::system_clock::now(), 1 });
+			}
+
 			PanelManager::GetPanel("Console")->SetUnsaved(true);
 		}
 
@@ -85,6 +105,7 @@ namespace RexEditor
 			std::string funcName;
 			std::string fileName;
 			std::chrono::system_clock::time_point time;
+			int count;
 		};
 
 		std::vector<ConsoleMessage> m_messages;
