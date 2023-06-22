@@ -46,7 +46,7 @@
 #include "src/inputs/Input.h"
 
 // Scripting
-#include "src/scripting/MonoEngine.h"
+#include "src/scripting/Mono.h"
 #include "src/scripting/MonoApi.h"
 
 // Assets

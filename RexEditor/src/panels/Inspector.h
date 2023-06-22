@@ -100,19 +100,19 @@ namespace RexEditor
 				{
 					for (auto& script : entity.GetComponent<ScriptComponent>().Scripts())
 					{
-						auto name = script.GetClassName();
-						UI::TreeNode n(name + std::format("##{}", (intptr_t)script.GetObject()), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
+						auto name = script.GetClass().Name();
+						UI::TreeNode n(name + std::format("##{}", (intptr_t)script.GetPtr()), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
 						if (n.IsOpen())
 						{
-							for (auto field : script.GetSerializedFields())
+							for (auto& field : script.GetSerializedFields())
 							{
-								auto type = script.GetFieldType(field);
+								auto type = field.Type();
 								if (type == typeid(int))
 								{
-									int value = script.GetFieldValue<int>(field);
-									if (UI::IntInput input(MonoEngine::GetFieldName(field), value); input.HasChanged())
+									int value = script.GetValue<int>(field);
+									if (UI::IntInput input(field.Name(), value); input.HasChanged())
 									{
-										script.SetFieldValue<int>(field, value);
+										script.SetValue<int>(field, value);
 									}
 								}
 							}
@@ -150,7 +150,7 @@ namespace RexEditor
 						auto& types = MonoApi::ScriptTypes();
 						for (auto& type : types)
 						{
-							if (UI::MenuItem i(std::string(MonoEngine::GetClassName(type->GetClass()))); i.IsClicked())
+							if (UI::MenuItem i(type->GetClass().Name()); i.IsClicked())
 							{
 								if (!entity.HasComponent<ScriptComponent>())
 									entity.AddComponent<ScriptComponent>();

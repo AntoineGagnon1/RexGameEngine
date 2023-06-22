@@ -5,9 +5,9 @@
 
 namespace RexEngine
 {
-	const Script& ScriptComponent::AddScript(std::shared_ptr<ScriptType> type)
+	Script ScriptComponent::AddScript(std::shared_ptr<ScriptType> type)
 	{
-		m_scripts.push_back(Script(MonoEngine::CreateObject(type->GetClass()), type));
+		m_scripts.push_back(Script::Create(type));
 		return m_scripts.back();
 	}
 
@@ -16,22 +16,7 @@ namespace RexEngine
 		m_scripts.erase(std::remove(m_scripts.begin(), m_scripts.end(), script), m_scripts.end());
 	}
 
-	std::vector<MonoClassField*> MonoApi::GetSerializedFields(MonoClass* class_)
-	{
-		// For each field : check if it has the ShowInEditor attribute, if not, remove it
-		static auto showInEditorClass = MonoEngine::GetClass(s_apiAssembly, "RexEngine", "ShowInEditorAttribute");
-		auto fields = MonoEngine::GetFields(class_);
-		fields.erase(
-			std::remove_if(fields.begin(), fields.end(), [class_](MonoClassField* field) {
-				if(MonoEngine::ContainsAttribute(MonoEngine::GetAttributes(class_, field), showInEditorClass))
-					return false; // Keep this field
-				return true;
-			}),
-			fields.end());
-		return fields;
-	}
-
-	std::shared_ptr<ScriptType> MonoApi::GetScriptType(MonoClass* class_)
+	std::shared_ptr<ScriptType> MonoApi::GetScriptType(const Mono::Class& class_)
 	{
 		for (auto& type : s_scriptTypes)
 		{
@@ -42,28 +27,28 @@ namespace RexEngine
 		return nullptr;
 	}
 
-	void MonoApi::LoadScriptTypes(MonoAssembly* assembly)
+	void MonoApi::LoadScriptTypes(const Mono::Assembly& assembly)
 	{
-		auto scriptComponentClass = MonoEngine::GetClass(s_apiAssembly, "RexEngine", "ScriptComponent");
-		auto scriptTypes = MonoEngine::GetTypes(assembly);
-		for (auto type : scriptTypes)
+		auto scriptComponentClass = assembly.GetClass("RexEngine", "ScriptComponent");
+		auto scriptTypes = assembly.GetTypes();
+		for (auto& type : scriptTypes)
 		{
-			MonoClass* parent = type;
+			std::optional<Mono::Class> parent = type;
 			do
 			{
-				parent = MonoEngine::GetParent(parent);
+				parent = parent.value().Parent();
 				if (parent == scriptComponentClass)
 				{
 					s_scriptTypes.push_back(std::make_shared<ScriptType>(type));
 					break;
 				}
-			} while (parent != nullptr);
+			} while (parent.has_value());
 		}
 	}
 
 	void MonoApi::MonoStart()
 	{
-		s_apiAssembly = MonoEngine::LoadAssembly("mono/CSharpApi.dll", "EngineApi");
+		s_apiAssembly = Mono::LoadAssembly("mono/CSharpApi.dll").value();
 		LoadScriptTypes(s_apiAssembly);
 		RegisterLog();
 	}
@@ -87,31 +72,51 @@ namespace RexEngine
 	template<Log::LogType LogType>
 	static void LogMessage(MonoString* message, int line, MonoString* funcName, MonoString* fileName)
 	{
-		Log::DispatchLog(LogType, line, MonoEngine::GetString(funcName), MonoEngine::GetString(fileName), MonoEngine::GetString(message));
+		Log::DispatchLog(LogType, line, Mono::GetString(funcName), Mono::GetString(fileName), Mono::GetString(message));
 	}
 
 	void MonoApi::RegisterLog()
 	{
-		MonoEngine::RegisterCall("RexEngine.Log::Info", LogMessage<Log::LogType::Info>);
-		MonoEngine::RegisterCall("RexEngine.Log::Warning", LogMessage<Log::LogType::Warning>);
-		MonoEngine::RegisterCall("RexEngine.Log::Error", LogMessage<Log::LogType::Error>);
-		MonoEngine::RegisterCall("RexEngine.Log::Debug", LogMessage<Log::LogType::Debug>);
+		Mono::RegisterCall("RexEngine.Log::Info", LogMessage<Log::LogType::Info>);
+		Mono::RegisterCall("RexEngine.Log::Warning", LogMessage<Log::LogType::Warning>);
+		Mono::RegisterCall("RexEngine.Log::Error", LogMessage<Log::LogType::Error>);
+		Mono::RegisterCall("RexEngine.Log::Debug", LogMessage<Log::LogType::Debug>);
 	}
 
-	ScriptType::ScriptType(MonoClass* class_)
+	ScriptType::ScriptType(const Mono::Class& class_)
 		: m_class(class_)
 	{
-		auto updateMethod = MonoEngine::TryGetMethod(m_class, "OnUpdate", 0);
-		if(updateMethod != nullptr)
-			m_onUpdate = MonoEngine::GetMethodThunk<MonoObject*>(updateMethod);
+		auto onUpdate = m_class.TryGetMethod("OnUpdate", 0);
+		if(onUpdate.has_value())
+			m_onUpdate = onUpdate.value().GetThunk<MonoObject*>();
 	}
 
-	void ScriptType::CallOnUpdate(const Script& script)
+	void ScriptType::CallOnUpdate(const Script& script) const
 	{
 		if (!m_onUpdate)
 			return; // No OnUpdate function defined
 
-		m_onUpdate(script.GetObject());
+		m_onUpdate(script.GetPtr());
+	}
+
+	Script Script::Create(std::shared_ptr<ScriptType> type)
+	{
+		return Script(Mono::Object::Create(type->GetClass()).value().GetPtr(), type);
+	}
+
+	std::vector<Mono::Field> Script::GetSerializedFields() const
+	{
+		// For each field : check if it has the ShowInEditor attribute, if not, remove it
+		static auto showInEditorClass = MonoApi::GetApiAssembly().GetClass("RexEngine", "ShowInEditorAttribute");
+		auto fields = GetClass().Fields();
+		fields.erase(
+			std::remove_if(fields.begin(), fields.end(), [](const Mono::Field& field) {
+					if (field.HasAttribute(showInEditorClass.value()))
+						return false; // Keep this field
+					return true;
+				}),
+			fields.end());
+		return fields;
 	}
 }
 
