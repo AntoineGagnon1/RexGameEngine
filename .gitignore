@@ -5,6 +5,8 @@
 *.vcxproj.user
 *.vcxproj.filters
 *.sln
+!RexEditor/assets/templates/*.*
+!RexEditor/Projects/*.*
 bin/
 obj/
 ScriptApi/obj/

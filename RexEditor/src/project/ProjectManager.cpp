@@ -10,6 +10,8 @@
 
 namespace RexEditor
 {
+	static void MakeSolution(const std::filesystem::path& rootPath, const std::string& projectName);
+
 	bool ProjectManager::Create(const std::filesystem::path& path, const std::string& name)
 	{
 		if (!std::filesystem::exists(path))
@@ -28,6 +30,9 @@ namespace RexEditor
 
 		SaveProject(p);
 		Load(p.rootPath / (name + Project::FileExtension));
+
+		// Add the c# solution and projects
+		MakeSolution(rootPath, name);
 
 		// Create the asset directory
 		std::filesystem::create_directory(rootPath / "Assets");
@@ -156,5 +161,25 @@ namespace RexEditor
 				OpenScene(path);
 		});
 
+	}
+
+	static void MakeSolution(const std::filesystem::path& rootPath, const std::string& projectName)
+	{
+		std::ifstream solutionFile("assets/templates/Solution.sln");
+		std::stringstream solution;
+		solution << solutionFile.rdbuf();
+
+		auto solutionStr = std::regex_replace(solution.str(), std::regex("ProjectName"), projectName);
+		std::ofstream solutionOut(rootPath / (projectName + ".sln"));
+		solutionOut << solutionStr;
+
+		std::ifstream projectFile("assets/templates/Project.csproj");
+		std::stringstream project;
+		project << projectFile.rdbuf();
+
+		auto projectStr = std::regex_replace(project.str(), std::regex("ProjectName"), projectName);
+		projectStr = std::regex_replace(projectStr, std::regex("CurrentPath"), std::filesystem::current_path().string());
+		std::ofstream projectOut(rootPath / (projectName + ".csproj"));
+		projectOut << projectStr;
 	}
 }

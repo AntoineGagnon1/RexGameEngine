@@ -182,6 +182,7 @@ namespace RexEditor
 					if (!path.empty())
 					{
 						ScriptAsset::CreateNewScript(path, ProjectManager::CurrentProject().Name);
+						ProjectManager::CurrentProject().RegisterScript(path);
 						auto script = std::make_shared<ScriptAsset>();
 
 						// Add it to the asset manager

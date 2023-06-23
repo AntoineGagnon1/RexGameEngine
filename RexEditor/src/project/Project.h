@@ -23,6 +23,19 @@ namespace RexEditor
 		// Not serialized
 		std::filesystem::path rootPath; // Path to the root of this project (directory of the .rexengine file)
 
+		void RegisterScript(const std::filesystem::path& path)
+		{
+			std::stringstream project;
+			{
+				std::ifstream projectFile(rootPath / (Name + ".csproj"));
+				project << projectFile.rdbuf();
+			}
+			const auto relativePath = std::filesystem::relative(path, rootPath);
+			auto projectStr = std::regex_replace(project.str(), std::regex("</ItemGroup>"), "<Compile Include=\"" + relativePath.string() + "\"/>\n</ItemGroup>");
+			std::ofstream projectOut(rootPath / (Name + ".csproj"));
+			projectOut << projectStr;
+		}
+
 		template<typename Archive>
 		void serialize(Archive& archive)
 		{

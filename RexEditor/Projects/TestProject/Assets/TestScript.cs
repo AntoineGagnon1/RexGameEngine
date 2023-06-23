@@ -4,7 +4,7 @@ using RexEngine;
 
 namespace TestProject
 {
-	class Test : ScriptComponent
+	class TestScript : ScriptComponent
 	{
 		void OnUpdate()
         {
