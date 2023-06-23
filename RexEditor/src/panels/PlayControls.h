@@ -45,6 +45,9 @@ namespace RexEditor
 					auto scene = RexEngine::Scene::CurrentScene();
 					RexEngine::AssetManager::SaveAsset<RexEngine::Scene>(scene.GetAssetGuid());
 
+					// Reload the c# engine
+					Mono::ReloadAssemblies(true);
+
 					// Focus on the Game View
 					auto panel = PanelManager::GetPanel("Game View");
 					if (panel != nullptr)
@@ -76,6 +79,12 @@ namespace RexEditor
 						panel->SetFocused();
 					}
 				}
+			}
+
+			UI::SameLine();
+			if (UI::Button reloadAssembly("Reload Script"); reloadAssembly.IsClicked())
+			{
+				Mono::ReloadAssemblies(true);
 			}
 		}
 

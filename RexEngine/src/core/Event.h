@@ -45,13 +45,15 @@ namespace RexEngine
 		template<auto T>
 		void UnRegister()
 		{
-			m_sink.disconnect<T>();
+			if (m_signal.size() != 0) // de-static fiasco ...
+				m_sink.disconnect<T>();
 		}
 
 		template<auto T>
 		void UnRegister(auto&& instance)
 		{
-			m_sink.disconnect<T>(std::forward<decltype(instance)>(instance));
+			if(m_signal.size() != 0) // de-static fiasco ...
+				m_sink.disconnect<T>(std::forward<decltype(instance)>(instance));
 		}
 
 		void Dispatch(Args... args) const

@@ -3,6 +3,8 @@
 
 #include <mono/utils/mono-forward.h>
 
+#include "../utils/TupleHash.h"
+
 typedef struct _MonoAssembly MonoAssembly;
 typedef struct _MonoClass MonoClass;
 typedef struct _MonoObject MonoObject;
@@ -18,6 +20,7 @@ namespace RexEngine
 	{
 	public:
 		RE_DECL_EVENT(OnMonoStart)
+		RE_DECL_EVENT(OnReload)
 
 	public:
 		class Class;
@@ -77,12 +80,15 @@ namespace RexEngine
 			MonoMethod* m_method;
 		};
 
-
+		struct ClassProxy_
+		{
+			MonoClass* ptr;
+		};
 
 		class Class
 		{
 		public:
-			Class(MonoClass* class_) : m_class(class_) {}
+			Class(ClassProxy_* class_) : m_class(class_) {}
 			Class(const Class&) = default;
 			Class& operator=(const Class&) = default;
 
@@ -91,15 +97,16 @@ namespace RexEngine
 			std::string Name() const;
 			std::string Namespace() const;
 
-			std::optional<Class> Parent() const;
+			bool IsSubClassOf(const Class& parent);
 
 			std::vector<Field> Fields() const;
 
 			bool operator==(const Class& other) const { return m_class == other.m_class; }
 
-			auto GetPtr() const { return m_class; }
+			auto GetPtr() const { return m_class->ptr; }
+
 		private:
-			MonoClass* m_class;
+			ClassProxy_* m_class;
 		};
 
 
@@ -107,11 +114,13 @@ namespace RexEngine
 		class Assembly
 		{
 		public:
-			Assembly() : Assembly(nullptr) {}
-			Assembly(MonoAssembly* assembly) : m_assembly(assembly) {}
-			Assembly(const Assembly&) = default;
-			Assembly& operator=(const Assembly&) = default;
+			Assembly(MonoAssembly* assembly, const std::filesystem::path& dllPath);
+			~Assembly();
+			Assembly(const Assembly&) = delete;
+			Assembly& operator=(const Assembly&) = delete;
 
+			static std::unique_ptr<Assembly> Load(const std::filesystem::path& dllPath);
+			
 			std::optional<Class> GetClass(const std::string& namespaceName, const std::string& className) const;
 			
 			std::string GetName() const;
@@ -119,7 +128,14 @@ namespace RexEngine
 
 			auto GetPtr() const { return m_assembly; }
 		private:
+			void Reload();
+			static MonoAssembly* LoadAssemblyInternal(const std::filesystem::path& dllPath);
+
+
+		private:
 			MonoAssembly* m_assembly;
+			std::filesystem::path m_dllPath;
+			std::unordered_map<std::tuple<std::string, std::string>, std::unique_ptr<ClassProxy_>> m_classes;
 		};
 
 
@@ -185,7 +201,7 @@ namespace RexEngine
 
 	public:
 
-		static std::optional<Assembly> LoadAssembly(const std::filesystem::path& dllPath);
+		static void ReloadAssemblies(bool restoreData);
 
 		// Name must be the full path, like : RexEngine.SomeClass::SomeMethod
 		static void RegisterCall(const std::string& name, const void* function);
@@ -213,5 +229,7 @@ namespace RexEngine
 	private:
 		inline static MonoDomain* s_appDomain;
 		inline static MonoDomain* s_rootDomain;
+
+		RE_DECL_EVENT(OnReloadStart);
 	};
 }

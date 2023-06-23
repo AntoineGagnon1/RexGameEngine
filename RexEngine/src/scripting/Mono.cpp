@@ -1,38 +1,25 @@
 #include <REPch.h>
 #include "Mono.h"
 
+#include "ScriptComponent.h"
+#include <scene/Scene.h>
+
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/tokentype.h>
 
 namespace RexEngine
 {
-    std::optional<Mono::Class> Mono::Assembly::GetClass(const std::string& namespaceName, const std::string& className) const
+    Mono::Assembly::Assembly(MonoAssembly* assembly, const std::filesystem::path& dllPath)
+        : m_assembly(assembly), m_dllPath(dllPath)
     {
-        MonoImage* image = mono_assembly_get_image(m_assembly);
-        MonoClass* class_ = mono_class_from_name(image, namespaceName.c_str(), className.c_str());
+        // Assemblies have to reload the class list when a reload occurs
+        Mono::OnReloadStart().Register<&Assembly::Reload>(this);
 
-        if (class_ == nullptr)
-        {
-            RE_LOG_ERROR("Mono - Class {} not found in {}.{}", className, GetName(), namespaceName);
-            return {};
-        }
-
-        return Class(class_);
-    }
-
-    std::string Mono::Assembly::GetName() const
-    {
-        return mono_assembly_name_get_name(mono_assembly_get_name(m_assembly));
-    }
-
-    std::vector<Mono::Class> Mono::Assembly::GetTypes() const
-    {
-        MonoImage* image = mono_assembly_get_image(m_assembly);
+        // Load all the classes
+        MonoImage* image = mono_assembly_get_image(assembly);
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        std::vector<Class> types;
-        types.reserve(numTypes);
 
         for (int32_t i = 0; i < numTypes; i++)
         {
@@ -43,17 +30,87 @@ namespace RexEngine
             const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
             auto class_ = mono_class_from_name(image, nameSpace, name);
 
-            if (class_ != nullptr)
-            {
-                types.push_back(Class(class_));
-            }
+            m_classes.insert({ {nameSpace, name}, std::make_unique<ClassProxy_>(class_)});
         }
+    }
+
+    Mono::Assembly::~Assembly()
+    {
+        OnReloadStart().UnRegister<&Assembly::Reload>(this);
+    }
+
+    std::unique_ptr<Mono::Assembly> Mono::Assembly::Load(const std::filesystem::path& dllPath)
+    {
+        return std::make_unique<Assembly>(LoadAssemblyInternal(dllPath), dllPath);
+    }
+
+    std::optional<Mono::Class> Mono::Assembly::GetClass(const std::string& namespaceName, const std::string& className) const
+    {
+        if (!m_classes.contains({ namespaceName, className }))
+            return {};
+        return Class(m_classes.at({namespaceName, className}).get());
+    }
+
+    std::string Mono::Assembly::GetName() const
+    {
+        return mono_assembly_name_get_name(mono_assembly_get_name(m_assembly));
+    }
+
+    std::vector<Mono::Class> Mono::Assembly::GetTypes() const
+    {
+        std::vector<Class> types;
+        types.reserve(m_classes.size());
+
+        for (auto&& [key, value] : m_classes)
+        {
+            types.emplace_back(value.get());
+        }
+
         return types;
+    }
+
+    void Mono::Assembly::Reload()
+    {
+        m_assembly = LoadAssemblyInternal(m_dllPath);
+        MonoImage* image = mono_assembly_get_image(m_assembly);
+        for (auto&& [name, class_] : m_classes)
+        {
+            class_->ptr = mono_class_from_name(image, std::get<0>(name).c_str(), std::get<1>(name).c_str());
+        }
+    }
+
+    MonoAssembly* Mono::Assembly::LoadAssemblyInternal(const std::filesystem::path& dllPath)
+    {
+        auto fileData = FileHelper::ReadAllBytes<char>(dllPath);
+
+        // Copy the data, we don't have to keep fileData alive after the call
+        // this image is ONLY valid to load the assembly
+        MonoImageOpenStatus status;
+        MonoImage* image = mono_image_open_from_data_full(fileData.data(), (uint32_t)fileData.size(), 1, &status, 0);
+
+        if (status != MONO_IMAGE_OK)
+        {
+            const char* errorMessage = mono_image_strerror(status);
+            RE_LOG_ERROR("Mono - Error while loading a c# image : {}", errorMessage);
+            return nullptr;
+        }
+
+        MonoAssembly* assembly = mono_assembly_load_from_full(image, dllPath.string().c_str(), &status, 0);
+        mono_image_close(image);
+
+        if (status != MONO_IMAGE_OK)
+        {
+            const char* errorMessage = mono_image_strerror(status);
+            RE_LOG_ERROR("Mono - Error while loading a c# assembly : {}", errorMessage);
+            return nullptr;
+        }
+
+        return assembly;
     }
 
     std::optional<Mono::Method> Mono::Class::TryGetMethod(const std::string& methodName, int numArgs) const
     {
-        MonoMethod* method = mono_class_get_method_from_name(m_class, methodName.c_str(), numArgs);
+        MonoMethod* method = mono_class_get_method_from_name(m_class->ptr, methodName.c_str(), numArgs);
         if (method == nullptr)
             return {};
         else 
@@ -62,21 +119,26 @@ namespace RexEngine
 
     std::string Mono::Class::Name() const
     {
-        return mono_class_get_name(m_class);
+        return mono_class_get_name(m_class->ptr);
     }
 
     std::string Mono::Class::Namespace() const
     {
-        return mono_class_get_namespace(m_class);
+        return mono_class_get_namespace(m_class->ptr);
     }
 
-    std::optional<Mono::Class> Mono::Class::Parent() const
+    bool Mono::Class::IsSubClassOf(const Class& parent)
     {
-        auto parent = mono_class_get_parent(m_class);
-        if (parent == nullptr)
-            return {};
-        else
-            return Class(parent);
+        MonoClass* current = m_class->ptr;
+        do
+        {
+            current = mono_class_get_parent(current);
+            if (current == parent.GetPtr())
+                return true;
+
+        } while (current != nullptr);
+
+        return false;
     }
 
     std::vector<Mono::Field> Mono::Class::Fields() const
@@ -85,7 +147,7 @@ namespace RexEngine
         void* iter = nullptr;
         MonoClassField* field;
 
-        while (field = mono_class_get_fields(m_class, &iter), field != nullptr)
+        while (field = mono_class_get_fields(m_class->ptr, &iter), field != nullptr)
         {
             fields.push_back(Field(field));
         }
@@ -183,33 +245,43 @@ namespace RexEngine
         return val;
     }
 
-    std::optional<Mono::Assembly> Mono::LoadAssembly(const std::filesystem::path& dllPath)
+    void Mono::ReloadAssemblies(bool restoreData)
     {
-        auto fileData = FileHelper::ReadAllBytes<char>(dllPath);
-
-        // Copy the data, we don't have to keep fileData alive after the call
-        // this image is ONLY valid to load the assembly
-        MonoImageOpenStatus status;
-        MonoImage* image = mono_image_open_from_data_full(fileData.data(), (uint32_t)fileData.size(), 1, &status, 0);
-
-        if (status != MONO_IMAGE_OK)
+        // Save all the c# fields
+        std::vector<std::pair<ScriptComponent*, std::stringstream>> dataCache;
+        if (restoreData)
         {
-            const char* errorMessage = mono_image_strerror(status);
-            RE_LOG_ERROR("Mono - Error while loading a c# image : {}", errorMessage);
-            return {};
+            auto scene = Scene::CurrentScene();
+            if (scene)
+            {
+                for (auto&& [e, c] : scene->GetComponents<ScriptComponent>())
+                {
+                    std::stringstream stream;
+                    {
+                        JsonSerializer archive(stream);
+                        archive(c);
+                    }
+                    dataCache.emplace_back(&c, std::move(stream));
+                }
+            }
         }
 
-        MonoAssembly* assembly = mono_assembly_load_from_full(image, dllPath.string().c_str(), &status, 0);
-        mono_image_close(image);
+        mono_domain_set(s_rootDomain, false);
+        mono_domain_unload(s_appDomain);
 
-        if (status != MONO_IMAGE_OK)
+        std::string appDomainName = "RexEngine"; // char* ...
+        s_appDomain = mono_domain_create_appdomain(appDomainName.data(), nullptr);
+        mono_domain_set(s_appDomain, true);
+
+        OnReloadStart().Dispatch();
+        OnReload().Dispatch();
+
+        // Load all the c# fields from the save
+        for (auto& pair : dataCache)
         {
-            const char* errorMessage = mono_image_strerror(status);
-            RE_LOG_ERROR("Mono - Error while loading a c# assembly : {}", errorMessage);
-            return {};
+            JsonDeserializer archive(pair.second);
+            archive(*pair.first);
         }
-
-        return Assembly(assembly);
     }
 
     std::string Mono::GetString(MonoString* string)
