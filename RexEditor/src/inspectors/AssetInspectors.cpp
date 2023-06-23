@@ -249,6 +249,23 @@ namespace RexEditor::AssetInspectors
 			UI::Text text("Use Scene->Open... to open this scene");
 		});
 
+		// C# script
+		InspectorPanel::AssetInspectors().Add<ScriptAsset>([]([[maybe_unused]] const Guid& guid) {
+			// Source
+			if (UI::TreeNode n("Source", UI::TreeNodeFlags::DefaultOpen | UI::TreeNodeFlags::Framed); n.IsOpen())
+			{
+				std::ifstream file(AssetManager::GetAssetPathFromGuid(guid));
+				if (!file.is_open())
+					UI::Text("Could not open the source file !");
+
+				std::stringstream strStream;
+				strStream << file.rdbuf();
+				auto content = strStream.str();
+
+				UI::Text t(content);
+			}
+		});
+
 	});
 
 

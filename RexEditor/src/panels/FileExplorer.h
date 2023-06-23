@@ -175,6 +175,21 @@ namespace RexEditor
 					}
 				});
 
+				m.AddMenuItem("Create/C# Script", [] {
+					auto path = SystemDialogs::SaveFile("New C# Script", SystemDialogs::GetAssetTypeFilter<ScriptAsset>());
+					path.replace_extension(RexEngine::AssetTypes::GetAssetType<ScriptAsset>().extensions[0]);
+
+					if (!path.empty())
+					{
+						ScriptAsset::CreateNewScript(path, ProjectManager::CurrentProject().Name);
+						auto script = std::make_shared<ScriptAsset>();
+
+						// Add it to the asset manager
+						Guid guid = Guid::Generate();
+						RexEngine::AssetManager::AddAsset<ScriptAsset>(guid, path, Asset(guid, script));
+					}
+				});
+
 				return m;
 			}();
 

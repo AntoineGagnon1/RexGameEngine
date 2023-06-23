@@ -98,6 +98,11 @@ namespace RexEditor::AssetIcons
 			return GetPreview(PreviewMaterial(), mesh);
 		});
 
+		// C# Script
+		FileExplorerPanel::IconRegistry().Add<ScriptAsset>([]([[maybe_unused]]Guid guid) -> const Texture& {
+			return EditorAssets::ScriptIcon();
+		});
+
 		EditorEvents::OnEditorStop().Register<&AssetIcons::OnClose>();
 	});
 }

@@ -49,6 +49,7 @@
 #include "src/scripting/Mono.h"
 #include "src/scripting/MonoApi.h"
 #include "src/scripting/ScriptComponent.h"
+#include "src/scripting/ScriptAsset.h"
 
 // Assets
 #include "src/assets/AssetManager.h"

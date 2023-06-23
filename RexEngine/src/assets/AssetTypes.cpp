@@ -7,6 +7,7 @@
 #include "rendering/Texture.h"
 #include "rendering/Cubemap.h"
 #include "scene/Scene.h"
+#include "scripting/ScriptAsset.h"
 
 namespace RexEngine
 {
@@ -18,7 +19,8 @@ namespace RexEngine
 			{ "Scene", {".scene"}, typeid(Scene), false},
 			{ "Material", {".mat"}, typeid(Material), false},
 			{ "Texture", {".png", ".hdr"}, typeid(Texture), true},
-			{ "Cubemap", {".cubemap"}, typeid(Cubemap), true}
+			{ "Cubemap", {".cubemap"}, typeid(Cubemap), true},
+			{ "C# Script", {".cs"}, typeid(ScriptAsset), true}
 		};
 
 		return types;
