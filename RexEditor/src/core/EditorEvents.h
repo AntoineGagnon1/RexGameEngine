@@ -13,7 +13,8 @@ namespace RexEditor
 			RE_DECL_EVENT(OnEditorStarted) // Called after OnEditorStart and OnEngineStart
 			RE_DECL_EVENT(OnEditorStop) // Should only be called once, before the app closes
 
-			RE_DECL_EVENT(OnLoadProject, Project) // Called after a project is loaded, argument is the project that was loaded
+			RE_DECL_EVENT(OnProjectLoadStart, Project) // Called when a project is loaded, before the scene is loaded
+			RE_DECL_EVENT(OnProjectLoaded, Project) // Called after a project is loaded, argument is the project that was loaded
 
 			RE_DECL_EVENT(OnOpenScene, Asset<Scene>) // Called after a scene is opened, argument is the scene that was opened
 

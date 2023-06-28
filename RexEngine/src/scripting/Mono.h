@@ -19,13 +19,18 @@ namespace RexEngine
 	class Mono
 	{
 	public:
-		RE_DECL_EVENT(OnMonoStart)
-		RE_DECL_EVENT(OnReload)
-
-	public:
 		class Class;
 		class Object;
 		class Assembly;
+
+		RE_DECL_EVENT(OnMonoStart)
+		RE_DECL_EVENT(OnReload)
+
+		// Called when a new c# class is loaded
+		RE_DECL_EVENT(OnAddClass, const Assembly&, Class)
+		// Called when a c# no longer exists
+		RE_DECL_EVENT(OnRemoveClass, const Assembly&, Class)
+	public:
 
 		class Field
 		{
@@ -114,7 +119,6 @@ namespace RexEngine
 		class Assembly
 		{
 		public:
-			Assembly(MonoAssembly* assembly, const std::filesystem::path& dllPath);
 			~Assembly();
 			Assembly(const Assembly&) = delete;
 			Assembly& operator=(const Assembly&) = delete;
@@ -127,15 +131,21 @@ namespace RexEngine
 			std::vector<Class> GetTypes() const;
 
 			auto GetPtr() const { return m_assembly; }
+			
+			// Check in all loaded assemblies
+			static std::optional<Class> FindClass(const std::string& namespaceName, const std::string& className);
 		private:
 			void Reload();
 			static MonoAssembly* LoadAssemblyInternal(const std::filesystem::path& dllPath);
+			Assembly(const std::filesystem::path& dllPath);
 
 
 		private:
 			MonoAssembly* m_assembly;
 			std::filesystem::path m_dllPath;
 			std::unordered_map<std::tuple<std::string, std::string>, std::unique_ptr<ClassProxy_>> m_classes;
+
+			inline static std::vector<Assembly*> s_assemblies;
 		};
 
 
@@ -213,7 +223,7 @@ namespace RexEngine
 		{
 			return *(T*)UnboxInternal(obj);
 		}
-		
+				
 	private:
 		static bool CheckMonoError(MonoError& error);
 		static void* UnboxInternal(MonoObject* obj);

@@ -100,6 +100,9 @@ namespace RexEditor
 				{
 					for (auto& script : entity.GetComponent<ScriptComponent>().Scripts())
 					{
+						if (!script.Type())
+							continue;
+
 						auto name = script.GetClass().Name();
 						UI::TreeNode n(name + std::format("##{}", (intptr_t)script.GetPtr()), UI::TreeNodeFlags::CollapsingHeader | UI::TreeNodeFlags::DefaultOpen);
 						if (n.IsOpen())

@@ -42,9 +42,18 @@ namespace RexEngine
 
 		void CallOnUpdate() const { m_type->CallOnUpdate(*this); }
 
+		auto Type() const { return m_type; }
+
+		// Is this script a valid instance ?
+		// If the script was delete or did not load correctly this will return false
+		bool IsValid() const { return m_type != nullptr && m_object != nullptr; }
+
 		template <class Archive>
 		void save(Archive& archive) const
 		{
+			if (m_object == nullptr || m_type == nullptr)
+				return;
+
 			archive(CUSTOM_NAME(GetClass().Namespace(), "TypeNamespace"));
 			archive(CUSTOM_NAME(GetClass().Name(), "TypeName"));
 			for (auto& field : GetSerializedFields())
@@ -71,9 +80,11 @@ namespace RexEngine
 			std::string name, namespace_;
 			archive(CUSTOM_NAME(namespace_, "TypeNamespace"));
 			archive(CUSTOM_NAME(name, "TypeName"));
-			auto class_ = MonoApi::GetApiAssembly().GetClass(namespace_, name);
+			auto class_ = Mono::Assembly::FindClass(namespace_, name);
 			if (!class_.has_value())
 			{
+				m_type = nullptr;
+				m_object = nullptr;
 				RE_LOG_ERROR("Failed to deserialize script, class {}.{} was not found", namespace_, name);
 				return;
 			}
@@ -83,18 +94,25 @@ namespace RexEngine
 			m_object = Mono::Object::Create(class_.value()).value().GetPtr();
 			for (auto& field : GetSerializedFields())
 			{
-				auto type = field.Type();
-				if (TryLoadField<bool>(field, type, archive)) {}
-				else if (TryLoadField<int8_t>(field, type, archive)) {}
-				else if (TryLoadField<int16_t>(field, type, archive)) {}
-				else if (TryLoadField<int32_t>(field, type, archive)) {}
-				else if (TryLoadField<int64_t>(field, type, archive)) {}
-				else if (TryLoadField<uint8_t>(field, type, archive)) {}
-				else if (TryLoadField<uint16_t>(field, type, archive)) {}
-				else if (TryLoadField<uint32_t>(field, type, archive)) {}
-				else if (TryLoadField<uint64_t>(field, type, archive)) {}
-				else if (TryLoadField<float>(field, type, archive)) {}
-				else if (TryLoadField<double>(field, type, archive)) {}
+				try
+				{
+					auto type = field.Type();
+					if (TryLoadField<bool>(field, type, archive)) {}
+					else if (TryLoadField<int8_t>(field, type, archive)) {}
+					else if (TryLoadField<int16_t>(field, type, archive)) {}
+					else if (TryLoadField<int32_t>(field, type, archive)) {}
+					else if (TryLoadField<int64_t>(field, type, archive)) {}
+					else if (TryLoadField<uint8_t>(field, type, archive)) {}
+					else if (TryLoadField<uint16_t>(field, type, archive)) {}
+					else if (TryLoadField<uint32_t>(field, type, archive)) {}
+					else if (TryLoadField<uint64_t>(field, type, archive)) {}
+					else if (TryLoadField<float>(field, type, archive)) {}
+					else if (TryLoadField<double>(field, type, archive)) {}
+				}
+				catch ([[maybe_unused]]const std::exception& e)
+				{
+
+				}
 			}
 		}
 
@@ -141,15 +159,26 @@ namespace RexEngine
 	struct ScriptComponent
 	{
 	public:
-
 		Script AddScript(std::shared_ptr<ScriptType> type);
 		void RemoveScript(const Script& script);
+		// Will remove all the scripts of this type
+		void RemoveScriptType(const Mono::Class& class_);
 		const std::vector<Script>& Scripts() const { return m_scripts; }
 
 		template <class Archive>
-		void serialize(Archive& archive)
+		void save(Archive& archive) const
 		{
 			archive(CUSTOM_NAME(m_scripts, "Scripts"));
+		}
+
+		template <class Archive>
+		void load(Archive& archive)
+		{
+			m_scripts.clear();
+			archive(CUSTOM_NAME(m_scripts, "Scripts"));
+
+			// Remove the scripts that did not load correctly (type does not exist anymore)
+			m_scripts.erase(std::remove_if(m_scripts.begin(), m_scripts.end(), [](const Script& script) { return !script.IsValid(); }), m_scripts.end());
 		}
 
 	private:

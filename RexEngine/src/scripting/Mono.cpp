@@ -10,38 +10,25 @@
 
 namespace RexEngine
 {
-    Mono::Assembly::Assembly(MonoAssembly* assembly, const std::filesystem::path& dllPath)
-        : m_assembly(assembly), m_dllPath(dllPath)
+    Mono::Assembly::Assembly(const std::filesystem::path& dllPath)
+        : m_dllPath(dllPath)
     {
+        s_assemblies.push_back(this);
+        Reload();
         // Assemblies have to reload the class list when a reload occurs
         Mono::OnReloadStart().Register<&Assembly::Reload>(this);
-
-        // Load all the classes
-        MonoImage* image = mono_assembly_get_image(assembly);
-        const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
-        int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-
-        for (int32_t i = 0; i < numTypes; i++)
-        {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
-
-            const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
-            const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
-            auto class_ = mono_class_from_name(image, nameSpace, name);
-
-            m_classes.insert({ {nameSpace, name}, std::make_unique<ClassProxy_>(class_)});
-        }
     }
 
     Mono::Assembly::~Assembly()
     {
+        if(s_assemblies.size() > 0)
+            s_assemblies.erase(std::remove(s_assemblies.begin(), s_assemblies.end(), this), s_assemblies.end());
         OnReloadStart().UnRegister<&Assembly::Reload>(this);
     }
 
     std::unique_ptr<Mono::Assembly> Mono::Assembly::Load(const std::filesystem::path& dllPath)
     {
-        return std::make_unique<Assembly>(LoadAssemblyInternal(dllPath), dllPath);
+        return std::unique_ptr<Assembly>(new Assembly(dllPath));
     }
 
     std::optional<Mono::Class> Mono::Assembly::GetClass(const std::string& namespaceName, const std::string& className) const
@@ -69,13 +56,64 @@ namespace RexEngine
         return types;
     }
 
+    std::optional<Mono::Class> Mono::Assembly::FindClass(const std::string& namespaceName, const std::string& className)
+    {
+        for (Assembly* assembly : s_assemblies)
+        {
+            auto class_ = assembly->GetClass(namespaceName.c_str(), className.c_str());
+            if (class_.has_value())
+                return class_;
+        }
+        return {};
+    }
+
     void Mono::Assembly::Reload()
     {
         m_assembly = LoadAssemblyInternal(m_dllPath);
-        MonoImage* image = mono_assembly_get_image(m_assembly);
+
+        std::unordered_set<std::tuple<std::string, std::string>> removedClasses;
         for (auto&& [name, class_] : m_classes)
         {
-            class_->ptr = mono_class_from_name(image, std::get<0>(name).c_str(), std::get<1>(name).c_str());
+            removedClasses.insert(name);
+        }
+
+        MonoImage* image = mono_assembly_get_image(m_assembly);
+        const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
+        const int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
+
+        std::vector<ClassProxy_*> toAdd;
+        for (int32_t i = 0; i < numTypes; i++)
+        {
+            uint32_t cols[MONO_TYPEDEF_SIZE];
+            mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
+
+            const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
+            const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
+            const auto class_ = mono_class_from_name(image, nameSpace, name);
+
+            const auto key = std::tuple<std::string, std::string>(nameSpace, name);
+
+            if (!m_classes.contains(key))
+            {
+                const auto data = m_classes.emplace(key, std::make_unique<ClassProxy_>(class_));
+                toAdd.push_back(data.first->second.get());
+            }
+            else
+            {
+                removedClasses.erase(key);
+                m_classes[key]->ptr = class_;
+            }
+        }
+
+        for (auto& class_ : toAdd)
+        {
+            Mono::OnAddClass().Dispatch(*this, Class(class_));
+        }
+
+        for (auto& class_ : removedClasses)
+        {
+            Mono::OnRemoveClass().Dispatch(*this, Class(m_classes[class_].get()));
+            m_classes.erase(class_);
         }
     }
 

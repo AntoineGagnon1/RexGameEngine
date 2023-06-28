@@ -19,13 +19,16 @@ namespace RexEngine
 		static std::shared_ptr<ScriptType> GetScriptType(const Mono::Class& class_);
 
 	private:
-		static void LoadScriptTypes(const Mono::Assembly& assembly);
-
 		static void MonoStart();
 		static void OnUpdate();
 
+		static void OnAddClass(const Mono::Assembly& assembly, Mono::Class class_);
+		static void OnRemoveClass(const Mono::Assembly& assembly, Mono::Class class_);
+
 		RE_STATIC_CONSTRUCTOR({
 			Mono::OnMonoStart().Register<&MonoApi::MonoStart>();
+			Mono::OnAddClass().Register<&MonoApi::OnAddClass>();
+			Mono::OnRemoveClass().Register<&MonoApi::OnRemoveClass>();
 			EngineEvents::OnUpdate().Register<&MonoApi::OnUpdate>();
 		});
 	private:

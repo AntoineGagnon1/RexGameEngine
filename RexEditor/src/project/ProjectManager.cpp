@@ -80,12 +80,14 @@ namespace RexEditor
 
 		s_currentProject = p;
 
+		EditorEvents::OnProjectLoadStart().Dispatch(p);
+
 		// Try to load the scene from the path, if a path was specified
 		if(!p.LastScenePath.empty())
 			OpenScene(path.parent_path() / p.LastScenePath);
 
 		// On project load event
-		EditorEvents::OnLoadProject().Dispatch(std::forward<Project>(p));
+		EditorEvents::OnProjectLoaded().Dispatch(p);
 
 		return true;
 	}

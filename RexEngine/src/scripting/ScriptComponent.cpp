@@ -63,4 +63,9 @@ namespace RexEngine
 	{
 		m_scripts.erase(std::remove(m_scripts.begin(), m_scripts.end(), script), m_scripts.end());
 	}
+
+	void ScriptComponent::RemoveScriptType(const Mono::Class& class_)
+	{
+		m_scripts.erase(std::remove_if(m_scripts.begin(), m_scripts.end(), [&class_](const Script& script) {return script.GetClass() == class_; }), m_scripts.end());
+	}
 }

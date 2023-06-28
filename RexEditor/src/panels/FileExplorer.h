@@ -23,12 +23,12 @@ namespace RexEditor
 	public:
 		FileExplorerPanel() : Panel("File Explorer")
 		{
-			EditorEvents::OnLoadProject().Register<&FileExplorerPanel::OnProjectLoad>(this);
+			EditorEvents::OnProjectLoaded().Register<&FileExplorerPanel::OnProjectLoad>(this);
 		}
 
 		~FileExplorerPanel()
 		{
-			EditorEvents::OnLoadProject().UnRegister<&FileExplorerPanel::OnProjectLoad>(this);
+			EditorEvents::OnProjectLoaded().UnRegister<&FileExplorerPanel::OnProjectLoad>(this);
 		}
 
 	protected:

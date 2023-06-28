@@ -117,7 +117,7 @@
         }
     },
     "Guid": "16117924528898737478 1674870434378368",
-    "ComponentCount": 3,
+    "ComponentCount": 4,
     "Type": "Tag",
     "Tag": {
         "name": "Sphere"
@@ -152,6 +152,17 @@
         "parent": {
             "Guid": "0 0"
         }
+    },
+    "Type": "ScriptComponent",
+    "ScriptComponent": {
+        "Scripts": [
+            {
+                "TypeNamespace": "TestProject",
+                "TypeName": "TestScript",
+                "TestInt": 0,
+                "TestInt2": 0
+            }
+        ]
     },
     "Guid": "5322420384735241793 1674874937677872",
     "ComponentCount": 3,
