@@ -80,12 +80,6 @@ namespace RexEditor
 					}
 				}
 			}
-
-			UI::SameLine();
-			if (UI::Button reloadAssembly("Reload Script"); reloadAssembly.IsClicked())
-			{
-				Mono::ReloadAssemblies(true);
-			}
 		}
 
 	private:
