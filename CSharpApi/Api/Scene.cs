@@ -65,7 +65,7 @@ namespace RexEngine
 
     public class ScriptComponent
     {
-        public Entity Parent { get; set; } = null;
+        public Entity Owner { get; set; } = null;
 
 
         // Child classes can have :
@@ -76,7 +76,7 @@ namespace RexEngine
         // Will be called from c++
         private void SetParent(GUID parent)
         {
-            Parent = new Entity(parent);
+            Owner = new Entity(parent);
         }
     }
 }

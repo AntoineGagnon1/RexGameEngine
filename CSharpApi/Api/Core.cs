@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -14,6 +15,7 @@ namespace RexEngine
     {
         private UInt64 dataHigh;
         private UInt64 dataLow;
+
 
         public GUID(UInt64 low, UInt64 high)
         {
@@ -38,7 +40,7 @@ namespace RexEngine
         public static bool operator !=(GUID lhs, GUID rhs) => !(lhs == rhs);
 
 
-        readonly static GUID Empty = new GUID(0, 0);
+        public readonly static GUID Empty = new GUID(0, 0);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern public string GuidToString(GUID guid);
@@ -59,5 +61,17 @@ namespace RexEngine
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern public void Debug(string message, [CallerLineNumber] int line = 0, [CallerMemberName] string memberName = "", [CallerFilePath] string file = "");
+    }
+
+    public static class Directions
+    {
+        public static Vector3 Up = new Vector3(0, 1, 0);
+        public static Vector3 Down = new Vector3(0, -1, 0);
+
+        public static Vector3 Right = new Vector3(1, 0, 0);
+        public static Vector3 Left = new Vector3(-1, 0, 0);
+
+        public static Vector3 Forward = new Vector3(0, 0, 1);
+        public static Vector3 Backward = new Vector3(0, 0, -1);
     }
 }

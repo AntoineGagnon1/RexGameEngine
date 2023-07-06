@@ -4,6 +4,7 @@
 #include "ScriptComponent.h"
 
 #include <scene/Scene.h>
+#include <scene/Components.h>
 #include <inputs/Inputs.h>
 #include <inputs/Keyboard.h>
 #include <inputs/Mouse.h>
@@ -150,7 +151,10 @@ namespace RexEngine
 				auto factory = ComponentFactories::GetFactory(nameStr);
 				if (factory && factory->HasComponent(e) && s_componentClasses.contains(nameStr))
 				{
-					auto obj = Mono::Object::Create(s_componentClasses.at(nameStr));
+					const auto class_ = s_componentClasses.at(nameStr);
+					auto obj = Mono::Object::Create(class_);
+					const std::optional<Mono::Method> method = class_.TryGetMethod("SetParent", 1);
+					obj->CallMethod(method.value(), guid);
 					if(obj.has_value())
 						return obj.value().GetPtr();
 				}
@@ -215,6 +219,17 @@ namespace RexEngine
 
 				return false;
 			});
+
+		Mono::RegisterCall("RexEngine.Transform::GetPos", [](Guid guid) -> Vector3 { return Entity(guid).Transform().position; });
+		Mono::RegisterCall("RexEngine.Transform::GetGlobalPos", [](Guid guid) -> Vector3 { return Entity(guid).Transform().GlobalPosition(); });
+		Mono::RegisterCall("RexEngine.Transform::SetPos", [](Guid guid, Vector3 pos) { Entity(guid).Transform().position = pos; });
+		Mono::RegisterCall("RexEngine.Transform::GetScale", [](Guid guid) -> Vector3 { return Entity(guid).Transform().scale; });
+		Mono::RegisterCall("RexEngine.Transform::SetScale", [](Guid guid, Vector3 scale) { Entity(guid).Transform().scale = scale; });
+		Mono::RegisterCall("RexEngine.Transform::GetRotation", [](Guid guid) -> Quaternion { return Entity(guid).Transform().rotation; });
+		Mono::RegisterCall("RexEngine.Transform::GetGlobalRotation", [](Guid guid) -> Quaternion { return Entity(guid).Transform().GlobalRotation(); });
+		Mono::RegisterCall("RexEngine.Transform::SetRotation", [](Guid guid, Quaternion rotation) { Entity(guid).Transform().rotation = rotation; });
+		Mono::RegisterCall("RexEngine.Transform::GetParent", [](Guid guid) -> Guid { return Entity(guid).Transform().parent.GetGuid(); });
+		Mono::RegisterCall("RexEngine.Transform::SetParent", [](Guid guid, Guid newParent) { Entity(guid).Transform().parent = Entity(newParent); });
 	}
 
 	void MonoApi::RegisterInputs()
