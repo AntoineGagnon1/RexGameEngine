@@ -23,12 +23,16 @@ namespace RexEngine
 		const Mono::Class& GetClass() const { return m_class; }
 
 		void CallOnUpdate(const Script& script) const;
+		void CallOnStart(const Script& script) const;
+		void CallOnDestroy(const Script& script) const;
 
 	private:
 		void Reload();
 	private:
 		Mono::Class m_class;
 		std::function<void(MonoObject*)> m_onUpdate;
+		std::function<void(MonoObject*)> m_onStart;
+		std::function<void(MonoObject*)> m_onDestroy;
 	};
 
 	class Script : public Mono::Object
@@ -41,6 +45,8 @@ namespace RexEngine
 		std::vector<Mono::Field> GetSerializedFields() const;
 
 		void CallOnUpdate() const { m_type->CallOnUpdate(*this); }
+		void CallOnStart() const { m_type->CallOnStart(*this); }
+		void CallOnDestroy() const { m_type->CallOnDestroy(*this); }
 
 		auto Type() const { return m_type; }
 

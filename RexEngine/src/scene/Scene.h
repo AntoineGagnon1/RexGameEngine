@@ -15,6 +15,9 @@ namespace RexEngine
 	{
 	public:
 
+		RE_DECL_EVENT(OnSceneStart, Asset<Scene>)
+		RE_DECL_EVENT(OnSceneStop, Asset<Scene>)
+
 		Scene(const Guid& guid);
 		~Scene();
 

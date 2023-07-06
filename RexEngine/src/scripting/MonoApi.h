@@ -1,7 +1,7 @@
 #pragma once
 #include "Mono.h"
 #include "../scene/ComponentFactory.h"
-
+#include "../scene/Scene.h"
 
 namespace RexEngine
 {
@@ -25,11 +25,16 @@ namespace RexEngine
 		static void OnAddClass(const Mono::Assembly& assembly, Mono::Class class_);
 		static void OnRemoveClass(const Mono::Assembly& assembly, Mono::Class class_);
 
+		static void OnSceneStart(Asset<Scene> scene);
+		static void OnSceneStop(Asset<Scene> scene);
+
 		RE_STATIC_CONSTRUCTOR({
 			Mono::OnMonoStart().Register<&MonoApi::MonoStart>();
 			Mono::OnAddClass().Register<&MonoApi::OnAddClass>();
 			Mono::OnRemoveClass().Register<&MonoApi::OnRemoveClass>();
 			EngineEvents::OnUpdate().Register<&MonoApi::OnUpdate>();
+			Scene::OnSceneStart().Register<&MonoApi::OnSceneStart>();
+			Scene::OnSceneStop().Register<&MonoApi::OnSceneStop>();
 		});
 	private:
 		static void RegisterLog();

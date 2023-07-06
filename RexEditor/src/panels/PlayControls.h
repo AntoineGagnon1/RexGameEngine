@@ -48,6 +48,9 @@ namespace RexEditor
 					// Reload the c# engine
 					Mono::ReloadAssemblies(true);
 
+					// Call OnBegin() on the scripts
+					Scene::OnSceneStart().Dispatch(scene);
+
 					// Focus on the Game View
 					auto panel = PanelManager::GetPanel("Game View");
 					if (panel != nullptr)
@@ -67,6 +70,9 @@ namespace RexEditor
 				{
 					m_playing = false;
 					m_started = false;
+
+					// Call OnDestroy on all the scripts
+					Scene::OnSceneStop().Dispatch(Scene::CurrentScene());
 
 					// Reload scene from file
 					auto newScene = RexEngine::AssetManager::ReloadAsset<RexEngine::Scene>(RexEngine::Scene::CurrentScene().GetAssetGuid(), false);

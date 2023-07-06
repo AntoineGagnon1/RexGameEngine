@@ -77,6 +77,30 @@ namespace RexEngine
 		s_scriptTypes.erase(std::remove_if(s_scriptTypes.begin(), s_scriptTypes.end(), [&class_](std::shared_ptr<ScriptType> type) {return type->GetClass() == class_; }), s_scriptTypes.end());
 	}
 
+	void MonoApi::OnSceneStart(Asset<Scene> scene)
+	{
+		// Call OnStart() on all the scripts
+		for (auto& [e, c] : scene->GetComponents<ScriptComponent>())
+		{
+			for (auto& s : c.Scripts())
+			{
+				s.CallOnStart();
+			}
+		}
+	}
+
+	void MonoApi::OnSceneStop(Asset<Scene> scene)
+	{
+		// Call OnDestroy() on all the scripts
+		for (auto& [e, c] : scene->GetComponents<ScriptComponent>())
+		{
+			for (auto& s : c.Scripts())
+			{
+				s.CallOnDestroy();
+			}
+		}
+	}
+
 	template<Log::LogType LogType>
 	static void LogMessage(MonoString* message, int line, MonoString* funcName, MonoString* fileName)
 	{

@@ -27,11 +27,35 @@ namespace RexEngine
 		m_onUpdate(script.GetPtr());
 	}
 
+	void ScriptType::CallOnStart(const Script& script) const
+	{
+		if (!m_onStart)
+			return;
+
+		m_onStart(script.GetPtr());
+	}
+
+	void ScriptType::CallOnDestroy(const Script& script) const
+	{
+		if (!m_onDestroy)
+			return;
+
+		m_onDestroy(script.GetPtr());
+	}
+
 	void ScriptType::Reload()
 	{
 		auto onUpdate = m_class.TryGetMethod("OnUpdate", 0);
 		if (onUpdate.has_value())
 			m_onUpdate = onUpdate.value().GetThunk<MonoObject*>();
+
+		auto onStart = m_class.TryGetMethod("OnStart", 0);
+		if (onStart.has_value())
+			m_onStart = onStart.value().GetThunk<MonoObject*>();
+
+		auto onDestroy = m_class.TryGetMethod("OnDestroy", 0);
+		if (onDestroy.has_value())
+			m_onDestroy = onDestroy.value().GetThunk<MonoObject*>();
 	}
 
 	Script Script::Create(std::shared_ptr<ScriptType> type, Entity parent)
@@ -66,18 +90,28 @@ namespace RexEngine
 	Script ScriptComponent::AddScript(std::shared_ptr<ScriptType> type)
 	{
 		m_scripts.push_back(Script::Create(type, Scene::CurrentScene()->GetComponentOwner(*this)));
+		m_scripts.back().CallOnStart();
 		return m_scripts.back();
 	}
 
 	void ScriptComponent::RemoveScript(const Script& script)
 	{
+		script.CallOnDestroy();
 		m_scripts.erase(std::remove(m_scripts.begin(), m_scripts.end(), script), m_scripts.end());
 	}
 
 	size_t ScriptComponent::RemoveScriptType(const Mono::Class& class_)
 	{
 		const auto oldSize = m_scripts.size();
-		m_scripts.erase(std::remove_if(m_scripts.begin(), m_scripts.end(), [&class_](const Script& script) {return script.GetClass() == class_; }), m_scripts.end());
+		m_scripts.erase(std::remove_if(m_scripts.begin(), m_scripts.end(), 
+			[&class_](const Script& script)  {
+				if (script.GetClass() == class_)
+				{
+					script.CallOnDestroy();
+					return true;
+				}
+				return false;
+			}), m_scripts.end());
 		return oldSize - m_scripts.size();
 	}
 
