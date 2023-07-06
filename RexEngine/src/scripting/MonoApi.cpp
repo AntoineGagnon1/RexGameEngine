@@ -4,6 +4,9 @@
 #include "ScriptComponent.h"
 
 #include <scene/Scene.h>
+#include <inputs/Inputs.h>
+#include <inputs/Keyboard.h>
+#include <inputs/Mouse.h>
 
 namespace RexEngine
 {
@@ -23,6 +26,7 @@ namespace RexEngine
 		RegisterLog();
 		RegisterGuid();
 		RegisterScene();
+		RegisterInputs();
 		s_apiAssembly = Mono::Assembly::Load("mono/CSharpApi.dll");
 
 		// Cache the C# type for each c++ component
@@ -211,6 +215,21 @@ namespace RexEngine
 
 				return false;
 			});
+	}
+
+	void MonoApi::RegisterInputs()
+	{
+		Mono::RegisterCall("RexEngine.Inputs::AddActionInternal", [](MonoString* namePtr) { Inputs::AddAction(Mono::GetString(namePtr)); });
+		
+		Mono::RegisterCall("RexEngine.Action::ActionIsDown", [](MonoString* namePtr) -> bool { return Inputs::GetAction(Mono::GetString(namePtr)).IsDown(); });
+		Mono::RegisterCall("RexEngine.Action::ActionIsJustDown", [](MonoString* namePtr) -> bool { return Inputs::GetAction(Mono::GetString(namePtr)).IsJustDown(); });
+		Mono::RegisterCall("RexEngine.Action::ActionIsJustUp", [](MonoString* namePtr) -> bool { return Inputs::GetAction(Mono::GetString(namePtr)).IsJustUp(); });
+		Mono::RegisterCall("RexEngine.Action::ActionValue", [](MonoString* namePtr) -> float { return Inputs::GetAction(Mono::GetString(namePtr)).GetValue(); });
+		Mono::RegisterCall("RexEngine.Action::ActionAddKeyboardBinding", [](MonoString* namePtr, int positive, int negative) { Inputs::GetAction(Mono::GetString(namePtr)).AddBinding<KeyboardInput>((KeyCode)positive, (KeyCode)negative); });
+		Mono::RegisterCall("RexEngine.Action::ActionAddMouseButtonBinding", [](MonoString* namePtr, int positive, int negative) { Inputs::GetAction(Mono::GetString(namePtr)).AddBinding<MouseButtonInput>((MouseButton)positive, (MouseButton)negative); });
+		Mono::RegisterCall("RexEngine.Action::ActionAddMouseBinding", [](MonoString* namePtr, int type) { Inputs::GetAction(Mono::GetString(namePtr)).AddBinding<MouseInput>((MouseInputType)type); });
+		
+		Mono::RegisterCall("RexEngine.Cursor::SetCursorMode", [](CursorMode mode) { Cursor::SetCursorMode(mode); });
 	}
 }
 

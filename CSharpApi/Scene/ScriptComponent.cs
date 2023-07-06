@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-
-namespace RexEngine
+﻿namespace RexEngine
 {
     public class ScriptComponent
     {
@@ -40,16 +32,18 @@ namespace RexEngine
         void OnStart()
         {
             Log.Info("Start");
+            Inputs.AddAction("Forward").AddKeyboardBinding(KeyCode.W, KeyCode.S);
         }
 
         void OnUpdate()
         {
-            var e = new Entity(GUID.Generate());
-            if (!Parent.HasComponent<Test2>())
-            {
-                Log.Info($"{Parent.AddComponent<Test2>().Value}");
-                Parent.RemoveComponent<Test2>();
-            }
+            Log.Info($"{Inputs.GetAction("Forward").IsDown}");
+            //var e = new Entity(GUID.Generate());
+            //if (!Parent.HasComponent<Test2>())
+            //{
+            //    Log.Info($"{Parent.AddComponent<Test2>().Value}");
+            //    Parent.RemoveComponent<Test2>();
+            //}
         }
 
         void OnDestroy()

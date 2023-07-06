@@ -40,6 +40,7 @@ namespace RexEngine
 		static void RegisterLog();
 		static void RegisterGuid();
 		static void RegisterScene();
+		static void RegisterInputs();
 
 	private:
 		inline static std::unique_ptr<Mono::Assembly> s_apiAssembly;
