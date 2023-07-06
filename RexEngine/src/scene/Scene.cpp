@@ -60,18 +60,35 @@ namespace RexEngine
 
 		archive(CUSTOM_NAME(m_registry.alive(), "EntityCount"));
 
-		// For each entity
-		m_registry.each([&archive, this](auto handle) {
+		// std::map is ordered, this will prevent the order of the entities from changing at every save
+		std::map<Guid, Entity> entities;
+		
+		m_registry.each([&entities, this](auto handle) {
 			auto constRegistry = &m_registry;
 			entt::registry* registry = (entt::registry*)((void*)constRegistry); // Cast the const away, bad but the entity will only be used in a const way
 			const Entity e = Entity(registry, handle);
+			entities.emplace(e.GetGuid(), e);
+		});
 
+		// Sort the factories by name
+		std::vector<ComponentFactory*> factories;
+		factories.reserve(ComponentFactories::GetFactories().size());
+		for (auto& factory : ComponentFactories::GetFactories())
+		{
+			factories.push_back(factory.get());
+		}
+
+		std::sort(factories.begin(), factories.end(), [](ComponentFactory* lhs, ComponentFactory* rhs) { return lhs->GetName() < rhs->GetName(); });
+
+		// For each entity
+		for (auto&[guid, e] : entities)
+		{
 			archive(CUSTOM_NAME(e.GetGuid(), "Guid"));
 
 			archive(CUSTOM_NAME(e.GetComponentCount(), "ComponentCount"));
 
 			// Loop all component types, save the 
-			for (auto& c : ComponentFactories::GetFactories())
+			for (auto& c : factories)
 			{
 				if (c->HasComponent(e))
 				{
@@ -80,7 +97,7 @@ namespace RexEngine
 					c->ToJson(e, archive);
 				}
 			}
-		});
+		}
     }
 
     void Scene::DeserializeJson(std::istream& input)
