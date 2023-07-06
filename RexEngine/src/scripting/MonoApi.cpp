@@ -8,6 +8,7 @@
 #include <inputs/Inputs.h>
 #include <inputs/Keyboard.h>
 #include <inputs/Mouse.h>
+#include <core/Time.h>
 
 namespace RexEngine
 {
@@ -24,8 +25,7 @@ namespace RexEngine
 
 	void MonoApi::MonoStart()
 	{
-		RegisterLog();
-		RegisterGuid();
+		RegisterCore();
 		RegisterScene();
 		RegisterInputs();
 		s_apiAssembly = Mono::Assembly::Load("mono/CSharpApi.dll");
@@ -112,23 +112,18 @@ namespace RexEngine
 		Log::DispatchLog(LogType, line, Mono::GetString(funcName), Mono::GetString(fileName), Mono::GetString(message));
 	}
 
-	void MonoApi::RegisterLog()
+	void MonoApi::RegisterCore()
 	{
 		Mono::RegisterCall("RexEngine.Log::Info", LogMessage<Log::LogType::Info>);
 		Mono::RegisterCall("RexEngine.Log::Warning", LogMessage<Log::LogType::Warning>);
 		Mono::RegisterCall("RexEngine.Log::Error", LogMessage<Log::LogType::Error>);
 		Mono::RegisterCall("RexEngine.Log::Debug", LogMessage<Log::LogType::Debug>);
-	}
 
-	static MonoString* GuidToString(Guid guid)
-	{
-		return Mono::MakeString(guid.ToString());
-	}
-
-	void MonoApi::RegisterGuid()
-	{
 		Mono::RegisterCall("RexEngine.GUID::Generate", Guid::Generate);
-		Mono::RegisterCall("RexEngine.GUID::GuidToString", GuidToString);
+		Mono::RegisterCall("RexEngine.GUID::GuidToString", [](Guid guid) { return Mono::MakeString(guid.ToString()); });
+
+		Mono::RegisterCall("RexEngine.Time::GetDeltaTime", []() -> float { return Time::DeltaTime(); });
+		Mono::RegisterCall("RexEngine.Time::GetCurrentTime", []() -> double { return Time::CurrentTime(); });
 	}
 
 	void MonoApi::RegisterScene()

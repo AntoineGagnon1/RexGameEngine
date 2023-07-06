@@ -68,7 +68,7 @@ namespace RexEngine
         void OnUpdate()
         {
             Owner.Transform.Position = new Vector3(10, 10, 10);
-            Owner.Transform.Rotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.001f);
+            Owner.Transform.Rotation *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.45f * Time.DeltaTime);
         }
 
         void OnDestroy()

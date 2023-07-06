@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\Time.cs" />
     <Compile Include="Attributes\ShowInEditorAttribute.cs" />
     <Compile Include="Api\Components.cs" />
     <Compile Include="Api\Core.cs" />

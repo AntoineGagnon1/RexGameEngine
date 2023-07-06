@@ -37,8 +37,7 @@ namespace RexEngine
 			Scene::OnSceneStop().Register<&MonoApi::OnSceneStop>();
 		});
 	private:
-		static void RegisterLog();
-		static void RegisterGuid();
+		static void RegisterCore();
 		static void RegisterScene();
 		static void RegisterInputs();
 

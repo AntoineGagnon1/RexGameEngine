@@ -1,10 +1,48 @@
 {
     "EntityCount": 5,
-    "Guid": "5322420384735241793 1674874937677872",
+    "Guid": "18097277385103005146 1674871974739169",
     "ComponentCount": 4,
     "Type": "Tag",
     "Tag": {
-        "name": "Sun"
+        "name": "Camera"
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            1.0,
+            2.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
+    },
+    "Type": "Camera",
+    "Camera": {
+        "fov": 90.0,
+        "zNear": 0.10000000149011612,
+        "zFar": 100.0
+    },
+    "Type": "ScriptComponent",
+    "ScriptComponent": {
+        "Scripts": []
+    },
+    "Guid": "14012215322122859498 1674870299652889",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Sky"
     },
     "Type": "Transform",
     "Transform": {
@@ -20,34 +58,56 @@
         ],
         "rotation": [
             0.0,
-            0.3826834559440613,
             0.0,
-            0.9238795042037964
+            0.0,
+            1.0
         ],
         "parent": {
-            "Guid": "14012215322122859498 1674870299652889"
+            "Guid": "0 0"
         }
     },
-    "Type": "DirectionalLight",
-    "DirectionalLight": {
-        "color": [
-            10.0,
-            10.0,
-            10.0,
-            1.0
-        ]
+    "Type": "Skybox",
+    "Skybox": {
+        "material": {
+            "Guid": "11700521787635595622 1671822723887916"
+        }
     },
-    "Type": "ScriptComponent",
-    "ScriptComponent": {
-        "Scripts": [
-            {
-                "Parent": {
-                    "Guid": "5322420384735241793 1674874937677872"
-                },
-                "TypeNamespace": "RexEngine",
-                "TypeName": "Test"
-            }
-        ]
+    "Guid": "4720617059845446784 1674870364441021",
+    "ComponentCount": 3,
+    "Type": "Tag",
+    "Tag": {
+        "name": "Dino"
+    },
+    "Type": "MeshRenderer",
+    "MeshRenderer": {
+        "material": {
+            "Guid": "13775017754570738698 1673964451412877"
+        },
+        "mesh": {
+            "Guid": "8709575534362884765 1673964344259249"
+        }
+    },
+    "Type": "Transform",
+    "Transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "parent": {
+            "Guid": "0 0"
+        }
     },
     "Guid": "16117924528898737478 1674870434378368",
     "ComponentCount": 4,
@@ -100,88 +160,17 @@
             }
         ]
     },
-    "Guid": "4720617059845446784 1674870364441021",
-    "ComponentCount": 3,
-    "Type": "Tag",
-    "Tag": {
-        "name": "Dino"
-    },
-    "Type": "MeshRenderer",
-    "MeshRenderer": {
-        "material": {
-            "Guid": "13775017754570738698 1673964451412877"
-        },
-        "mesh": {
-            "Guid": "8709575534362884765 1673964344259249"
-        }
-    },
-    "Type": "Transform",
-    "Transform": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Guid": "14012215322122859498 1674870299652889",
-    "ComponentCount": 3,
-    "Type": "Tag",
-    "Tag": {
-        "name": "Sky"
-    },
-    "Type": "Transform",
-    "Transform": {
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "rotation": [
-            0.0,
-            0.0,
-            0.0,
-            1.0
-        ],
-        "parent": {
-            "Guid": "0 0"
-        }
-    },
-    "Type": "Skybox",
-    "Skybox": {
-        "material": {
-            "Guid": "11700521787635595622 1671822723887916"
-        }
-    },
-    "Guid": "18097277385103005146 1674871974739169",
+    "Guid": "5322420384735241793 1674874937677872",
     "ComponentCount": 4,
     "Type": "Tag",
     "Tag": {
-        "name": "Camera"
+        "name": "Sun"
     },
     "Type": "Transform",
     "Transform": {
         "position": [
-            1.0,
-            2.0,
+            0.0,
+            0.0,
             0.0
         ],
         "scale": [
@@ -191,22 +180,33 @@
         ],
         "rotation": [
             0.0,
+            0.3826834559440613,
             0.0,
-            0.0,
-            1.0
+            0.9238795042037964
         ],
         "parent": {
-            "Guid": "0 0"
+            "Guid": "14012215322122859498 1674870299652889"
         }
     },
-    "Type": "Camera",
-    "Camera": {
-        "fov": 90.0,
-        "zNear": 0.10000000149011612,
-        "zFar": 100.0
+    "Type": "DirectionalLight",
+    "DirectionalLight": {
+        "color": [
+            10.0,
+            10.0,
+            10.0,
+            1.0
+        ]
     },
     "Type": "ScriptComponent",
     "ScriptComponent": {
-        "Scripts": []
+        "Scripts": [
+            {
+                "Parent": {
+                    "Guid": "5322420384735241793 1674874937677872"
+                },
+                "TypeNamespace": "RexEngine",
+                "TypeName": "Test"
+            }
+        ]
     }
 }
