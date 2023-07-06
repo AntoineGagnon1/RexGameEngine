@@ -84,7 +84,13 @@ namespace RexEngine
 		{
 			JsonSerializer archive(assetFile);
 			archive(CUSTOM_NAME(m_shader.GetAssetGuid(), "Shader"));
-			archive(CUSTOM_NAME(m_uniforms, "Uniforms"));
+
+			// Sort the uniforms by name
+			std::map<std::string, UniformType> uniforms;
+			for (auto& pair : m_uniforms)
+				uniforms.insert(pair);
+
+			archive(CUSTOM_NAME(uniforms, "Uniforms"));
 		}
 
 	private:

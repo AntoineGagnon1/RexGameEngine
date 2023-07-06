@@ -11,13 +11,6 @@
             }
         },
         {
-            "key": "roughness",
-            "value": {
-                "index": 0,
-                "data": 0.10000000149011612
-            }
-        },
-        {
             "key": "PBRIrradianceMap",
             "value": {
                 "index": 14,
@@ -36,13 +29,6 @@
             }
         },
         {
-            "key": "metallic",
-            "value": {
-                "index": 0,
-                "data": 0.800000011920929
-            }
-        },
-        {
             "key": "albedo",
             "value": {
                 "index": 2,
@@ -58,6 +44,20 @@
             "value": {
                 "index": 0,
                 "data": 0.4000000059604645
+            }
+        },
+        {
+            "key": "metallic",
+            "value": {
+                "index": 0,
+                "data": 0.800000011920929
+            }
+        },
+        {
+            "key": "roughness",
+            "value": {
+                "index": 0,
+                "data": 0.10000000149011612
             }
         }
     ]
