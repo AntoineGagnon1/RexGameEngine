@@ -54,6 +54,7 @@ namespace RexEngine
 			if (m_object == nullptr || m_type == nullptr)
 				return;
 
+			archive(CUSTOM_NAME(m_parent, "Parent"));
 			archive(CUSTOM_NAME(GetClass().Namespace(), "TypeNamespace"));
 			archive(CUSTOM_NAME(GetClass().Name(), "TypeName"));
 			for (auto& field : GetSerializedFields())
@@ -77,6 +78,7 @@ namespace RexEngine
 		template <class Archive>
 		void load(Archive& archive)
 		{
+			archive(CUSTOM_NAME(m_parent, "Parent"));
 			std::string name, namespace_;
 			archive(CUSTOM_NAME(namespace_, "TypeNamespace"));
 			archive(CUSTOM_NAME(name, "TypeName"));
@@ -92,6 +94,7 @@ namespace RexEngine
 			m_type = MonoApi::GetScriptType(class_.value());
 			m_class = class_.value();
 			m_object = Mono::Object::Create(class_.value()).value().GetPtr();
+			UpdateParent();
 			for (auto& field : GetSerializedFields())
 			{
 				try
@@ -144,16 +147,21 @@ namespace RexEngine
 	private:
 		friend class ::RexEngine::ScriptType;
 		friend struct ScriptComponent;
-		static Script Create(std::shared_ptr<ScriptType> type);
+		static Script Create(std::shared_ptr<ScriptType> type, Entity parent);
 
 		friend class ::cereal::access;
 		// Only for serialization
 
-		Script(MonoObject* obj, std::shared_ptr<ScriptType> type)
-			: Mono::Object(obj, type->GetClass()), m_type(type) {}
+		Script(MonoObject* obj, std::shared_ptr<ScriptType> type, Entity parent)
+			: Mono::Object(obj, type->GetClass()), m_type(type), m_parent(parent) 
+		{
+			UpdateParent();
+		}
 
+		void UpdateParent() const;
 	private:
 		std::shared_ptr<ScriptType> m_type;
+		Entity m_parent;
 	};
 
 	struct ScriptComponent
@@ -162,8 +170,11 @@ namespace RexEngine
 		Script AddScript(std::shared_ptr<ScriptType> type);
 		void RemoveScript(const Script& script);
 		// Will remove all the scripts of this type
-		void RemoveScriptType(const Mono::Class& class_);
+		// Returns the number of scripts removed
+		size_t RemoveScriptType(const Mono::Class& class_);
 		const std::vector<Script>& Scripts() const { return m_scripts; }
+
+		std::optional<Script> GetScript(const std::string& typeName) const;
 
 		template <class Archive>
 		void save(Archive& archive) const

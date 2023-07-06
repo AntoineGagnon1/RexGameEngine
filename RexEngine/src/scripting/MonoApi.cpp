@@ -21,7 +21,17 @@ namespace RexEngine
 	void MonoApi::MonoStart()
 	{
 		RegisterLog();
+		RegisterGuid();
+		RegisterScene();
 		s_apiAssembly = Mono::Assembly::Load("mono/CSharpApi.dll");
+
+		// Cache the C# type for each c++ component
+		for (auto& factory : ComponentFactories::GetFactories())
+		{
+			auto class_ = s_apiAssembly->GetClass("RexEngine", factory->GetName());
+			if(class_.has_value())
+				s_componentClasses.insert({factory->GetName(), class_.value()});
+		}
 	}
 
 	void MonoApi::OnUpdate()
@@ -79,6 +89,104 @@ namespace RexEngine
 		Mono::RegisterCall("RexEngine.Log::Warning", LogMessage<Log::LogType::Warning>);
 		Mono::RegisterCall("RexEngine.Log::Error", LogMessage<Log::LogType::Error>);
 		Mono::RegisterCall("RexEngine.Log::Debug", LogMessage<Log::LogType::Debug>);
+	}
+
+	static MonoString* GuidToString(Guid guid)
+	{
+		return Mono::MakeString(guid.ToString());
+	}
+
+	void MonoApi::RegisterGuid()
+	{
+		Mono::RegisterCall("RexEngine.GUID::Generate", Guid::Generate);
+		Mono::RegisterCall("RexEngine.GUID::GuidToString", GuidToString);
+	}
+
+	void MonoApi::RegisterScene()
+	{
+		Mono::RegisterCall("RexEngine.Entity::IsEntityAlive", [](Guid guid) -> bool { return Entity(guid).operator bool(); });
+		Mono::RegisterCall("RexEngine.Entity::GetEntityName", [](Guid guid) -> MonoString* { return Mono::MakeString(Entity(guid).Name()); });
+		Mono::RegisterCall("RexEngine.Entity::EntityGetComponent", [](Guid guid, MonoString* name) -> MonoObject* {
+				const Entity e(guid);
+				const std::string nameStr = Mono::GetString(name);
+			
+				// C# Types
+				if (e.HasComponent<ScriptComponent>())
+				{
+					auto c = e.GetComponent<ScriptComponent>().GetScript(nameStr);
+					if (c.has_value())
+						return c.value().GetPtr();
+				}
+
+				// C++ Types
+				auto factory = ComponentFactories::GetFactory(nameStr);
+				if (factory && factory->HasComponent(e) && s_componentClasses.contains(nameStr))
+				{
+					auto obj = Mono::Object::Create(s_componentClasses.at(nameStr));
+					if(obj.has_value())
+						return obj.value().GetPtr();
+				}
+
+				return nullptr;
+			});
+
+		Mono::RegisterCall("RexEngine.Entity::EntityAddComponent", [](Guid guid, MonoString* name) -> MonoObject* {
+				Entity e(guid);
+				const std::string nameStr = Mono::GetString(name);
+
+				// C++ Types
+				auto factory = ComponentFactories::GetFactory(nameStr);
+				if (factory && s_componentClasses.contains(nameStr))
+				{
+					if (factory->HasComponent(e))
+						return nullptr;
+
+					factory->AddComponent(e);
+					auto obj = Mono::Object::Create(s_componentClasses.at(nameStr));
+					if (obj.has_value())
+						return obj.value().GetPtr();
+				}
+
+				// C# Types
+				if (e.HasComponent<ScriptComponent>())
+				{
+					auto class_ = Mono::Assembly::FindClass("RexEngine", nameStr);
+					if(class_.has_value())
+					{ 
+						auto scriptType = MonoApi::GetScriptType(class_.value());
+						if (scriptType)
+						{
+							return e.GetComponent<ScriptComponent>().AddScript(scriptType).GetPtr();
+						}
+					}
+				}
+
+				return nullptr;
+			});
+
+		Mono::RegisterCall("RexEngine.Entity::EntityRemoveComponent", [](Guid guid, MonoString* name) -> bool {
+				Entity e(guid);
+				const std::string nameStr = Mono::GetString(name);
+
+				// C++ Types
+				auto factory = ComponentFactories::GetFactory(nameStr);
+				if (factory)
+				{
+					return factory->RemoveComponent(e);
+				}
+
+				// C# Types
+				if (e.HasComponent<ScriptComponent>())
+				{
+					auto class_ = Mono::Assembly::FindClass("RexEngine", nameStr);
+					if (class_.has_value())
+					{
+						return e.GetComponent<ScriptComponent>().RemoveScriptType(class_.value()) > 0;
+					}
+				}
+
+				return false;
+			});
 	}
 }
 

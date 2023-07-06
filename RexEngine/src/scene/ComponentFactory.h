@@ -28,6 +28,7 @@ namespace RexEngine
 
 		bool HasComponent(const Entity& e) const { return m_hasComponent(e); }
 		bool RemoveComponent(Entity& e) const { return m_removeComponent(e); }
+		void AddComponent(Entity& e) const { m_addComponent(e); }
 
 		void FromJson(Entity& e, JsonDeserializer& archive) const { m_loadFromJson(e, archive); }
 		void ToJson(const Entity& e, JsonSerializer& archive) const { m_saveToJson(e, archive); }

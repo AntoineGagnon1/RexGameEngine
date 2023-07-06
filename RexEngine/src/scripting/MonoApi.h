@@ -33,9 +33,12 @@ namespace RexEngine
 		});
 	private:
 		static void RegisterLog();
+		static void RegisterGuid();
+		static void RegisterScene();
 
 	private:
 		inline static std::unique_ptr<Mono::Assembly> s_apiAssembly;
 		inline static std::vector<std::shared_ptr<ScriptType>> s_scriptTypes;
+		inline static std::unordered_map<std::string, Mono::Class> s_componentClasses;
 	};
 }

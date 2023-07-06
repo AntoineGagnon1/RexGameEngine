@@ -187,7 +187,7 @@ namespace RexEngine
 				size_t i = 0;
 				(void(params[i++] = getValue(args)), ...);
 
-				return CallMethodInternal(method, params);
+				return CallMethodInternal(method.GetPtr(), params);
 			}
 			std::optional<MonoObject*> CallMethod(const Method& method) const
 			{
@@ -214,9 +214,14 @@ namespace RexEngine
 		static void ReloadAssemblies(bool restoreData);
 
 		// Name must be the full path, like : RexEngine.SomeClass::SomeMethod
-		static void RegisterCall(const std::string& name, const void* function);
+		template<typename T>
+		static void RegisterCall(const std::string& name, T function)
+		{
+			RegisterCallInternal(name, (void*)function);
+		}
 
 		static std::string GetString(MonoString* string);
+		static MonoString* MakeString(const std::string& string);
 
 		template<typename T>
 		static T Unbox(MonoObject* obj)
@@ -227,6 +232,8 @@ namespace RexEngine
 	private:
 		static bool CheckMonoError(MonoError& error);
 		static void* UnboxInternal(MonoObject* obj);
+
+		static void RegisterCallInternal(const std::string& name, const void* function);
 
 		static void Init();
 		static void Stop();

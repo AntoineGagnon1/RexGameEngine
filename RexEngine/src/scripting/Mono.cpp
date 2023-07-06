@@ -148,11 +148,17 @@ namespace RexEngine
 
     std::optional<Mono::Method> Mono::Class::TryGetMethod(const std::string& methodName, int numArgs) const
     {
-        MonoMethod* method = mono_class_get_method_from_name(m_class->ptr, methodName.c_str(), numArgs);
-        if (method == nullptr)
-            return {};
-        else 
-            return Method(method);
+        MonoClass* current = m_class->ptr;
+        do
+        {
+            MonoMethod* method = mono_class_get_method_from_name(current, methodName.c_str(), numArgs);
+            if (method != nullptr)
+                return Method(method);
+
+            current = mono_class_get_parent(current);
+        } while (current != nullptr);
+
+        return {};
     }
 
     std::string Mono::Class::Name() const
@@ -336,7 +342,12 @@ namespace RexEngine
         return result;
     }
 
-    void Mono::RegisterCall(const std::string& name, const void* function)
+    MonoString* Mono::MakeString(const std::string& string)
+    {
+        return mono_string_new_len(s_appDomain, string.c_str(), (int)string.size());
+    }
+
+    void Mono::RegisterCallInternal(const std::string& name, const void* function)
     {
         mono_add_internal_call(name.c_str(), function);
     }

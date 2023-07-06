@@ -38,10 +38,11 @@
     "ScriptComponent": {
         "Scripts": [
             {
+                "Parent": {
+                    "Guid": "18097277385103005146 1674871974739169"
+                },
                 "TypeNamespace": "RexEngine",
-                "TypeName": "Test1",
-                "testInt": 3,
-                "testInt2": 4
+                "TypeName": "Test"
             }
         ]
     },
@@ -157,6 +158,9 @@
     "ScriptComponent": {
         "Scripts": [
             {
+                "Parent": {
+                    "Guid": "16117924528898737478 1674870434378368"
+                },
                 "TypeNamespace": "TestProject",
                 "TypeName": "TestScript",
                 "TestInt": 0,

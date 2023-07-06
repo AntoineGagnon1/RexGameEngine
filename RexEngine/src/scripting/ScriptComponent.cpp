@@ -2,6 +2,7 @@
 #include "ScriptComponent.h"
 
 #include "MonoApi.h"
+#include "../scene/Scene.h"
 
 namespace RexEngine
 {
@@ -33,9 +34,18 @@ namespace RexEngine
 			m_onUpdate = onUpdate.value().GetThunk<MonoObject*>();
 	}
 
-	Script Script::Create(std::shared_ptr<ScriptType> type)
+	Script Script::Create(std::shared_ptr<ScriptType> type, Entity parent)
 	{
-		return Script(Mono::Object::Create(type->GetClass()).value().GetPtr(), type);
+		return Script(Mono::Object::Create(type->GetClass()).value().GetPtr(), type, parent);
+	}
+
+	void Script::UpdateParent() const
+	{
+		if (m_object == nullptr || !m_class.has_value())
+			return;
+		
+		const std::optional<Mono::Method> method = m_class.value().TryGetMethod("SetParent", 1);
+		CallMethod(method.value(), m_parent.GetGuid());
 	}
 
 	std::vector<Mono::Field> Script::GetSerializedFields() const
@@ -55,7 +65,7 @@ namespace RexEngine
 
 	Script ScriptComponent::AddScript(std::shared_ptr<ScriptType> type)
 	{
-		m_scripts.push_back(Script::Create(type));
+		m_scripts.push_back(Script::Create(type, Scene::CurrentScene()->GetComponentOwner(*this)));
 		return m_scripts.back();
 	}
 
@@ -64,8 +74,20 @@ namespace RexEngine
 		m_scripts.erase(std::remove(m_scripts.begin(), m_scripts.end(), script), m_scripts.end());
 	}
 
-	void ScriptComponent::RemoveScriptType(const Mono::Class& class_)
+	size_t ScriptComponent::RemoveScriptType(const Mono::Class& class_)
 	{
+		const auto oldSize = m_scripts.size();
 		m_scripts.erase(std::remove_if(m_scripts.begin(), m_scripts.end(), [&class_](const Script& script) {return script.GetClass() == class_; }), m_scripts.end());
+		return oldSize - m_scripts.size();
+	}
+
+	std::optional<Script> ScriptComponent::GetScript(const std::string& typeName) const
+	{
+		for (auto& s : m_scripts)
+		{
+			if (s.GetClass().Name() == typeName)
+				return s;
+		}
+		return {};
 	}
 }
