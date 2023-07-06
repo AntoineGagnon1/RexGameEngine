@@ -62,4 +62,21 @@ namespace RexEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern private bool EntityRemoveComponent(GUID guid, string typeName);
     }
+
+    public class ScriptComponent
+    {
+        public Entity Parent { get; set; } = null;
+
+
+        // Child classes can have :
+        // void OnUpdate()  // Called every frame
+        // void OnStart()   // Called when the script is created
+        // Void OnDestroy() // Called when the script is destroyed 
+
+        // Will be called from c++
+        private void SetParent(GUID parent)
+        {
+            Parent = new Entity(parent);
+        }
+    }
 }

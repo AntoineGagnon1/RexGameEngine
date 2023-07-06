@@ -1,30 +1,14 @@
-﻿namespace RexEngine
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace RexEngine
 {
-    public class ScriptComponent
-    {
-        public Entity Parent { get; set; } = null;
-
-        
-        // Child classes can have :
-        // void OnUpdate()  // Called every frame
-        // void OnStart()   // Called when the script is created
-        // Void OnDestroy() // Called when the script is destroyed 
-
-        // Will be called from c++
-        private void SetParent(GUID parent)
-        {
-            Parent = new Entity(parent);
-        }
-    }
-
     public class Transform : ScriptComponent
     {
         public int Value = 4;
-    }
-
-    public class Test2 : ScriptComponent
-    {
-        public int Value = 14;
     }
 
     public class Test : ScriptComponent
